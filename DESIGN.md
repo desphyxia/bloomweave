@@ -84,6 +84,21 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
 - Content load: 8 biomes = 56 possible all-different trios. Do all of them
   need a bloom, or only the trios that appear in the valleys we ship?
 
+### Large-scale goals (connecting things)
+- Dorfromantik rewards growing connected groups (forest, fields, houses) and
+  lines (rivers, rails). Blooms are local (one corner), so without something
+  similar the valley may lack large-scale shape and long-term planning.
+  Options:
+  - *None.* Blooms only. Simplest; risk of samey play.
+  - *Biome regions.* Bonuses for large connected same-biome areas. Creates a
+    strong tension (clump for regions vs mix for blooms), but is the closest
+    to Dorfromantik.
+  - *Wildlife corridors (proposed).* Connect **blooms**, not tiles. Two
+    blooms are linked when they share a hex (each hex touches exactly 2 weave
+    points; each weave point touches 3 hexes). Animals settle along chains of
+    linked blooms, and some want specific bloom kinds. The shared hex must fit
+    both trios, which makes chains a planning puzzle.
+
 ### Core loop
 - What makes each placement a real decision?
 
