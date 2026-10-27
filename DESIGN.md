@@ -100,7 +100,8 @@ blooms now while keeping corridor routes and future corners open.
   aside in a single reserve slot; swap the current piece with the next one;
   or see the next 3 pieces for one turn. Leftover seeds count a little
   toward the final score. Valley size is fixed, so seeds improve the valley
-  without making runs longer. Exact seed costs are open.
+  without making runs longer. **Costs (starting values, tune in playtests):**
+  set aside 1, swap 1, look ahead 2.
 - **Progression through discoveries, not score.** New blooms go into the
   journal the first time a trio is made; animals settled by corridors are
   recorded too. Discoveries unlock new valleys, biomes and valley variants
@@ -131,6 +132,13 @@ blooms now while keeping corridor routes and future corners open.
   follows the normal rules but is the valley's heart.
 - **Same-biome trios don't bloom in the prototype.** Only all-different trios
   bloom for now; revisit later.
+- **Scoring: points.** 1 per bloom, a bonus per settled animal, a little per
+  leftover seed (exact values tuned in playtests). Best score kept per valley.
+- **Prototype animals: otters and deer.** Otters want a corridor of 4+ blooms
+  that includes wetland; deer want a long corridor (6+ blooms) passing
+  through forest.
+- **Trails are visual only in the prototype.** The edge-habitat idea stays
+  recorded for later.
 - **Atmosphere.**
   - *Visual style: textile / embroidery.* Pieces are fabric patches (forest =
     soft felt, meadow = linen, wetland = shimmering silk, heath = purple tweed);
@@ -161,14 +169,13 @@ blooms now while keeping corridor routes and future corners open.
   need a bloom, or only the trios that appear in the valleys we ship?
 
 ### Wildlife corridors
-- Should a trail's path matter to the rules? Proposal: no, for now; it's
-  only how the trail is drawn. Possible later twist: animals prefer trails
-  that run between *different* biomes (edge habitat), so the biomes on
-  either side of the trail would matter too.
+- Later twist (recorded): animals prefer trails that run between
+  *different* biomes (edge habitat), so the biomes on either side of a trail
+  would matter too.
 
 ### Scoring and economy
-- How blooms, corridors and discoveries turn into a final score.
-- Seed costs for each action, and whether the reserve slot can grow.
+- Exact point values for animals and leftover seeds.
+- Whether the reserve slot can grow.
 
 ### Biome interactions
 - Which pairs count as good pairs, and what each looks like.
@@ -215,7 +222,7 @@ before it's built. Progression through discoveries replaces score-based unlocks.
 - Piece list from JSON: mostly three-different pieces plus some doubles.
 - Place, rotate and mirror with a preview of which corners would bloom.
 - The 4 named blooms (data-driven); seeds with set aside, swap, look ahead.
-- Corridors drawn along piece borders; 2 resident animals with simple needs.
+- Corridors drawn along piece borders; 2 resident animals: otters and deer.
 - Simple end screen with the score.
 - Simple coloured 3D hexes with orbit camera (textile look later).
 - Rules in their own module with unit tests: hex math, plot lookup, corner
