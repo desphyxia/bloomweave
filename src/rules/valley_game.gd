@@ -124,7 +124,7 @@ func preview(base: Vector2i, arranged: Array) -> Array:
 	var hexes := PlotGrid.plot_hexes(base)
 	for v in PlotGrid.plot_weave_points(base):
 		var trio := []
-		for h in Hex.vertex_hexes(v):
+		for h in Hex.vertex_hexes_clockwise(v):
 			var slot := hexes.find(h)
 			if slot >= 0:
 				trio.append(arranged[slot])
@@ -132,10 +132,15 @@ func preview(base: Vector2i, arranged: Array) -> Array:
 				trio.append(board[h])
 		if trio.size() < 3:
 			continue
-		var bloom := data.bloom_for(trio)
+		var bloom := data.bloom_for(trio, clockwise_blooms())
 		if not bloom.is_empty():
 			out.append({"vertex": v, "bloom": bloom.id})
 	return out
+
+
+## Whether this valley's blooms need their biomes in clockwise order.
+func clockwise_blooms() -> bool:
+	return valley.get("bloom_order", "any") == "clockwise"
 
 
 ## Place the current piece, arranged as `arranged` (slot order), on `base`.

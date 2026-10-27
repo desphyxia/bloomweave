@@ -15,6 +15,16 @@ func test_bloom_lookup_ignores_order() -> void:
 	assert_str(d.bloom_for(["heath", "wetland", "meadow"]).get("id", "")).is_equal("cotton_grass_moor")
 
 
+func test_clockwise_lookup_needs_listed_order() -> void:
+	var d := GameData.load_dir()
+	# Fern Hollow is listed forest -> meadow -> wetland.
+	assert_str(d.bloom_for(["forest", "meadow", "wetland"], true).get("id", "")).is_equal("fern_hollow")
+	assert_str(d.bloom_for(["wetland", "forest", "meadow"], true).get("id", "")).is_equal("fern_hollow")
+	assert_dict(d.bloom_for(["forest", "wetland", "meadow"], true)).is_empty()
+	# Without the rule, any order matches.
+	assert_str(d.bloom_for(["forest", "wetland", "meadow"]).get("id", "")).is_equal("fern_hollow")
+
+
 func test_same_biome_trios_do_not_bloom() -> void:
 	var d := GameData.load_dir()
 	assert_dict(d.bloom_for(["forest", "forest", "meadow"])).is_empty()

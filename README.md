@@ -14,6 +14,8 @@ The web build is published to GitHub Pages on every push to `master`.
 - **Tap a glowing plot** to try the current piece there; tap it again (or
   press **Turn**) to rotate it. **Mirror** flips it.
 - **Place** puts it down. Flowers show where corners will bloom.
+- A corner blooms when its three biomes go **clockwise** in a bloom's recipe
+  order. The Blooms panel shows each recipe as a mini piece, read clockwise.
 - Each bloom gives a seed. Spend seeds to set a piece aside, swap the next
   piece in, or look further ahead.
 - Drag to orbit, scroll or pinch to zoom. Keys: R turn, F mirror,

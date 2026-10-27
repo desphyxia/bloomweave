@@ -50,10 +50,18 @@ static func trio_key(trio: Array) -> String:
 
 ## The bloom a trio of biomes makes, or {} if none. Only trios of three
 ## different biomes bloom (same-biome blooms are out of the prototype).
-func bloom_for(trio: Array) -> Dictionary:
+## With `clockwise`, `trio` must be in clockwise order around the corner and
+## only matches a bloom listed in that same cyclic order; the reverse order
+## makes nothing.
+func bloom_for(trio: Array, clockwise: bool = false) -> Dictionary:
 	if Piece.kind(trio) != Piece.DISTINCT:
 		return {}
-	return blooms.get(trio_key(trio), {})
+	var bloom: Dictionary = blooms.get(trio_key(trio), {})
+	if bloom.is_empty() or not clockwise:
+		return bloom
+	var t: Array = bloom.trio
+	var i := trio.find(t[0])
+	return bloom if trio[(i + 1) % 3] == t[1] else {}
 
 
 func biome_color(id: String) -> Color:

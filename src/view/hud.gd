@@ -15,6 +15,7 @@ var game: ValleyGame
 var _root: Control
 var _info: Label
 var _animals_box: VBoxContainer
+var _blooms_box: VBoxContainer
 var _current: PieceIcon
 var _upcoming_box: HBoxContainer
 var _reserve: PieceIcon
@@ -46,6 +47,9 @@ func setup(p_game: ValleyGame) -> void:
 	_end.visible = false
 	_hint.visible = true
 	_hint.text = "Tap a glowing plot to try the piece there. Tap it again to turn it."
+	if game.clockwise_blooms():
+		_hint.text += "\nBlooms need their biomes in clockwise order (see Blooms)."
+	_build_bloom_guide()
 
 
 ## Update everything from the game state. `arranged` is the current piece as
@@ -101,6 +105,45 @@ func _refresh_animals() -> void:
 				mini(pr.biome_blooms, int(needs.min_biome_blooms)), int(needs.min_biome_blooms), needs.biome]
 		l.tooltip_text = a.description
 		_animals_box.add_child(l)
+
+
+## The valley's blooms, each drawn as a mini piece with its biomes in
+## clockwise order (piece slots run clockwise).
+func _build_bloom_guide() -> void:
+	for c in _blooms_box.get_children():
+		c.queue_free()
+	var title := Label.new()
+	title.text = "Blooms (clockwise)" if game.clockwise_blooms() else "Blooms"
+	title.add_theme_font_size_override("font_size", 17)
+	_blooms_box.add_child(title)
+	var valley_biomes: Array = game.valley.get("biomes", [])
+	for bloom: Dictionary in data.blooms_by_id.values():
+		var fits := true
+		for b: String in bloom.trio:
+			fits = fits and valley_biomes.has(b)
+		if not fits:
+			continue
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 6)
+		var icon := _icon(Vector2(34, 34))
+		icon.biomes = bloom.trio
+		row.add_child(icon)
+		var dot := Panel.new()
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = Color(bloom.get("color", "#ffffff"))
+		sb.border_color = Color(0.2, 0.22, 0.18, 0.7)
+		sb.set_border_width_all(1)
+		sb.set_corner_radius_all(5)
+		dot.add_theme_stylebox_override("panel", sb)
+		dot.custom_minimum_size = Vector2(11, 11)
+		dot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_child(dot)
+		var l := Label.new()
+		l.text = bloom.name
+		l.add_theme_font_size_override("font_size", 15)
+		row.add_child(l)
+		_blooms_box.add_child(row)
 
 
 func toast(text: String) -> void:
@@ -163,6 +206,13 @@ func _build_top() -> void:
 	_animals_box = VBoxContainer.new()
 	animals_panel.add_child(_animals_box)
 	top.add_child(animals_panel)
+
+	var blooms_panel := _panel()
+	blooms_panel.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	_blooms_box = VBoxContainer.new()
+	_blooms_box.add_theme_constant_override("separation", 2)
+	blooms_panel.add_child(_blooms_box)
+	top.add_child(blooms_panel)
 
 	_hint = Label.new()
 	_hint.set_anchors_preset(Control.PRESET_CENTER_TOP)

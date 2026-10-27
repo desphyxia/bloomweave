@@ -70,11 +70,22 @@ blooms now while keeping corridor routes and future corners open.
     when it fills the last gap. This pulls the player toward a compact valley.
   - While a piece is being placed, the game can preview which corners would
     bloom with each orientation.
-- **Pieces can repeat biomes, and that is the main difficulty setting.**
-  Three different biomes = 6 distinct placements; two the same + one
-  different = 3; all three the same = 1. Early valleys mostly use
-  three-different pieces; later valleys use more doubles; all-same pieces are
-  rare. Each valley's data file sets the proportions of each piece type.
+- **Pieces can repeat biomes, for variety.** Three different biomes = 6
+  distinct placements; two the same + one different = 3; all three the same
+  = 1. Each valley's data file sets the proportions of each piece type.
+  (Originally meant as the main difficulty setting, but the balance sim
+  showed more doubles make blooms slightly *easier*, so it isn't.)
+- **Difficulty comes from each valley's bloom rules:** whether order
+  matters, which trios bloom, and (later) a 5th biome. Doubles stay for
+  variety; animal needs add on top.
+- **Clockwise blooms (first valley on).** A bloom needs its three biomes in
+  the order listed in its recipe, going clockwise around the corner (any
+  starting point); the reverse order makes nothing. This halves the matching
+  orders and makes Mirror a real choice. Set per valley with
+  `"bloom_order": "clockwise"`. The HUD shows each bloom's recipe as a mini
+  piece drawn clockwise.
+- **Bloom preview stays:** the ghost piece shows flowers where corners would
+  bloom.
 - **Wildlife corridors are the large-scale goal** (instead of Dorfromantik's
   biome regions or rivers). They connect **blooms**, not tiles.
   - Two blooms are linked when they share a hex. A corridor is a chain of
@@ -265,9 +276,13 @@ before it's built. Progression through discoveries replaces score-based unlocks.
   the current piece; the current one becomes next. If the pile runs out, the
   reserved piece is played automatically.
 - **Balance check** (200 runs, greedy player that maximises blooms each turn,
-  never spends seeds): about 16 of 24 possible corners bloom; otters settle
-  in about 91% of runs, deer in about 73%; about 19 seeds are left over.
-  Seeds are plentiful and the first valley is easy, which suits a first
-  valley but should be tuned in playtests.
+  never spends seeds), with clockwise blooms: about 12.5 of 24 possible
+  corners bloom (was 16 without the order rule); a bloom is possible on about
+  65% of turns (was 83%); otters settle in about 70% of runs, deer in about
+  44%; about 15 seeds are left over.
+- **Options compared for "blooms are too easy"** (bloom possible / blooms):
+  as before 83% / 16; more doubles 84% / 16; only 2 of 4 trios 68% / 13;
+  clockwise order 65% / 12; 5th biome in no trio 55% / 10; 5th biome in
+  some trios 80–84% / 15–16.
 - **Valley size:** 19 plots (plot radius 2): the landmark plus 18 pieces
   (14 with three different biomes, 4 doubles).

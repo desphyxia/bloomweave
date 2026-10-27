@@ -110,6 +110,16 @@ static func hex_vertices(h: Vector2i) -> Array[Vector3i]:
 	return out
 
 
+## The three hexes around a vertex in clockwise order as seen on screen
+## (2D world y grows downward), starting from the smallest angle.
+static func vertex_hexes_clockwise(v: Vector3i) -> Array[Vector2i]:
+	var hs := vertex_hexes(v)
+	var c := vertex_world(v)
+	hs.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+		return (to_world(a) - c).angle() < (to_world(b) - c).angle())
+	return hs
+
+
 ## Which corner (0..5) of hex `h` vertex `v` is, or -1 if not on `h`.
 static func corner_index(h: Vector2i, v: Vector3i) -> int:
 	for i in 6:

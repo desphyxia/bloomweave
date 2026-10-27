@@ -197,6 +197,27 @@ func test_score_breakdown() -> void:
 	assert_int(s.total).is_equal(14)
 
 
+func test_first_valley_uses_clockwise_blooms() -> void:
+	assert_bool(_game().clockwise_blooms()).is_true()
+
+
+func test_mirrored_corner_does_not_bloom_with_clockwise_rule() -> void:
+	# Find a placement that blooms, then check the corner's reverse order
+	# would not have bloomed.
+	var g := _game(3)
+	for _turn in 10:
+		for p in g.legal_plots():
+			for a in Piece.distinct_arrangements(g.current_piece()):
+				for b: Dictionary in g.preview(p, a):
+					var bloom: Dictionary = data.blooms_by_id[b.bloom]
+					var t: Array = bloom.trio
+					assert_dict(data.bloom_for([t[0], t[2], t[1]], true)).is_empty()
+					assert_str(data.bloom_for([t[1], t[2], t[0]], true).get("id", "")).is_equal(bloom.id)
+					return
+		g.place(g.legal_plots()[0], g.current_piece())
+	fail("no blooming placement found")
+
+
 func test_full_games_keep_rules_consistent() -> void:
 	for rng_seed in range(12):
 		var g := _game(100 + rng_seed)
@@ -247,13 +268,13 @@ func _assert_blooms_consistent(g: ValleyGame) -> void:
 				continue
 			checked[v] = true
 			var trio := []
-			for h in Hex.vertex_hexes(v):
+			for h in Hex.vertex_hexes_clockwise(v):
 				if g.board.has(h):
 					trio.append(g.board[h])
 			if trio.size() < 3:
 				assert_bool(g.blooms.has(v)).is_false()
 				continue
-			var bloom := data.bloom_for(trio)
+			var bloom := data.bloom_for(trio, g.clockwise_blooms())
 			if bloom.is_empty():
 				assert_bool(g.blooms.has(v)).is_false()
 			else:

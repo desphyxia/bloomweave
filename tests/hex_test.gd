@@ -53,6 +53,28 @@ func test_every_corner_has_one_key_seen_from_each_hex() -> void:
 		assert_int(unique.size()).is_equal(6)
 
 
+func test_vertex_hexes_clockwise_goes_round_in_angle_order() -> void:
+	for h in _sample_hexes():
+		for kind in [Hex.UP, Hex.DOWN]:
+			var v := Vector3i(h.x, h.y, kind)
+			var cw := Hex.vertex_hexes_clockwise(v)
+			var c := Hex.vertex_world(v)
+			assert_int(cw.size()).is_equal(3)
+			for x in Hex.vertex_hexes(v):
+				assert_bool(cw.has(x)).is_true()
+			var a0 := (Hex.to_world(cw[0]) - c).angle()
+			var a1 := (Hex.to_world(cw[1]) - c).angle()
+			var a2 := (Hex.to_world(cw[2]) - c).angle()
+			assert_bool(a0 < a1 and a1 < a2).is_true()
+
+
+func test_piece_slots_run_clockwise() -> void:
+	# The HUD draws pieces and bloom recipes in slot order, so slot order must
+	# be clockwise around the plot's confluence.
+	var hs := PlotGrid.plot_hexes(Vector2i.ZERO)
+	assert_array(Hex.vertex_hexes_clockwise(PlotGrid.confluence(Vector2i.ZERO))).is_equal(hs)
+
+
 func test_corner_vertex_position_matches_corner_offset() -> void:
 	for h in _sample_hexes():
 		for i in 6:
