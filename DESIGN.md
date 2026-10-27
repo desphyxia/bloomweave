@@ -100,6 +100,13 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
   ~5–8 min). Later valleys grow to 30–45 plots (~10–20 min). Larger games
   are also wanted: big valleys (60+ plots) as an option, and the open mode
   later. Every valley can be paused and resumed at any time.
+- **Animals: residents plus a hidden visitor.** Each valley shows its 2–4
+  resident animals and their needs before the first piece (e.g. "Otters: a
+  5-bloom corridor touching wetland"). One hidden visitor also settles if a
+  secret pattern gets built, which feeds the journal and replays. All animal
+  goals are optional; missing one only means that animal doesn't move in
+  this time. (Rejected: pop-up requests during a run, too close to
+  Dorfromantik's quests.)
 - Tech (for later): three.js + TypeScript + Vite. Hex math, rules/scoring and
   rendering in separate modules; rules testable without a browser. Biomes,
   influence tables, bloom trios and pile composition are data (JSON).
@@ -139,7 +146,9 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
 - Which pairs count as good pairs, and what each looks like.
 
 ### Requests / goals
-- Optional goals: form, frequency, rewards.
+- What each animal asks for (corridor length, bloom kinds, biomes touched)
+  and what settling it gives (score, seeds, journal entry).
+- How hidden visitors are hinted at, if at all.
 
 ### Difficulty and run length
 - How large games are offered: big valleys unlocked by discoveries, a
