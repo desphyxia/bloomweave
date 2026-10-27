@@ -22,3 +22,12 @@ questions".
 - Biomes, bloom trios, influence pairs, valleys and pile composition are data
   (JSON), not hardcoded.
 - Axial hex coordinates; any vertex returns its three surrounding hexes.
+
+## Commands
+
+- Tests: `GODOT_BIN=/path/to/godot scripts/run_tests.sh`
+- Balance sim: `godot --headless --path . -s res://tools/simulate.gd`
+- Screenshot (needs a display, e.g. `xvfb-run`):
+  `godot --path . --rendering-driver opengl3 --resolution 1280x800 -s res://tools/screenshot.gd -- out.png 10`
+- Web export: `godot --headless --path . --export-release "Web" build/web/index.html`
+  (templates: `scripts/fetch_web_templates.py 4.7.2`)

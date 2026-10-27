@@ -237,7 +237,7 @@ replaces Dorfromantik's economy loop (finite stack, earn more tiles by placing
 well). An open mode would bring that loop back, so it needs its own twist
 before it's built. Progression through discoveries replaces score-based unlocks.
 
-## Prototype scope (agreed, not started)
+## Prototype scope (built)
 
 - One valley: about 20 plots in a round-ish outline around the landmark,
   first-valley biomes (forest, meadow, wetland, heath).
@@ -252,3 +252,22 @@ before it's built. Progression through discoveries replaces score-based unlocks.
   lookup, bloom checks, corridor finding.
 - Later: journal and unlocks, hidden visitor, sound, textile shaders,
   influence visuals, open mode.
+
+### Prototype notes
+
+- **Corridor size** counts every bloom in a linked group, so branches count
+  too. Each link is drawn as a trail along piece borders.
+- **Animal needs (first valley):** otters want 5+ linked blooms with 4+
+  touching wetland; deer want 8+ with 6+ touching forest. Settling gives
+  points (10 / 15) and 2 seeds.
+- **Scoring:** 2 per bloom, animal points, 1 per leftover seed.
+- **Seed actions:** "Use set-aside" (free) brings the reserved piece back as
+  the current piece; the current one becomes next. If the pile runs out, the
+  reserved piece is played automatically.
+- **Balance check** (200 runs, greedy player that maximises blooms each turn,
+  never spends seeds): about 16 of 24 possible corners bloom; otters settle
+  in about 91% of runs, deer in about 73%; about 19 seeds are left over.
+  Seeds are plentiful and the first valley is easy, which suits a first
+  valley but should be tuned in playtests.
+- **Valley size:** 19 plots (plot radius 2): the landmark plus 18 pieces
+  (14 with three different biomes, 4 doubles).
