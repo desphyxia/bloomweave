@@ -78,6 +78,12 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
   not how long you lasted. Blooms earn *choice*, not extra pieces. An
   **open mode** (map grows until the pile runs out) may come later as a
   second mode.
+- **Seeds are the bloom currency.** Each bloom gives 1 seed. You always see
+  the current piece and the next one. Spend seeds to: set the current piece
+  aside in a single reserve slot; swap the current piece with the next one;
+  or see the next 3 pieces for one turn. Leftover seeds count a little
+  toward the final score. Valley size is fixed, so seeds improve the valley
+  without making runs longer. Exact seed costs are open.
 - Tech (for later): three.js + TypeScript + Vite. Hex math, rules/scoring and
   rendering in separate modules; rules testable without a browser. Biomes,
   influence tables, bloom trios and pile composition are data (JSON).
@@ -115,8 +121,8 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
 - What makes each placement a real decision?
 
 ### Scoring and economy
-- How blooms score; how bonus pieces are earned; how to keep a run's length
-  from snowballing.
+- How blooms, corridors and discoveries turn into a final score.
+- Seed costs for each action, and whether the reserve slot can grow.
 
 ### Biome interactions
 - What "influence" does mechanically, and whether it overlaps with blooms.
