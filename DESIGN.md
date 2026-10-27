@@ -39,7 +39,9 @@ blooms now while keeping corridor routes and future corners open.
   takes part in new trios and new blooms. Reason: 4–5 biomes keep a run
   readable (4 biomes = 4 all-different trios, 5 = 10; 6 would be 20, too many
   to plan around), while the larger collection gives variety between runs.
-  - First valley: forest, meadow, wetland, rock (from the original draft).
+  - First valley: forest, meadow, wetland, **heath** (purple heather and
+    gorse). Heath replaced rock from the original draft, which felt boring;
+    rock may return later in a livelier form (e.g. mossy stone).
 - **Fixed plot grid (no holes).** The grid is pre-split into trefoil-shaped
   plots, and every piece fills exactly one whole plot, so holes can't happen.
   - Hex `(q,r)` belongs to the plot whose base `(q0,r0)` has
@@ -106,7 +108,7 @@ blooms now while keeping corridor routes and future corners open.
   reveals a hidden variant). Score stays as a personal best per valley.
 - **Influence is visual only (for now).** Where two pieces meet at a seam,
   good biome pairs show small signs of life (taller trees by wetland,
-  flowers spreading on meadow beside rock). No effect on rules or score.
+  heather creeping into meadow beside heath). No effect on rules or score.
   Pairs are defined in a data table so they can gain rules later.
   - *Recorded for later:* influence as a full mechanic, where pairs change
     hexes (e.g. forest next to wetland becomes "lush forest", which can make
@@ -124,12 +126,14 @@ blooms now while keeping corridor routes and future corners open.
   Dorfromantik's quests.)
 - **Placement and start.** Each piece must touch a piece already placed, so
   the valley grows outward like restoration spreading. Every valley starts
-  from one fixed centre piece of the same kind.
+  from a fixed **landmark piece** in its centre: three different biomes from
+  that valley, with a landmark at its confluence (an old tree, a spring). It
+  follows the normal rules but is the valley's heart.
 - **Same-biome trios don't bloom in the prototype.** Only all-different trios
   bloom for now; revisit later.
 - **Atmosphere.**
   - *Visual style: textile / embroidery.* Pieces are fabric patches (forest =
-    soft felt, meadow = linen, wetland = shimmering silk, rock = coarse wool);
+    soft felt, meadow = linen, wetland = shimmering silk, heath = purple tweed);
     piece borders are stitched seams; corridors are embroidered thread along
     those seams; blooms are embroidered flowers; animals are small woven
     figures. The valley reads as a quilt coming to life.
@@ -147,13 +151,12 @@ blooms now while keeping corridor routes and future corners open.
 ### Geometry and placement
 - Valley outlines: shape, and whether outlines include obstacles such as a
   lake or cliff.
-- What the centre piece is (its biomes and look).
+- Which landmark each valley has.
 
 ### Biomes and valleys
 - Are valleys hand-made (a curated list of biome mixes) or generated (a
   random mix each run)?
 - Same-biome blooms (e.g. three forests = "deep wood") after the prototype?
-- Rock feels boring: replace it in the first valley?
 - Content load: 8 biomes = 56 possible all-different trios. Do all of them
   need a bloom, or only the trios that appear in the valleys we ship?
 
