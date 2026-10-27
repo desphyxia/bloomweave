@@ -19,14 +19,29 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
 - Biomes belong to whole hexes, not edges (a deliberate difference from
   Dorfromantik's edge matching).
 - Starting biomes: forest, meadow, wetland, rock.
+- **Fixed plot grid (no holes).** The grid is pre-split into trefoil-shaped
+  plots, and every piece fills exactly one whole plot, so holes can't happen.
+  - Hex `(q,r)` belongs to the plot whose base `(q0,r0)` has
+    `q0 ≡ r0 (mod 3)`; the plot is base + offsets `(0,0)`, `(1,0)`, `(0,1)`.
+    With `c = (q − r) mod 3`, the base is `(q,r)` minus offset `c`.
+  - Each plot borders 6 other plots, so the plots form a hex-like grid of
+    their own.
+  - Placement = choose an empty plot next to the map + one of 6 biome
+    arrangements (3 rotations × mirror). Mirroring is across the piece's own
+    symmetry axis, so the shape never changes.
+  - Three kinds of vertex. Each plot touches 1 **confluence** (inside the
+    piece), 6 **seams** (two plots: 2 hexes from one, 1 from the other) and
+    6 **weave points** (three different plots).
+  - Rejected: more 3-hex shapes (still leave holes), single-hex fillers and
+    gaps that heal by themselves (soften holes but don't prevent them).
 - Tech (for later): three.js + TypeScript + Vite. Hex math, rules/scoring and
   rendering in separate modules; rules testable without a browser. Biomes,
   influence tables, bloom trios and pile composition are data (JSON).
 
 ## Draft rules (not yet confirmed)
 
-- Draw the next trefoil from a finite pile; rotate in 120° steps; may mirror;
-  place it touching the existing map.
+- Draw the next trefoil from a finite pile and place it in an empty plot
+  next to the map.
 - Adjacent biomes spread influence (e.g. wetland feeds forest, rock shelters
   meadow).
 - A vertex blooms when its three hexes form a complementary trio
@@ -36,28 +51,11 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
 ## Open questions
 
 ### Geometry and placement
-- A trefoil's own confluence is fixed when it's drawn. Should it be able to
-  bloom, or do only vertices formed *between* pieces count?
-- 120° rotation alone keeps the piece's triangle pointing one way. Does
-  mirroring flip it, so the piece can sit on either vertex type?
-- **Goal: no holes.** Freeform placement leaves 1–2 hex gaps no trefoil can
-  fill. Options considered:
-  - *More 3-hex shapes (line, bend, triangle — "Tetris"-style).* Adds variety
-    but does **not** fix holes: any piece bigger than one hex can still leave
-    a 1-hex gap. Also raises orientations from 3 to 6 per shape.
-  - *Fixed plot grid (proposed).* The grid is pre-split into trefoil-shaped
-    plots, and every piece fills exactly one plot, so holes are impossible.
-    Fits the 120° + mirror rule exactly: mirroring across the piece's own
-    symmetry axis keeps its shape and only swaps two biomes, so 3 rotations ×
-    mirror = all 6 biome arrangements. Math: hex `(q,r)` belongs to the plot
-    whose base `(q0,r0)` has `q0 ≡ r0 (mod 3)`; the offsets `(0,0)`, `(1,0)`,
-    `(0,1)` make up the plot. Vertices then come in three kinds: confluences
-    (inside one piece), seams (two pieces) and **weave points** (three
-    different pieces).
-  - *Fillers.* Single-hex bonus pieces, or enclosed gaps that heal by
-    themselves into a feature (spring, pond). Softens holes but doesn't
-    prevent them.
+- Which vertex kinds can bloom? Proposal: blooms only at weave points;
+  seams carry pairwise influence; the confluence is the piece's fixed
+  identity and never blooms by itself.
 - Can a trefoil repeat a biome (e.g. forest, forest, meadow)?
+- Shape of the valley: unbounded, or a fixed valley outline made of plots?
 
 ### Core loop
 - What makes each placement a real decision?
