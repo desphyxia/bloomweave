@@ -158,13 +158,15 @@ func test_blooms_sharing_a_hex_form_one_corridor() -> void:
 
 func test_animals_settle_when_needs_are_met() -> void:
 	var g := _game()
-	var chain := _chain(Vector3i(2, -1, Hex.DOWN), 6)
-	for i in 4:
+	var otter: Dictionary = data.animals.otter.needs
+	var deer: Dictionary = data.animals.deer.needs
+	var chain := _chain(Vector3i(2, -1, Hex.DOWN), int(deer.min_blooms))
+	for i in int(otter.min_blooms):
 		g.blooms[chain[i]] = "fern_hollow"  # forest + meadow + wetland
 	var settled := g.check_animals()
 	assert_array(settled).is_equal(["otter"])
 	assert_int(g.seeds).is_equal(2)
-	for i in range(4, 6):
+	for i in range(int(otter.min_blooms), chain.size()):
 		g.blooms[chain[i]] = "foxglove_glade"  # forest + meadow + heath
 	settled = g.check_animals()
 	assert_array(settled).is_equal(["deer"])
@@ -174,11 +176,12 @@ func test_animals_settle_when_needs_are_met() -> void:
 
 func test_deer_need_enough_forest_blooms() -> void:
 	var g := _game()
-	var chain := _chain(Vector3i(2, -1, Hex.DOWN), 6)
+	var n := int(data.animals.deer.needs.min_blooms)
+	var chain := _chain(Vector3i(2, -1, Hex.DOWN), n)
 	for v in chain:
 		g.blooms[v] = "cotton_grass_moor"  # no forest
 	assert_bool(g.check_animals().has("deer")).is_false()
-	assert_int(g.animal_progress("deer").blooms).is_equal(6)
+	assert_int(g.animal_progress("deer").blooms).is_equal(n)
 	assert_int(g.animal_progress("deer").biome_blooms).is_equal(0)
 
 

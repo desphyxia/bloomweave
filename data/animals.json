@@ -3,16 +3,16 @@
     {
       "id": "otter",
       "name": "Otters",
-      "description": "A corridor of 4+ blooms, with 3+ of them touching wetland.",
-      "needs": { "min_blooms": 4, "biome": "wetland", "min_biome_blooms": 3 },
+      "description": "A corridor of 5+ blooms, with 4+ of them touching wetland.",
+      "needs": { "min_blooms": 5, "biome": "wetland", "min_biome_blooms": 4 },
       "points": 10,
       "seeds": 2
     },
     {
       "id": "deer",
       "name": "Deer",
-      "description": "A long corridor of 6+ blooms, with 4+ of them touching forest.",
-      "needs": { "min_blooms": 6, "biome": "forest", "min_biome_blooms": 4 },
+      "description": "A long corridor of 8+ blooms, with 6+ of them touching forest.",
+      "needs": { "min_blooms": 8, "biome": "forest", "min_biome_blooms": 6 },
       "points": 15,
       "seeds": 2
     }
