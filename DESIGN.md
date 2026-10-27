@@ -84,6 +84,11 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
   or see the next 3 pieces for one turn. Leftover seeds count a little
   toward the final score. Valley size is fixed, so seeds improve the valley
   without making runs longer. Exact seed costs are open.
+- **Progression through discoveries, not score.** New blooms go into the
+  journal the first time a trio is made; animals settled by corridors are
+  recorded too. Discoveries unlock new valleys, biomes and valley variants
+  (e.g. settling otters opens a river valley; finding every bloom in a valley
+  reveals a hidden variant). Score stays as a personal best per valley.
 - Tech (for later): three.js + TypeScript + Vite. Hex math, rules/scoring and
   rendering in separate modules; rules testable without a browser. Biomes,
   influence tables, bloom trios and pile composition are data (JSON).
@@ -94,7 +99,6 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
   next to the map.
 - Adjacent biomes spread influence (e.g. wetland feeds forest, rock shelters
   meadow).
-- Score unlocks new biomes over time.
 
 ## Open questions
 
@@ -134,7 +138,7 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
 - Target session length; how pile size and difficulty scale.
 
 ### Progression and unlocks
-- What score unlocks, and whether unlocks add depth or just variety.
+- The unlock map: which discoveries open which valleys, biomes and variants.
 
 ### Atmosphere
 - Visual style, sound, pacing.
@@ -147,7 +151,7 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
 | Matching | Edges match edges | Trios meet at vertices | Distinct |
 | Run end | Stack runs out | Valley mode: valley is full. Open mode (later): pile runs out | Distinct (Valley); **Close** (Open) |
 | Extending the run | Perfect placements and quests add tiles | Valley mode: blooms earn choice, not pieces | Distinct (Valley) |
-| Meta | Score unlocks tiles and biomes | Score unlocks biomes | **Close** |
+| Meta | Score unlocks tiles and biomes | Discoveries (blooms, animals) unlock valleys and biomes | Distinct |
 | Terrain set | One fixed set of terrain types in every run | Different biome mix per valley | Distinct |
 | Board | Freeform single hexes | Fixed grid of trefoil plots | Distinct |
 | Mood | Cozy, pastoral | Cozy, restoration | Close (genre-typical) |
@@ -155,4 +159,4 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
 Pieces, matching, board and terrain sets are clearly different. Valley mode
 replaces Dorfromantik's economy loop (finite stack, earn more tiles by placing
 well). An open mode would bring that loop back, so it needs its own twist
-before it's built. Unlocks are still close.
+before it's built. Progression through discoveries replaces score-based unlocks.
