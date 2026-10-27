@@ -71,6 +71,13 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
     (weave point → seam → weave point) running along piece outlines.
   - Rejected: biome regions (too close to Dorfromantik), no large-scale goal
     (risk of samey play).
+- **Game modes.** Start with **Valley mode**: each valley has a fixed outline
+  made of plots, and you get exactly enough pieces to fill it. The run ends
+  when the valley is fully restored; every run in a valley has the same
+  length, and the score measures quality (blooms, corridors, discoveries),
+  not how long you lasted. Blooms earn *choice*, not extra pieces. An
+  **open mode** (map grows until the pile runs out) may come later as a
+  second mode.
 - Tech (for later): three.js + TypeScript + Vite. Hex math, rules/scoring and
   rendering in separate modules; rules testable without a browser. Biomes,
   influence tables, bloom trios and pile composition are data (JSON).
@@ -81,14 +88,15 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
   next to the map.
 - Adjacent biomes spread influence (e.g. wetland feeds forest, rock shelters
   meadow).
-- Run ends when the pile is empty; score unlocks new biomes over time.
+- Score unlocks new biomes over time.
 
 ## Open questions
 
 ### Geometry and placement
 - Seams carry pairwise influence and the confluence never blooms by itself
   (proposal; details under Biome interactions).
-- Shape of the valley: unbounded, or a fixed valley outline made of plots?
+- Valley outlines: size (around 30 plots?), shape, and whether outlines
+  include obstacles such as a lake or cliff.
 
 ### Biomes and valleys
 - Are valleys hand-made (a curated list of biome mixes) or generated (a
@@ -131,13 +139,14 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
 |---|---|---|---|
 | Tile | Single hex, 6 edge segments | Trefoil of 3 whole-hex biomes | Distinct |
 | Matching | Edges match edges | Trios meet at vertices | Distinct |
-| Run end | Stack runs out | Pile runs out | **Close** |
-| Extending the run | Perfect placements and quests add tiles | Blooms add bonus pieces | **Close** |
+| Run end | Stack runs out | Valley mode: valley is full. Open mode (later): pile runs out | Distinct (Valley); **Close** (Open) |
+| Extending the run | Perfect placements and quests add tiles | Valley mode: blooms earn choice, not pieces | Distinct (Valley) |
 | Meta | Score unlocks tiles and biomes | Score unlocks biomes | **Close** |
 | Terrain set | One fixed set of terrain types in every run | Different biome mix per valley | Distinct |
 | Board | Freeform single hexes | Fixed grid of trefoil plots | Distinct |
 | Mood | Cozy, pastoral | Cozy, restoration | Close (genre-typical) |
 
-The pieces and matching rules are clearly different. The **economy loop**
-(finite stack, earn more pieces by placing well, score unlocks content) is
-currently Dorfromantik's loop almost exactly. To revisit.
+Pieces, matching, board and terrain sets are clearly different. Valley mode
+replaces Dorfromantik's economy loop (finite stack, earn more tiles by placing
+well). An open mode would bring that loop back, so it needs its own twist
+before it's built. Unlocks are still close.
