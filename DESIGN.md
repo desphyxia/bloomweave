@@ -93,10 +93,12 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
   - *Biome regions.* Bonuses for large connected same-biome areas. Creates a
     strong tension (clump for regions vs mix for blooms), but is the closest
     to Dorfromantik.
-  - *Wildlife corridors (proposed).* Connect **blooms**, not tiles. Two
-    blooms are linked when they share a hex (each hex touches exactly 2 weave
-    points; each weave point touches 3 hexes). Animals settle along chains of
-    linked blooms, and some want specific bloom kinds. The shared hex must fit
+  - *Wildlife corridors (proposed).* Connect **blooms**, not tiles. A
+    corridor is a chain of linked blooms of any length. Two blooms are linked
+    when they share a hex (each hex touches exactly 2 weave points, so one
+    link joins two blooms). Each bloom has 3 hexes, so it can link to up to
+    3 others, and corridors can branch and loop into networks. Animals settle
+    along corridors, and some want a certain length or certain bloom kinds. The shared hex must fit
     both trios, which makes chains a planning puzzle.
 
 ### Core loop
