@@ -40,8 +40,23 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
   bloom, or do only vertices formed *between* pieces count?
 - 120° rotation alone keeps the piece's triangle pointing one way. Does
   mirroring flip it, so the piece can sit on either vertex type?
-- Placements will leave 1- and 2-hex gaps that no trefoil can fill. Are gaps
-  a problem to solve, or a feature?
+- **Goal: no holes.** Freeform placement leaves 1–2 hex gaps no trefoil can
+  fill. Options considered:
+  - *More 3-hex shapes (line, bend, triangle — "Tetris"-style).* Adds variety
+    but does **not** fix holes: any piece bigger than one hex can still leave
+    a 1-hex gap. Also raises orientations from 3 to 6 per shape.
+  - *Fixed plot grid (proposed).* The grid is pre-split into trefoil-shaped
+    plots, and every piece fills exactly one plot, so holes are impossible.
+    Fits the 120° + mirror rule exactly: mirroring across the piece's own
+    symmetry axis keeps its shape and only swaps two biomes, so 3 rotations ×
+    mirror = all 6 biome arrangements. Math: hex `(q,r)` belongs to the plot
+    whose base `(q0,r0)` has `q0 ≡ r0 (mod 3)`; the offsets `(0,0)`, `(1,0)`,
+    `(0,1)` make up the plot. Vertices then come in three kinds: confluences
+    (inside one piece), seams (two pieces) and **weave points** (three
+    different pieces).
+  - *Fillers.* Single-hex bonus pieces, or enclosed gaps that heal by
+    themselves into a feature (spring, pond). Softens holes but doesn't
+    prevent them.
 - Can a trefoil repeat a biome (e.g. forest, forest, meadow)?
 
 ### Core loop
