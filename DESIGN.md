@@ -53,6 +53,11 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
     when it fills the last gap. This pulls the player toward a compact valley.
   - While a piece is being placed, the game can preview which corners would
     bloom with each orientation.
+- **Pieces can repeat biomes, and that is the main difficulty setting.**
+  Three different biomes = 6 distinct placements; two the same + one
+  different = 3; all three the same = 1. Early valleys mostly use
+  three-different pieces; later valleys use more doubles; all-same pieces are
+  rare. Each valley's data file sets the proportions of each piece type.
 - Tech (for later): three.js + TypeScript + Vite. Hex math, rules/scoring and
   rendering in separate modules; rules testable without a browser. Biomes,
   influence tables, bloom trios and pile composition are data (JSON).
@@ -70,7 +75,6 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
 ### Geometry and placement
 - Seams carry pairwise influence and the confluence never blooms by itself
   (proposal; details under Biome interactions).
-- Can a trefoil repeat a biome (e.g. forest, forest, meadow)?
 - Shape of the valley: unbounded, or a fixed valley outline made of plots?
 
 ### Biomes and valleys
