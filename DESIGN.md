@@ -96,6 +96,10 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
   - *Recorded for later:* influence as a full mechanic, where pairs change
     hexes (e.g. forest next to wetland becomes "lush forest", which can make
     special blooms). Revisit if playtests show the game lacks depth.
+- **Run length grows with progress.** First valleys are small (~20 plots,
+  ~5–8 min). Later valleys grow to 30–45 plots (~10–20 min). Larger games
+  are also wanted: big valleys (60+ plots) as an option, and the open mode
+  later. Every valley can be paused and resumed at any time.
 - Tech (for later): three.js + TypeScript + Vite. Hex math, rules/scoring and
   rendering in separate modules; rules testable without a browser. Biomes,
   influence tables, bloom trios and pile composition are data (JSON).
@@ -138,7 +142,9 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
 - Optional goals: form, frequency, rewards.
 
 ### Difficulty and run length
-- Target session length; how pile size and difficulty scale.
+- How large games are offered: big valleys unlocked by discoveries, a
+  size option per valley, or both.
+- Difficulty curve across valleys (piece mix, valley shape, animal needs).
 
 ### Progression and unlocks
 - The unlock map: which discoveries open which valleys, biomes and variants.
