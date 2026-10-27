@@ -122,6 +122,11 @@ blooms now while keeping corridor routes and future corners open.
   goals are optional; missing one only means that animal doesn't move in
   this time. (Rejected: pop-up requests during a run, too close to
   Dorfromantik's quests.)
+- **Placement and start.** Each piece must touch a piece already placed, so
+  the valley grows outward like restoration spreading. Every valley starts
+  from one fixed centre piece of the same kind.
+- **Same-biome trios don't bloom in the prototype.** Only all-different trios
+  bloom for now; revisit later.
 - **Atmosphere.**
   - *Visual style: textile / embroidery.* Pieces are fabric patches (forest =
     soft felt, meadow = linen, wetland = shimmering silk, rock = coarse wool);
@@ -142,13 +147,13 @@ blooms now while keeping corridor routes and future corners open.
 ### Geometry and placement
 - Valley outlines: shape, and whether outlines include obstacles such as a
   lake or cliff.
-- Must each piece touch already-placed pieces, or may it go anywhere inside
-  the valley? Does the valley start with a few pieces already placed?
+- What the centre piece is (its biomes and look).
 
 ### Biomes and valleys
 - Are valleys hand-made (a curated list of biome mixes) or generated (a
   random mix each run)?
-- Can some same-biome trios bloom too (e.g. three forests = "deep wood")?
+- Same-biome blooms (e.g. three forests = "deep wood") after the prototype?
+- Rock feels boring: replace it in the first valley?
 - Content load: 8 biomes = 56 possible all-different trios. Do all of them
   need a bloom, or only the trios that appear in the valleys we ship?
 
@@ -200,3 +205,17 @@ Pieces, matching, board and terrain sets are clearly different. Valley mode
 replaces Dorfromantik's economy loop (finite stack, earn more tiles by placing
 well). An open mode would bring that loop back, so it needs its own twist
 before it's built. Progression through discoveries replaces score-based unlocks.
+
+## Prototype scope (agreed, not started)
+
+- One valley: about 20 plots, fixed outline, first-valley biomes.
+- Piece list from JSON: mostly three-different pieces plus some doubles.
+- Place, rotate and mirror with a preview of which corners would bloom.
+- The 4 named blooms (data-driven); seeds with set aside, swap, look ahead.
+- Corridors drawn along piece borders; 2 resident animals with simple needs.
+- Simple end screen with the score.
+- Simple coloured 3D hexes with orbit camera (textile look later).
+- Rules in their own module with unit tests: hex math, plot lookup, corner
+  lookup, bloom checks, corridor finding.
+- Later: journal and unlocks, hidden visitor, sound, textile shaders,
+  influence visuals, open mode.
