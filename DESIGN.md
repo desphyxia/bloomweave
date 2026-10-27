@@ -4,10 +4,25 @@ _Living document. Updated as decisions are made during design sessions._
 
 ## Pitch
 
-A calm, single-player hex tile-placement game. The player restores a valley by
-placing **trefoils** (three hexes meeting at one vertex) on a flat-top hex grid.
-Biomes sit on whole hexes, and vertices where three complementary biomes meet
-**bloom** into flowers and wildlife. No combat, no timers.
+A calm, single-player hex tile-placement game with a textile look. The player
+restores a valley, shaped like a quilt, by placing **trefoils** (three hexes
+meeting at one vertex) into fixed trefoil-shaped plots. Biomes sit on whole
+hexes; corners where three pieces bring together the right trio of biomes
+**bloom**, and chains of linked blooms become **wildlife corridors** that
+animals move into. No combat, no timers.
+
+### Core loop (one turn)
+1. Look at the current piece (and the next one).
+2. Optionally spend seeds: set the piece aside, swap it with the next one, or
+   look further ahead.
+3. Choose an empty plot and one of the piece's arrangements (up to 6).
+4. Completed corners are checked: matching trios bloom (+1 seed each, new
+   trios go into the journal), good pairs at seams show small signs of life,
+   and corridors grow; animals settle when their needs are met.
+5. When every plot is filled, the valley is restored and scored.
+
+The decision each turn: which plot, and which arrangement, best completes
+blooms now while keeping corridor routes and future corners open.
 
 ---
 
@@ -46,7 +61,7 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
   named bloom with its own look (e.g. forest + wetland + meadow = fern hollow
   with frogs), listed in a data table. **A trio makes the same bloom in every
   valley**, so knowledge carries over and blooms can be collected in a
-  journal. Rewards (points, bonus pieces) are still open.
+  journal. Each bloom gives 1 seed (see Seeds).
   - A new piece completes one weave point for each pair of filled
     neighbouring plots that sit next to each other around it: 0 when it
     touches a single neighbour, 1–2 on a typical edge of the map, up to 6
@@ -107,20 +122,28 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
   goals are optional; missing one only means that animal doesn't move in
   this time. (Rejected: pop-up requests during a run, too close to
   Dorfromantik's quests.)
+- **Atmosphere.**
+  - *Visual style: textile / embroidery.* Pieces are fabric patches (forest =
+    soft felt, meadow = linen, wetland = shimmering silk, rock = coarse wool);
+    piece borders are stitched seams; corridors are embroidered thread along
+    those seams; blooms are embroidered flowers; animals are small woven
+    figures. The valley reads as a quilt coming to life.
+  - *Camera:* tilted 3D view with free orbit and zoom.
+  - *Sound:* soft ambient music; each biome adds nature sounds that layer up
+    as the valley fills; fabric rustle on placement.
+  - *Feedback:* blooms and settling animals use short, gentle animations that
+    never interrupt; the player can keep placing straight away.
 - Tech (for later): three.js + TypeScript + Vite. Hex math, rules/scoring and
   rendering in separate modules; rules testable without a browser. Biomes,
   influence tables, bloom trios and pile composition are data (JSON).
 
-## Draft rules (not yet confirmed)
-
-- Draw the next trefoil from a finite pile and place it in an empty plot
-  next to the map.
-
 ## Open questions
 
 ### Geometry and placement
-- Valley outlines: size (around 30 plots?), shape, and whether outlines
-  include obstacles such as a lake or cliff.
+- Valley outlines: shape, and whether outlines include obstacles such as a
+  lake or cliff.
+- Must each piece touch already-placed pieces, or may it go anywhere inside
+  the valley? Does the valley start with a few pieces already placed?
 
 ### Biomes and valleys
 - Are valleys hand-made (a curated list of biome mixes) or generated (a
@@ -134,9 +157,6 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
   only how the trail is drawn. Possible later twist: animals prefer trails
   that run between *different* biomes (edge habitat), so the biomes on
   either side of the trail would matter too.
-
-### Core loop
-- What makes each placement a real decision?
 
 ### Scoring and economy
 - How blooms, corridors and discoveries turn into a final score.
@@ -159,7 +179,8 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
 - The unlock map: which discoveries open which valleys, biomes and variants.
 
 ### Atmosphere
-- Visual style, sound, pacing.
+- Exact fabric and stitch look in three.js (materials, outlines, puffiness).
+- Music direction and how biome sounds layer.
 
 ## Dorfromantik comparison
 
@@ -173,6 +194,7 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
 | Terrain set | One fixed set of terrain types in every run | Different biome mix per valley | Distinct |
 | Board | Freeform single hexes | Fixed grid of trefoil plots | Distinct |
 | Mood | Cozy, pastoral | Cozy, restoration | Close (genre-typical) |
+| Look | Soft low-poly 3D, model-railway feel | Textile / embroidered quilt | Distinct |
 
 Pieces, matching, board and terrain sets are clearly different. Valley mode
 replaces Dorfromantik's economy loop (finite stack, earn more tiles by placing
