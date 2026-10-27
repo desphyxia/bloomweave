@@ -13,9 +13,12 @@ questions".
 
 ## Tech (when building starts)
 
-- three.js + TypeScript + Vite.
-- Keep hex grid math, game rules/scoring and rendering in separate modules;
-  rules must be testable without a browser.
+- Godot 4 (latest stable 4.x) + GDScript. Not C#.
+- Prototype: web export to GitHub Pages. Compatibility renderer; thread
+  support off in the web export (GitHub Pages can't send the needed headers).
+- Keep hex grid math, game rules/scoring and rendering separate; rules are
+  plain GDScript classes with no scene/node dependencies, tested headless
+  with gdUnit4.
 - Biomes, bloom trios, influence pairs, valleys and pile composition are data
   (JSON), not hardcoded.
 - Axial hex coordinates; any vertex returns its three surrounding hexes.

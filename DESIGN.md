@@ -160,9 +160,20 @@ blooms now while keeping corridor routes and future corners open.
     as the valley fills; fabric rustle on placement.
   - *Feedback:* blooms and settling animals use short, gentle animations that
     never interrupt; the player can keep placing straight away.
-- Tech (for later): three.js + TypeScript + Vite. Hex math, rules/scoring and
-  rendering in separate modules; rules testable without a browser. Biomes,
-  influence tables, bloom trios and pile composition are data (JSON).
+- **Tech: Godot 4 + GDScript** (switched from three.js; iPhone and Android
+  are long-term targets). Use the latest stable 4.x at start.
+  - **Prototype is a web build published to GitHub Pages.** Use the
+    Compatibility renderer (the only one Godot supports on the web, and it
+    also runs on mobile), and export with thread support off, since GitHub
+    Pages can't send the headers that threaded web builds need.
+  - Hex math, rules/scoring and rendering in separate parts; rules are plain
+    GDScript classes with no scene or engine-node dependencies, tested
+    headless with **gdUnit4**.
+  - Biomes, bloom trios, influence pairs, valleys and pile composition are
+    data (JSON).
+  - Axial coordinates; any vertex returns its three surrounding hexes.
+  - Not C#: Godot's C# export to iOS/Android is still marked experimental,
+    and C# can't export to the web.
 
 ## Open questions
 
@@ -236,6 +247,7 @@ before it's built. Progression through discoveries replaces score-based unlocks.
 - Corridors drawn along piece borders; 2 resident animals: otters and deer.
 - Simple end screen with the score.
 - Simple coloured 3D hexes with orbit camera (textile look later).
+- Godot web export, deployed to GitHub Pages.
 - Rules in their own module with unit tests: hex math, plot lookup, corner
   lookup, bloom checks, corridor finding.
 - Later: journal and unlocks, hidden visitor, sound, textile shaders,
