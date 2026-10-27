@@ -137,6 +137,16 @@ blooms now while keeping corridor routes and future corners open.
 - **Prototype animals: otters and deer.** Otters want a corridor of 4+ blooms
   that includes wetland; deer want a long corridor (6+ blooms) passing
   through forest.
+- **First-valley blooms (natural place names):**
+
+  | Trio | Bloom |
+  |---|---|
+  | forest + meadow + wetland | Fern Hollow |
+  | forest + meadow + heath | Foxglove Glade |
+  | forest + wetland + heath | Misty Carr |
+  | meadow + wetland + heath | Cotton-grass Moor |
+- **Settling an animal gives seeds** right away (plus its points), so it helps
+  the rest of the run.
 - **Trails are visual only in the prototype.** The edge-habitat idea stays
   recorded for later.
 - **Atmosphere.**
@@ -182,7 +192,7 @@ blooms now while keeping corridor routes and future corners open.
 
 ### Requests / goals
 - What each animal asks for (corridor length, bloom kinds, biomes touched)
-  and what settling it gives (score, seeds, journal entry).
+  and how many seeds settling it gives.
 - How hidden visitors are hinted at, if at all.
 
 ### Difficulty and run length
@@ -218,7 +228,8 @@ before it's built. Progression through discoveries replaces score-based unlocks.
 
 ## Prototype scope (agreed, not started)
 
-- One valley: about 20 plots, fixed outline, first-valley biomes.
+- One valley: about 20 plots in a round-ish outline around the landmark,
+  first-valley biomes (forest, meadow, wetland, heath).
 - Piece list from JSON: mostly three-different pieces plus some doubles.
 - Place, rotate and mirror with a preview of which corners would bloom.
 - The 4 named blooms (data-driven); seeds with set aside, swap, look ahead.
