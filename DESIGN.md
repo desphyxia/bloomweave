@@ -58,6 +58,19 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
   different = 3; all three the same = 1. Early valleys mostly use
   three-different pieces; later valleys use more doubles; all-same pieces are
   rare. Each valley's data file sets the proportions of each piece type.
+- **Wildlife corridors are the large-scale goal** (instead of Dorfromantik's
+  biome regions or rivers). They connect **blooms**, not tiles.
+  - Two blooms are linked when they share a hex. A corridor is a chain of
+    linked blooms of any length; it can branch and loop. Each bloom can link
+    to up to 3 others.
+  - Animals settle along corridors; some want a certain length or certain
+    bloom kinds.
+  - **Trails follow hex borders.** On every hex the two weave points are two
+    border edges apart, with one seam corner between them, and both edges lie
+    on a border between two pieces. So each link is drawn as a 2-edge trail
+    (weave point → seam → weave point) running along piece outlines.
+  - Rejected: biome regions (too close to Dorfromantik), no large-scale goal
+    (risk of samey play).
 - Tech (for later): three.js + TypeScript + Vite. Hex math, rules/scoring and
   rendering in separate modules; rules testable without a browser. Biomes,
   influence tables, bloom trios and pile composition are data (JSON).
@@ -84,22 +97,11 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
 - Content load: 8 biomes = 56 possible all-different trios. Do all of them
   need a bloom, or only the trios that appear in the valleys we ship?
 
-### Large-scale goals (connecting things)
-- Dorfromantik rewards growing connected groups (forest, fields, houses) and
-  lines (rivers, rails). Blooms are local (one corner), so without something
-  similar the valley may lack large-scale shape and long-term planning.
-  Options:
-  - *None.* Blooms only. Simplest; risk of samey play.
-  - *Biome regions.* Bonuses for large connected same-biome areas. Creates a
-    strong tension (clump for regions vs mix for blooms), but is the closest
-    to Dorfromantik.
-  - *Wildlife corridors (proposed).* Connect **blooms**, not tiles. A
-    corridor is a chain of linked blooms of any length. Two blooms are linked
-    when they share a hex (each hex touches exactly 2 weave points, so one
-    link joins two blooms). Each bloom has 3 hexes, so it can link to up to
-    3 others, and corridors can branch and loop into networks. Animals settle
-    along corridors, and some want a certain length or certain bloom kinds. The shared hex must fit
-    both trios, which makes chains a planning puzzle.
+### Wildlife corridors
+- Should a trail's path matter to the rules? Proposal: no, for now; it's
+  only how the trail is drawn. Possible later twist: animals prefer trails
+  that run between *different* biomes (edge habitat), so the biomes on
+  either side of the trail would matter too.
 
 ### Core loop
 - What makes each placement a real decision?
