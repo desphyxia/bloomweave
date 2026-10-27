@@ -18,7 +18,13 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
 - Pieces are trefoils: three hexes around one shared vertex (the "confluence").
 - Biomes belong to whole hexes, not edges (a deliberate difference from
   Dorfromantik's edge matching).
-- Starting biomes: forest, meadow, wetland, rock.
+- **Biomes per valley.** The game has a larger collection of biomes (roughly
+  8–10 over the whole game), but each valley (run) uses only a mix of 4–5.
+  Biomes recur across valleys alongside different partners, so a known biome
+  takes part in new trios and new blooms. Reason: 4–5 biomes keep a run
+  readable (4 biomes = 4 all-different trios, 5 = 10; 6 would be 20, too many
+  to plan around), while the larger collection gives variety between runs.
+  - First valley: forest, meadow, wetland, rock (from the original draft).
 - **Fixed plot grid (no holes).** The grid is pre-split into trefoil-shaped
   plots, and every piece fills exactly one whole plot, so holes can't happen.
   - Hex `(q,r)` belongs to the plot whose base `(q0,r0)` has
@@ -44,8 +50,18 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
   next to the map.
 - Adjacent biomes spread influence (e.g. wetland feeds forest, rock shelters
   meadow).
-- A vertex blooms when its three hexes form a complementary trio
-  (e.g. forest + wetland + meadow). Blooms give points, bonus pieces and visuals.
+- **Blooms (proposed):** only weave points can bloom. A weave point is
+  checked the moment its third plot is filled; if its three biomes form a
+  bloom trio, it blooms at once and stays bloomed for good. Each trio is a
+  named bloom with its own look (e.g. forest + wetland + meadow = fern hollow
+  with frogs), listed in a data table. Blooms give points, bonus pieces and
+  visuals.
+  - A new piece completes one weave point for each pair of filled
+    neighbouring plots that sit next to each other around it: 0 when it
+    touches a single neighbour, 1–2 on a typical edge of the map, up to 6
+    when it fills the last gap. This pulls the player toward a compact valley.
+  - While a piece is being placed, the game can preview which corners would
+    bloom with each orientation.
 - Run ends when the pile is empty; score unlocks new biomes over time.
 
 ## Open questions
@@ -56,6 +72,15 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
   identity and never blooms by itself.
 - Can a trefoil repeat a biome (e.g. forest, forest, meadow)?
 - Shape of the valley: unbounded, or a fixed valley outline made of plots?
+
+### Biomes and valleys
+- Are valleys hand-made (a curated list of biome mixes) or generated (a
+  random mix each run)?
+- Does a given trio make the same bloom in every valley? (Proposal: yes, so
+  what you learn carries over and blooms can go into a collection journal.)
+- Can some same-biome trios bloom too (e.g. three forests = "deep wood")?
+- Content load: 8 biomes = 56 possible all-different trios. Do all of them
+  need a bloom, or only the trios that appear in the valleys we ship?
 
 ### Core loop
 - What makes each placement a real decision?
@@ -88,6 +113,8 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
 | Run end | Stack runs out | Pile runs out | **Close** |
 | Extending the run | Perfect placements and quests add tiles | Blooms add bonus pieces | **Close** |
 | Meta | Score unlocks tiles and biomes | Score unlocks biomes | **Close** |
+| Terrain set | One fixed set of terrain types in every run | Different biome mix per valley | Distinct |
+| Board | Freeform single hexes | Fixed grid of trefoil plots | Distinct |
 | Mood | Cozy, pastoral | Cozy, restoration | Close (genre-typical) |
 
 The pieces and matching rules are clearly different. The **economy loop**
