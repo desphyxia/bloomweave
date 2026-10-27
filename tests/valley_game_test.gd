@@ -189,12 +189,12 @@ func test_score_breakdown() -> void:
 	var g := _game()
 	g.blooms[Vector3i(2, -1, Hex.DOWN)] = "fern_hollow"
 	g.settled["otter"] = []
-	g.seeds = 3
+	g.seeds = 7  # 3 seeds per point -> 2 points
 	var s := g.score_breakdown()
 	assert_int(s.blooms).is_equal(2)
 	assert_int(s.animals).is_equal(10)
-	assert_int(s.seeds).is_equal(3)
-	assert_int(s.total).is_equal(15)
+	assert_int(s.seeds).is_equal(2)
+	assert_int(s.total).is_equal(14)
 
 
 func test_full_games_keep_rules_consistent() -> void:

@@ -260,7 +260,7 @@ before it's built. Progression through discoveries replaces score-based unlocks.
 - **Animal needs (first valley):** otters want 5+ linked blooms with 4+
   touching wetland; deer want 8+ with 6+ touching forest. Settling gives
   points (10 / 15) and 2 seeds.
-- **Scoring:** 2 per bloom, animal points, 1 per leftover seed.
+- **Scoring:** 2 per bloom, animal points, 1 per 3 leftover seeds.
 - **Seed actions:** "Use set-aside" (free) brings the reserved piece back as
   the current piece; the current one becomes next. If the pile runs out, the
   reserved piece is played automatically.

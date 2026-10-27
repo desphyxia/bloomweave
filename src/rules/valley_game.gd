@@ -338,7 +338,8 @@ func score_breakdown() -> Dictionary:
 	var animal_pts := 0
 	for id: String in settled:
 		animal_pts += int(data.animals[id].get("points", 0))
-	var seed_pts := seeds * int(scoring.get("leftover_seed", 0))
+	var per_point := int(scoring.get("seeds_per_point", 0))
+	var seed_pts := seeds / per_point if per_point > 0 else 0
 	return {
 		"blooms": bloom_pts,
 		"animals": animal_pts,
