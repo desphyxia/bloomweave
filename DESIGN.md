@@ -89,6 +89,13 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
   recorded too. Discoveries unlock new valleys, biomes and valley variants
   (e.g. settling otters opens a river valley; finding every bloom in a valley
   reveals a hidden variant). Score stays as a personal best per valley.
+- **Influence is visual only (for now).** Where two pieces meet at a seam,
+  good biome pairs show small signs of life (taller trees by wetland,
+  flowers spreading on meadow beside rock). No effect on rules or score.
+  Pairs are defined in a data table so they can gain rules later.
+  - *Recorded for later:* influence as a full mechanic, where pairs change
+    hexes (e.g. forest next to wetland becomes "lush forest", which can make
+    special blooms). Revisit if playtests show the game lacks depth.
 - Tech (for later): three.js + TypeScript + Vite. Hex math, rules/scoring and
   rendering in separate modules; rules testable without a browser. Biomes,
   influence tables, bloom trios and pile composition are data (JSON).
@@ -97,14 +104,10 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
 
 - Draw the next trefoil from a finite pile and place it in an empty plot
   next to the map.
-- Adjacent biomes spread influence (e.g. wetland feeds forest, rock shelters
-  meadow).
 
 ## Open questions
 
 ### Geometry and placement
-- Seams carry pairwise influence and the confluence never blooms by itself
-  (proposal; details under Biome interactions).
 - Valley outlines: size (around 30 plots?), shape, and whether outlines
   include obstacles such as a lake or cliff.
 
@@ -129,7 +132,7 @@ Biomes sit on whole hexes, and vertices where three complementary biomes meet
 - Seed costs for each action, and whether the reserve slot can grow.
 
 ### Biome interactions
-- What "influence" does mechanically, and whether it overlaps with blooms.
+- Which pairs count as good pairs, and what each looks like.
 
 ### Requests / goals
 - Optional goals: form, frequency, rewards.
