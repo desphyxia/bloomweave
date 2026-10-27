@@ -1,0 +1,14 @@
+# Godot
+.godot/
+*.import
+!addons/**/*.import
+export_presets.local.cfg
+
+# Builds and test output
+build/
+reports/
+addons/gdUnit4/reports/
+GdUnitRunner.cfg
+
+# OS
+.DS_Store

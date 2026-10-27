@@ -1,0 +1,9 @@
+{
+  "_note": "Visual only for now: good pairs where two pieces meet at a seam. No effect on rules or score.",
+  "pairs": [
+    { "biomes": ["wetland", "forest"], "effect": "taller_trees" },
+    { "biomes": ["heath", "meadow"],   "effect": "heather_creeps" },
+    { "biomes": ["wetland", "meadow"], "effect": "wildflowers" },
+    { "biomes": ["forest", "heath"],   "effect": "gorse_edge" }
+  ]
+}

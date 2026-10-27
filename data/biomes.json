@@ -1,0 +1,8 @@
+{
+  "biomes": [
+    { "id": "forest",  "name": "Forest",  "color": "#6fa46a" },
+    { "id": "meadow",  "name": "Meadow",  "color": "#e6d27a" },
+    { "id": "wetland", "name": "Wetland", "color": "#7fb8cf" },
+    { "id": "heath",   "name": "Heath",   "color": "#a585bf" }
+  ]
+}

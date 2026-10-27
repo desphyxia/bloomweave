@@ -1,0 +1,8 @@
+{
+  "blooms": [
+    { "id": "fern_hollow",       "name": "Fern Hollow",       "trio": ["forest", "meadow", "wetland"], "color": "#cfe7a8" },
+    { "id": "foxglove_glade",    "name": "Foxglove Glade",    "trio": ["forest", "meadow", "heath"],   "color": "#e58fbf" },
+    { "id": "misty_carr",        "name": "Misty Carr",        "trio": ["forest", "wetland", "heath"],  "color": "#b7c6f2" },
+    { "id": "cotton_grass_moor", "name": "Cotton-grass Moor", "trio": ["meadow", "wetland", "heath"],  "color": "#fff4cf" }
+  ]
+}
