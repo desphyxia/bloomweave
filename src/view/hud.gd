@@ -57,8 +57,8 @@ func setup(p_game: ValleyGame) -> void:
 ## it would be placed; `selected` tells whether a plot is chosen.
 func refresh(arranged: Array, selected: bool, preview_count: int) -> void:
 	var s := game.score_breakdown()
-	_info.text = "%s\nSeeds %d   ·   Score %d   ·   Pieces left %d" % [
-		game.valley.get("name", "Valley"), game.seeds, s.total, game.pieces_left()]
+	_info.text = "%s%s\nSeeds %d   ·   Score %d   ·   Pieces left %d" % [
+		game.valley.get("name", "Valley"), _build_label(), game.seeds, s.total, game.pieces_left()]
 	_current.biomes = arranged
 	for c in _upcoming_box.get_children():
 		c.queue_free()
@@ -82,6 +82,19 @@ func refresh(arranged: Array, selected: bool, preview_count: int) -> void:
 	_buttons.swap.disabled = not game.can_swap()
 	_buttons.look_ahead.disabled = not game.can_look_ahead()
 	_refresh_animals()
+
+
+## "  · build abc1234" when CI stamped the build (data/build.json), else "".
+func _build_label() -> String:
+	if not has_meta("build"):
+		var build := ""
+		if FileAccess.file_exists("res://data/build.json"):
+			var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://data/build.json"))
+			if typeof(parsed) == TYPE_DICTIONARY:
+				build = str(parsed.get("build", ""))
+		set_meta("build", build)
+	var b: String = get_meta("build")
+	return "   ·   build %s" % b if b != "" else ""
 
 
 func _refresh_animals() -> void:

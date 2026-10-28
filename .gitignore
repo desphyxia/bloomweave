@@ -5,6 +5,7 @@
 export_presets.local.cfg
 
 # Builds and test output
+data/build.json
 build/
 reports/
 addons/gdUnit4/reports/

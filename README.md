@@ -10,6 +10,8 @@ The design lives in [DESIGN.md](DESIGN.md).
 ## Play the prototype
 
 The web build is published to GitHub Pages on every push to `master`.
+The info panel shows the build (commit) id; each deploy gives the game data
+file a new name so browsers always load the latest version.
 
 - **Tap a glowing plot** to try the current piece there; tap it again (or
   press **Turn**) to rotate it. **Mirror** flips it.

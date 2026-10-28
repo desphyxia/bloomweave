@@ -47,9 +47,12 @@ jobs:
 
       - name: Export web build
         run: |
+          BUILD="${GITHUB_SHA::7}"
+          printf '{ "build": "%s" }\n' "$BUILD" > data/build.json
           mkdir -p build/web
           ~/godot/godot --headless --path . --export-release "Web" build/web/index.html
           test -f build/web/index.wasm
+          python3 scripts/stamp_web_build.py build/web "$BUILD"
 
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'
