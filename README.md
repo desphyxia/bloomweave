@@ -18,8 +18,9 @@ The web build is published to GitHub Pages on every push to `master`.
   order. The Blooms panel shows each recipe as a mini piece, read clockwise.
 - Each bloom gives a seed. Spend seeds to set a piece aside, swap the next
   piece in, or look further ahead.
-- **Touch:** drag with one finger to pan; pinch to zoom; twist two fingers
-  to rotate; move two fingers up or down together to tilt.
+- **Touch:** drag with one finger to pan. With two fingers, pinch to zoom,
+  twist to rotate, or move both up or down to tilt. Each two-finger gesture
+  does one of these, picked by your first clear movement.
 - **Mouse:** left-drag to pan, right-drag to rotate, scroll to zoom.
 - **Keys:** R turn, F mirror, Enter place, Esc cancel, Q / E rotate view.
 
