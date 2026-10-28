@@ -2,7 +2,7 @@ class_name CameraRig
 extends Node3D
 ## Tilted camera over the valley.
 ##   One finger / left mouse drag: pan (the ground follows the pointer).
-##   Two fingers: pinch to zoom, twist to rotate.
+##   Two fingers: pinch to zoom, twist to rotate, move up/down together to tilt.
 ##   Right mouse drag or Q / E: rotate. Scroll: zoom.
 ## A press-and-release without much movement is reported as a tap.
 
@@ -10,6 +10,7 @@ signal tapped(screen_pos: Vector2)
 
 const TAP_SLOP := 12.0
 const PAN_LIMIT := 8.0   # how far the view centre may move from the valley centre
+const TILT_PER_SCREEN := 2.2  # radians of tilt for a two-finger move the full screen height
 
 @export var yaw := 0.0
 @export var pitch := deg_to_rad(52.0)
@@ -31,6 +32,8 @@ var _pinch_start_distance := 0.0
 var _pinch_start_spread := 0.0
 var _twist_start_yaw := 0.0
 var _twist_start_angle := 0.0
+var _tilt_start_pitch := 0.0
+var _tilt_start_mid := 0.0
 
 
 func _ready() -> void:
@@ -104,6 +107,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			_pinch_start_spread = _touch_spread()
 			_twist_start_yaw = yaw
 			_twist_start_angle = _touch_angle()
+			_tilt_start_pitch = pitch
+			_tilt_start_mid = _touch_mid_y()
 		elif _touches.is_empty():
 			_multi_touch = false
 		return
@@ -112,7 +117,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		_touches[sd.index] = sd.position
 		if _touches.size() >= 2 and _pinch_start_spread > 0.0:
 			distance = _pinch_start_distance * _pinch_start_spread / maxf(_touch_spread(), 1.0)
-			yaw = _twist_start_yaw - angle_difference(_twist_start_angle, _touch_angle())
+			yaw = _twist_start_yaw + angle_difference(_twist_start_angle, _touch_angle())
+			# Both fingers moving up lowers the view toward the horizon (like maps).
+			var screen_h := get_viewport().get_visible_rect().size.y
+			pitch = _tilt_start_pitch + (_touch_mid_y() - _tilt_start_mid) / maxf(screen_h, 1.0) * TILT_PER_SCREEN
 			_apply()
 		return
 	if event is InputEventMouseButton:
@@ -183,6 +191,13 @@ func _touch_spread() -> float:
 	if pts.size() < 2:
 		return 0.0
 	return (pts[0] as Vector2).distance_to(pts[1] as Vector2)
+
+
+func _touch_mid_y() -> float:
+	var pts := _touches.values()
+	if pts.size() < 2:
+		return 0.0
+	return ((pts[0] as Vector2).y + (pts[1] as Vector2).y) / 2.0
 
 
 func _touch_angle() -> float:
