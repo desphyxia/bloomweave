@@ -23,6 +23,7 @@ var _buttons := {}
 var _toast: Label
 var _toast_tween: Tween
 var _hint: Label
+var _hint_panel: PanelContainer
 var _end: PanelContainer
 var _end_label: Label
 
@@ -45,7 +46,7 @@ func setup(p_game: ValleyGame) -> void:
 	_current.data = data
 	_reserve.data = data
 	_end.visible = false
-	_hint.visible = true
+	_hint_panel.visible = true
 	_hint.text = "Tap a glowing plot to try the piece there. Tap it again to turn it."
 	if game.clockwise_blooms():
 		_hint.text += "\nBlooms need their biomes in clockwise order (see Blooms)."
@@ -158,7 +159,7 @@ func toast(text: String) -> void:
 
 
 func hide_hint() -> void:
-	_hint.visible = false
+	_hint_panel.visible = false
 
 
 func show_end() -> void:
@@ -214,18 +215,6 @@ func _build_top() -> void:
 	blooms_panel.add_child(_blooms_box)
 	top.add_child(blooms_panel)
 
-	_hint = Label.new()
-	_hint.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_hint.custom_minimum_size.x = 420
-	_hint.offset_left = -210
-	_hint.offset_right = 210
-	_hint.offset_top = 150
-	_hint.add_theme_font_size_override("font_size", 18)
-	_hint.add_theme_color_override("font_color", INK)
-	_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_root.add_child(_hint)
 
 
 func _build_bottom() -> void:
@@ -239,7 +228,33 @@ func _build_bottom() -> void:
 	flow.add_theme_constant_override("h_separation", 10)
 	flow.add_theme_constant_override("v_separation", 10)
 	flow.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_root.add_child(flow)
+
+	# The first-turn hint sits just above the bottom panels, so it never
+	# covers the info panels at the top.
+	var bottom := VBoxContainer.new()
+	bottom.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	bottom.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	bottom.offset_left = 12
+	bottom.offset_right = -12
+	bottom.offset_bottom = -12
+	bottom.add_theme_constant_override("separation", 10)
+	bottom.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_root.add_child(bottom)
+	_hint_panel = _panel()
+	_hint_panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	_hint_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_hint = Label.new()
+	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_hint.custom_minimum_size.x = 420
+	_hint.add_theme_font_size_override("font_size", 16)
+	_hint_panel.add_child(_hint)
+	bottom.add_child(_hint_panel)
+	flow.offset_left = 0
+	flow.offset_right = 0
+	flow.offset_bottom = 0
+	flow.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	bottom.add_child(flow)
 
 	# Pieces: current, upcoming, reserve.
 	var cards := _panel()

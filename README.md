@@ -18,8 +18,10 @@ The web build is published to GitHub Pages on every push to `master`.
   order. The Blooms panel shows each recipe as a mini piece, read clockwise.
 - Each bloom gives a seed. Spend seeds to set a piece aside, swap the next
   piece in, or look further ahead.
-- Drag to orbit, scroll or pinch to zoom. Keys: R turn, F mirror,
-  Enter place, Esc cancel.
+- **Touch:** drag with one finger to pan; pinch to zoom; twist two fingers
+  to rotate.
+- **Mouse:** left-drag to pan, right-drag to rotate, scroll to zoom.
+- **Keys:** R turn, F mirror, Enter place, Esc cancel, Q / E rotate view.
 
 ## Develop
 

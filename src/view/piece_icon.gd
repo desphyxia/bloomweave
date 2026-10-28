@@ -14,6 +14,11 @@ var dimmed := false:
 var empty_text := ""
 
 
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_RESIZED:
+		queue_redraw()
+
+
 func _draw() -> void:
 	if biomes.is_empty():
 		if empty_text != "":
