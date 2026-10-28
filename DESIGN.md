@@ -171,9 +171,18 @@ blooms now while keeping corridor routes and future corners open.
     along piece borders; corridors as a bright, raised embroidered thread
     along those seams; blooms as embroidered flowers (satin-stitch petals and
     leaves, French-knot centre). Fabrics per biome live in data/biomes.json:
-    forest felt, meadow linen with cross-stitches, wetland silk with a silk
-    pool, heath purple tweed with heather and gorse French knots. Empty
-    plots are plain backing cloth outlined with light tacking stitches.
+    forest felt, meadow linen, wetland silk, heath purple tweed. Empty plots
+    are plain backing cloth outlined with light tacking stitches.
+  - *Biome details:* forest has felt pines and round trees with shrubs;
+    meadow has stitched grass tufts and daisy-stitch wildflowers in several
+    colours; wetland has thread reeds with cattails, felt lily pads and
+    wavy running-stitch ripples; heath has French-knot heather in mixed
+    purples and gorse.
+  - *No two tiles alike:* each tile gets its own layout, counts and sizes
+    (seeded by its hex, so the placement preview matches the placed tile),
+    a slightly different fabric shade, and sometimes a rare extra:
+    mushroom or fallen log (forest), rabbit or stone (meadow), frog on a
+    lily pad or duck (wetland), boulder or birch (heath).
   - *Camera:* tilted 3D view with free orbit and zoom.
   - *Sound:* soft ambient music; each biome adds nature sounds that layer up
     as the valley fills; fabric rustle on placement.

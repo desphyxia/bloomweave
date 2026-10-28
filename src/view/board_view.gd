@@ -21,6 +21,7 @@ const SLOT_FABRIC := {"weave_scale": 16.0, "weave_strength": 0.1, "fuzz": 0.05, 
 var game: ValleyGame
 var data: GameData
 var textile := Textile.new()
+var decor := BiomeDecor.new(textile, SEAM_H, PUFF)
 
 var _patch: ArrayMesh
 var _slot_patch: ArrayMesh
@@ -164,102 +165,15 @@ func _make_tile(h: Vector2i, biome: String, ghost: bool) -> Node3D:
 	var b: Dictionary = data.biomes.get(biome, {})
 	var mi := MeshInstance3D.new()
 	mi.mesh = _patch
-	mi.material_override = textile.fabric(data.biome_color(biome), b.get("fabric", {}), ghost)
+	var shade := BiomeDecor.tile_tint(h, data.biome_color(biome))
+	mi.material_override = textile.fabric(shade, b.get("fabric", {}), ghost)
 	tile.add_child(mi)
-	var deco := _decoration(h, biome, ghost)
+	var deco := decor.build(h, biome, ghost)
 	if deco:
 		var d := MeshInstance3D.new()
 		d.mesh = deco
 		tile.add_child(d)
 	return tile
-
-
-## Small sewn-on details so biomes read without relying on colour alone:
-## felt pines (forest), cross stitches (meadow), a silk pool (wetland) and
-## French knots of heather and gorse (heath). One mesh per tile.
-func _decoration(h: Vector2i, biome: String, ghost: bool) -> ArrayMesh:
-	var rng := RandomNumberGenerator.new()
-	rng.seed = hash(h)
-	var mesh := ArrayMesh.new()
-	var mats: Array[Material] = []
-	match biome:
-		"forest":
-			var lower := CylinderMesh.new()
-			lower.top_radius = 0.0
-			lower.bottom_radius = 0.19
-			lower.height = 0.3
-			lower.radial_segments = 8
-			var upper := CylinderMesh.new()
-			upper.top_radius = 0.0
-			upper.bottom_radius = 0.13
-			upper.height = 0.24
-			upper.radial_segments = 8
-			var st := SurfaceTool.new()
-			st.begin(Mesh.PRIMITIVE_TRIANGLES)
-			for i in 3:
-				var a := TAU * i / 3.0 + rng.randf() * 0.6
-				var local := Vector2(cos(a), sin(a)) * 0.42
-				var y := _surface(local)
-				st.append_from(lower, 0, Transform3D(Basis(), Vector3(local.x, y + 0.15, local.y)))
-				st.append_from(upper, 0, Transform3D(Basis(), Vector3(local.x, y + 0.33, local.y)))
-			st.commit(mesh)
-			mats.append(textile.fabric(Color(0.24, 0.42, 0.26), {"fuzz": 0.4, "weave_strength": 0.0, "rough": 1.0}, ghost))
-		"meadow":
-			var bar := CapsuleMesh.new()
-			bar.radius = 0.018
-			bar.height = 0.13
-			bar.radial_segments = 6
-			bar.rings = 2
-			var st := SurfaceTool.new()
-			st.begin(Mesh.PRIMITIVE_TRIANGLES)
-			for i in 5:
-				var a := rng.randf() * TAU
-				var local := Vector2(cos(a), sin(a)) * (0.2 + rng.randf() * 0.38)
-				var y := _surface(local) + 0.012
-				var spin := rng.randf() * PI
-				for cross in [PI / 4.0, -PI / 4.0]:
-					var basis := Basis(Vector3.UP, spin) * Basis(Vector3.FORWARD, PI / 2.0) * Basis(Vector3.RIGHT, cross)
-					st.append_from(bar, 0, Transform3D(basis, Vector3(local.x, y, local.y)))
-			st.commit(mesh)
-			mats.append(textile.thread(Color(1.0, 0.97, 0.85)))
-		"wetland":
-			var pool := CylinderMesh.new()
-			pool.top_radius = 0.34
-			pool.bottom_radius = 0.34
-			pool.height = 0.012
-			pool.radial_segments = 16
-			var st := SurfaceTool.new()
-			st.begin(Mesh.PRIMITIVE_TRIANGLES)
-			var off := Vector2(rng.randf_range(-0.12, 0.12), rng.randf_range(-0.12, 0.12))
-			st.append_from(pool, 0, Transform3D(Basis().scaled(Vector3(1.0, 1.0, 0.75)), Vector3(off.x, _surface(Vector2.ZERO) + 0.004, off.y)))
-			st.commit(mesh)
-			mats.append(textile.fabric(Color(0.62, 0.82, 0.9), {"weave_scale": 40.0, "weave_strength": 0.05, "sheen": 1.4, "rough": 0.2}, ghost))
-		"heath":
-			var knot := SphereMesh.new()
-			knot.radius = 0.045
-			knot.height = 0.09
-			knot.radial_segments = 6
-			knot.rings = 3
-			var heather := SurfaceTool.new()
-			heather.begin(Mesh.PRIMITIVE_TRIANGLES)
-			var gorse := SurfaceTool.new()
-			gorse.begin(Mesh.PRIMITIVE_TRIANGLES)
-			for i in 6:
-				var a := TAU * i / 6.0 + rng.randf() * 0.5
-				var c := Vector2(cos(a), sin(a)) * (0.3 + rng.randf() * 0.2)
-				var target := gorse if i % 3 == 0 else heather
-				for k in 3:
-					var local := c + Vector2(rng.randf_range(-0.06, 0.06), rng.randf_range(-0.06, 0.06))
-					target.append_from(knot, 0, Transform3D(Basis(), Vector3(local.x, _surface(local) + 0.02, local.y)))
-			heather.commit(mesh)
-			gorse.commit(mesh)
-			mats.append(textile.fabric(Color(0.45, 0.28, 0.52), {"fuzz": 0.3, "weave_strength": 0.0}, ghost))
-			mats.append(textile.fabric(Color(0.93, 0.78, 0.3), {"fuzz": 0.3, "weave_strength": 0.0}, ghost))
-		_:
-			return null
-	for i in mats.size():
-		mesh.surface_set_material(i, mats[i])
-	return mesh
 
 
 # --- Ghost (placement preview) ----------------------------------------------
