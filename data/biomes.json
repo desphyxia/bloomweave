@@ -1,8 +1,12 @@
 {
   "biomes": [
-    { "id": "forest",  "name": "Forest",  "color": "#6fa46a" },
-    { "id": "meadow",  "name": "Meadow",  "color": "#e6d27a" },
-    { "id": "wetland", "name": "Wetland", "color": "#7fb8cf" },
-    { "id": "heath",   "name": "Heath",   "color": "#a585bf" }
+    { "id": "forest",  "name": "Forest",  "color": "#6fa46a",
+      "fabric": { "kind": "felt",  "weave_strength": 0.0,  "fuzz": 0.35, "rough": 1.0 } },
+    { "id": "meadow",  "name": "Meadow",  "color": "#e6d27a",
+      "fabric": { "kind": "linen", "weave_scale": 22.0, "weave_strength": 0.13, "fuzz": 0.08, "rough": 0.95 } },
+    { "id": "wetland", "name": "Wetland", "color": "#7fb8cf",
+      "fabric": { "kind": "silk",  "weave_scale": 38.0, "weave_strength": 0.06, "fuzz": 0.03, "sheen": 1.0, "rough": 0.3 } },
+    { "id": "heath",   "name": "Heath",   "color": "#a585bf",
+      "fabric": { "kind": "tweed", "weave_scale": 14.0, "weave_strength": 0.16, "fuzz": 0.12, "fleck": 0.07, "fleck_color": "#e8c547", "rough": 0.95 } }
   ]
 }

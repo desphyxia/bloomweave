@@ -166,6 +166,14 @@ blooms now while keeping corridor routes and future corners open.
     piece borders are stitched seams; corridors are embroidered thread along
     those seams; blooms are embroidered flowers; animals are small woven
     figures. The valley reads as a quilt coming to life.
+  - *Textile details (first pass, built):* quilted, puffy patches (each hex
+    domed like a stuffed square); dashed running stitches in dark thread
+    along piece borders; corridors as a bright, raised embroidered thread
+    along those seams; blooms as embroidered flowers (satin-stitch petals and
+    leaves, French-knot centre). Fabrics per biome live in data/biomes.json:
+    forest felt, meadow linen with cross-stitches, wetland silk with a silk
+    pool, heath purple tweed with heather and gorse French knots. Empty
+    plots are plain backing cloth outlined with light tacking stitches.
   - *Camera:* tilted 3D view with free orbit and zoom.
   - *Sound:* soft ambient music; each biome adds nature sounds that layer up
     as the valley fills; fabric rustle on placement.

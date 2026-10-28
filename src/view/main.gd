@@ -42,14 +42,15 @@ func _setup_scene() -> void:
 	e.background_color = Color(0.93, 0.91, 0.85)
 	e.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	e.ambient_light_color = Color(0.95, 0.93, 0.88)
-	e.ambient_light_energy = 0.45
-	e.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	e.ambient_light_energy = 0.34
+	e.tonemap_mode = Environment.TONE_MAPPER_LINEAR
+	e.reflected_light_source = Environment.REFLECTION_SOURCE_DISABLED
 	env.environment = e
 	add_child(env)
 
 	var sun := DirectionalLight3D.new()
 	sun.rotation_degrees = Vector3(-55, -35, 0)
-	sun.light_energy = 0.85
+	sun.light_energy = 0.46
 	sun.light_color = Color(1.0, 0.96, 0.88)
 	sun.shadow_enabled = true
 	add_child(sun)

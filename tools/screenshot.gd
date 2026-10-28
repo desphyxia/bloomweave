@@ -1,7 +1,7 @@
 extends SceneTree
 ## Dev tool: loads the main scene, plays some turns automatically and saves
 ## a screenshot. Needs a display (e.g. xvfb-run).
-## Run: godot --path . -s res://tools/screenshot.gd -- <out.png> <turns> <w> <h>
+## Run: godot --path . -s res://tools/screenshot.gd -- <out.png> <turns> [w h] [distance]
 
 func _init() -> void:
 	var args := OS.get_cmdline_user_args()
@@ -36,6 +36,9 @@ func _init() -> void:
 	if not game.is_finished():
 		main.selected = game.legal_plots()[0]
 		main._update()
+	if args.size() > 4:
+		main.rig.distance = float(args[4])
+		main.rig._apply()
 	for _f in 90:
 		await process_frame
 	var img := root.get_texture().get_image()
