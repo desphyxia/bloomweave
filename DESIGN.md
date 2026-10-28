@@ -171,8 +171,11 @@ blooms now while keeping corridor routes and future corners open.
     along piece borders; corridors as a bright, raised embroidered thread
     along those seams; blooms as embroidered flowers (satin-stitch petals and
     leaves, French-knot centre). Fabrics per biome live in data/biomes.json:
-    forest felt, meadow linen, wetland silk, heath purple tweed. Empty plots
-    are plain backing cloth outlined with light tacking stitches.
+    forest felt, meadow linen, wetland silk, heath purple tweed. Each empty
+    plot is one trefoil-shaped piece of backing cloth (with a small gap
+    between plots) and a stitched outline, so you can see where every piece
+    can go; plots you can place on right now are lighter, with an orange
+    outline.
   - *Biome details:* forest has felt pines and round trees with shrubs;
     meadow has stitched grass tufts and daisy-stitch wildflowers in several
     colours; wetland has thread reeds with cattails, felt lily pads and

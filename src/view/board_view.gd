@@ -8,11 +8,12 @@ const HEX_SIZE := 1.0
 const SEAM_H := 0.12    # patch height at its edges, where seams, blooms and trails sit
 const PUFF := 0.21      # extra height in the middle of a patch
 const TILE_H := 0.2     # picking plane for taps
-const SLOT_EDGE := 0.03
-const SLOT_PUFF := 0.025
+const SLOT_H := 0.035   # thickness of an empty plot's backing cloth
+const SLOT_INSET := 0.05  # gap between neighbouring empty plots
 
 const SEAM_THREAD := Color(0.27, 0.22, 0.17)
-const TACK_THREAD := Color(0.97, 0.94, 0.86)
+const TACK_THREAD := Color(0.56, 0.5, 0.41)
+const LEGAL_THREAD := Color(0.84, 0.44, 0.26)
 const TRAIL_THREAD := Color(0.93, 0.38, 0.56)
 const SLOT_CLOTH := Color(0.74, 0.7, 0.61)
 const LEGAL_CLOTH := Color(0.88, 0.84, 0.72)
@@ -24,7 +25,8 @@ var textile := Textile.new()
 var decor := BiomeDecor.new(textile, SEAM_H, PUFF)
 
 var _patch: ArrayMesh
-var _slot_patch: ArrayMesh
+var _plot_shape: PackedVector2Array  # inset trefoil outline, relative to a plot's base hex
+var _slot_mesh: ArrayMesh
 var _slots: Node3D
 var _tiles: Node3D
 var _blooms: Node3D
@@ -38,7 +40,8 @@ var _animal_spots := {}  # weave point -> true, so animals don't overlap
 
 func _ready() -> void:
 	_patch = textile.patch_mesh(HEX_SIZE, SEAM_H, PUFF)
-	_slot_patch = textile.patch_mesh(HEX_SIZE * 0.97, SLOT_EDGE, SLOT_PUFF, 3)
+	_plot_shape = _inset_plot_shape()
+	_slot_mesh = _plot_cloth_mesh(_plot_shape)
 	for n in ["_slots", "_tiles", "_blooms", "_animals", "_ghost", "_seams"]:
 		var node := Node3D.new()
 		node.name = n.trim_prefix("_")
@@ -116,20 +119,85 @@ func _refresh_slots() -> void:
 	var legal := {}
 	for p in game.legal_plots():
 		legal[p] = true
-	var outline: Array = []
+	var plain: Array = []
+	var glowing: Array = []
 	for base in game.plots:
 		if game.placed.has(base):
 			continue
-		var cloth := textile.fabric(LEGAL_CLOTH if legal.has(base) else SLOT_CLOTH, SLOT_FABRIC)
-		for h in PlotGrid.plot_hexes(base):
-			var mi := MeshInstance3D.new()
-			mi.mesh = _slot_patch
-			mi.material_override = cloth
-			mi.position = hex_pos(h)
-			_slots.add_child(mi)
-		outline.append_array(_plot_outline(base, SLOT_EDGE + 0.012))
-	# Light tacking stitches mark where each empty plot is.
-	_slots.add_child(textile.stitches(outline, 2, 0.16, 0.016, TACK_THREAD))
+		var is_legal := legal.has(base)
+		var mi := MeshInstance3D.new()
+		mi.mesh = _slot_mesh
+		mi.material_override = textile.fabric(LEGAL_CLOTH if is_legal else SLOT_CLOTH, SLOT_FABRIC)
+		mi.position = hex_pos(base)
+		_slots.add_child(mi)
+		var origin := hex_pos(base, SLOT_H + 0.012)
+		var target := glowing if is_legal else plain
+		for i in _plot_shape.size():
+			var a := _plot_shape[i]
+			var b := _plot_shape[(i + 1) % _plot_shape.size()]
+			target.append([origin + Vector3(a.x, 0, a.y), origin + Vector3(b.x, 0, b.y)])
+	# Each empty plot is one trefoil of backing cloth with a stitched outline;
+	# plots you can place on right now get a brighter, thicker thread.
+	_slots.add_child(textile.stitches(plain, 3, 0.17, 0.018, TACK_THREAD))
+	_slots.add_child(textile.stitches(glowing, 3, 0.19, 0.026, LEGAL_THREAD))
+
+
+## The outline of a plot (its three hexes), inset by SLOT_INSET, relative
+## to the plot's base hex. Every plot has the same shape.
+func _inset_plot_shape() -> PackedVector2Array:
+	var base := Vector2i.ZERO
+	var origin := Hex.to_world(base, HEX_SIZE)
+	var next := {}  # outline corner -> following corner (walking the border)
+	for h in PlotGrid.plot_hexes(base):
+		var c := Hex.to_world(h, HEX_SIZE) - origin
+		for i in 6:
+			if PlotGrid.plot_of(Hex.neighbor(h, i)) == base:
+				continue
+			var a := (c + Hex.corner_offset(i, HEX_SIZE)).snapped(Vector2.ONE * 0.0001)
+			var b := (c + Hex.corner_offset(i + 1, HEX_SIZE)).snapped(Vector2.ONE * 0.0001)
+			next[a] = b
+	var loop := PackedVector2Array()
+	var start: Vector2 = next.keys()[0]
+	var p := start
+	for _i in next.size():
+		loop.append(p)
+		p = next[p]
+		if p == start:
+			break
+	var inset := Geometry2D.offset_polygon(loop, -SLOT_INSET, Geometry2D.JOIN_MITER)
+	return inset[0] if not inset.is_empty() else loop
+
+
+static func _signed_area(poly: PackedVector2Array) -> float:
+	var a := 0.0
+	for i in poly.size():
+		var p := poly[i]
+		var q := poly[(i + 1) % poly.size()]
+		a += p.x * q.y - q.x * p.y
+	return a / 2.0
+
+
+## A flat slab in the shape of `outline`, SLOT_H thick.
+func _plot_cloth_mesh(outline: PackedVector2Array) -> ArrayMesh:
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var tris := Geometry2D.triangulate_polygon(outline)
+	# Wind the top so it faces up whichever way the outline runs.
+	var order := [0, 1, 2] if _signed_area(outline) > 0.0 else [0, 2, 1]
+	for i in range(0, tris.size(), 3):
+		for k in order:
+			var v := outline[tris[i + k]]
+			st.set_normal(Vector3.UP)
+			st.add_vertex(Vector3(v.x, SLOT_H, v.y))
+	for i in outline.size():
+		var a := outline[i]
+		var b := outline[(i + 1) % outline.size()]
+		var n := Vector3(b.y - a.y, 0, -(b.x - a.x)).normalized()
+		var quad := [Vector3(a.x, SLOT_H, a.y), Vector3(b.x, SLOT_H, b.y), Vector3(b.x, 0, b.y), Vector3(a.x, 0, a.y)]
+		for idx in [0, 1, 2, 0, 2, 3]:
+			st.set_normal(n)
+			st.add_vertex(quad[idx])
+	return st.commit()
 
 
 ## Border edges of a plot, each [from, to] at height y.

@@ -24,7 +24,7 @@ enum Gesture { NONE, ZOOM, ROTATE, TILT }
 @export var pitch := deg_to_rad(52.0)
 @export var distance := 20.0
 @export var target := Vector3(0.0, 0.0, 1.8)
-@export var min_distance := 7.0
+@export var min_distance := 3.0
 @export var max_distance := 32.0
 @export var min_pitch := deg_to_rad(25.0)
 @export var max_pitch := deg_to_rad(85.0)
