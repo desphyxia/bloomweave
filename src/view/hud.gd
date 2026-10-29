@@ -51,6 +51,7 @@ func setup(p_game: ValleyGame) -> void:
 	_hint.text += "\nBlooms grow on the stitched stars, where three pieces meet. Buds show which biome a corner still needs."
 	if game.clockwise_blooms():
 		_hint.text += "\nIn this valley the biomes must go clockwise (see Blooms)."
+	_hint.text += "\n(Tap here to close.)"
 	_build_bloom_guide()
 
 
@@ -250,7 +251,13 @@ func _build_bottom() -> void:
 	_root.add_child(bottom)
 	_hint_panel = _panel()
 	_hint_panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	_hint_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Tap the hint to dismiss it (the tap doesn't reach the board).
+	_hint_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	_hint_panel.gui_input.connect(func(e: InputEvent) -> void:
+		if (e is InputEventMouseButton and (e as InputEventMouseButton).pressed) \
+				or (e is InputEventScreenTouch and (e as InputEventScreenTouch).pressed):
+			hide_hint()
+			_hint_panel.accept_event())
 	_hint = Label.new()
 	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
