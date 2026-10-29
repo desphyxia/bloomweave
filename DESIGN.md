@@ -215,6 +215,16 @@ blooms now while keeping corridor routes and future corners open.
     a slightly different fabric shade, and sometimes a rare extra:
     mushroom or fallen log (forest), rabbit or stone (meadow), frog on a
     lily pad or duck (wetland), boulder or birch (heath).
+  - *Surroundings (built):* the valley sits in a landscape so it reads as a
+    place, not a board. Around the plots lies faded land: grey, washed-out
+    cloth with dry tufts that regains colour next to restored hexes. Beyond
+    it a ring of quilted hills (puffy domes with running-stitch contours)
+    carries felt woods, sheep and three red-roofed cottages, and a silk
+    stream runs down from the hills into a pool at the valley's edge.
+    Further out, layered distant hills and slow felt clouds under a soft sky.
+  - *Living surroundings:* hills and stream start greyed and regain colour as
+    the valley is restored; an animal that moves in also appears on the
+    hills; a finished valley gets birds circling and chimney smoke.
   - *Camera:* tilted 3D view with free orbit and zoom.
   - *Sound:* soft ambient music; each biome adds nature sounds that layer up
     as the valley fills; fabric rustle on placement.

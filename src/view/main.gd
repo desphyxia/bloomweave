@@ -6,6 +6,7 @@ const VALLEY_ID := "first_valley"
 var data: GameData
 var game: ValleyGame
 var board: BoardView
+var scenery: Scenery
 var rig: CameraRig
 var hud: Hud
 
@@ -38,8 +39,17 @@ func _on_resize() -> void:
 func _setup_scene() -> void:
 	var env := WorldEnvironment.new()
 	var e := Environment.new()
-	e.background_mode = Environment.BG_COLOR
-	e.background_color = Color(0.93, 0.91, 0.85)
+	var sky_mat := ProceduralSkyMaterial.new()
+	sky_mat.sky_top_color = Color(0.56, 0.72, 0.86)
+	sky_mat.sky_horizon_color = Color(0.93, 0.91, 0.84)
+	sky_mat.ground_horizon_color = Color(0.86, 0.86, 0.78)
+	sky_mat.ground_bottom_color = Color(0.6, 0.66, 0.5)
+	sky_mat.sun_angle_max = 0.0
+	sky_mat.sun_curve = 0.01
+	var sky := Sky.new()
+	sky.sky_material = sky_mat
+	e.background_mode = Environment.BG_SKY
+	e.sky = sky
 	e.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	e.ambient_light_color = Color(0.95, 0.93, 0.88)
 	e.ambient_light_energy = 0.34
@@ -55,6 +65,8 @@ func _setup_scene() -> void:
 	sun.shadow_enabled = true
 	add_child(sun)
 
+	scenery = Scenery.new()
+	add_child(scenery)
 	board = BoardView.new()
 	add_child(board)
 
@@ -73,6 +85,7 @@ func _new_game() -> void:
 	arrangement = game.current_piece()
 	_first_turn = true
 	board.setup(game)
+	scenery.setup(game)
 	hud.setup(game)
 	hud.set_costs(game.valley.get("seed_costs", {}))
 	_update()
@@ -163,7 +176,9 @@ func _place() -> void:
 		names.append(data.blooms_by_id[b.bloom].name)
 	for id: String in result.settled:
 		board.add_animal(id, game.settled[id], true)
+		scenery.on_settled(id)
 	board.refresh()
+	scenery.refresh()
 	if result.perfect:
 		board.celebrate(base)
 	var perfect := "Perfect piece! All six bloomed  +%d seeds\n" % int(game.valley.scoring.get("perfect_seeds", 0)) if result.perfect else ""
@@ -177,6 +192,7 @@ func _place() -> void:
 		hud.toast("%s%s bloomed  +%d points%s" % [perfect, ", ".join(names), result.points, combo])
 	_update()
 	if result.finished:
+		scenery.on_finished()
 		hud.show_end()
 
 

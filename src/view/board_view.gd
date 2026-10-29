@@ -133,6 +133,7 @@ func _refresh_slots() -> void:
 		var mi := MeshInstance3D.new()
 		mi.mesh = _slot_mesh
 		mi.material_override = textile.fabric(LEGAL_CLOTH if is_legal else SLOT_CLOTH, SLOT_FABRIC)
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		mi.position = hex_pos(base)
 		_slots.add_child(mi)
 		var origin := hex_pos(base, SLOT_H + 0.012)
