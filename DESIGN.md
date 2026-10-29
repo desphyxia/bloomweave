@@ -86,6 +86,10 @@ blooms now while keeping corridor routes and future corners open.
   to learn; later valleys switch the rule on as a step up.
 - **Readable blooms** (Dorfromantik's matching is easy to read because each
   check is local and binary; these bring that to corners):
+  - *Bloom spots are marked:* blooms only grow where three different pieces
+    meet, which players couldn't see (playtest: a forest + meadow + wetland
+    corner "didn't bloom" because two of its hexes were one piece). Every
+    such corner that can still bloom shows a small gold stitched star.
   - *Buds on open corners:* every corner with two of its three hexes filled
     shows a bud on a stem, with one coloured knot per biome that would make
     it bloom. Reading a corner becomes colour matching. Corners that can no

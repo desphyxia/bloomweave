@@ -17,6 +17,7 @@ const SEAM_THREAD := Color(0.27, 0.22, 0.17)
 const TACK_THREAD := Color(0.56, 0.5, 0.41)
 const LEGAL_THREAD := Color(0.84, 0.44, 0.26)
 const TRAIL_THREAD := Color(0.93, 0.38, 0.56)
+const STAR_THREAD := Color(1.0, 0.82, 0.35)
 const SLOT_CLOTH := Color(0.74, 0.7, 0.61)
 const LEGAL_CLOTH := Color(0.88, 0.84, 0.72)
 const SLOT_FABRIC := {"weave_scale": 16.0, "weave_strength": 0.1, "fuzz": 0.05, "rough": 1.0}
@@ -315,11 +316,34 @@ func _make_flower(v: Vector3i, bloom_id: String, biome_of: Dictionary, ghost: bo
 	return mi
 
 
-## Buds on open corners: a closed bud whose coloured knots show which
-## biome(s) the empty hex needs for the corner to bloom.
+## Bloom spots, so every corner where three plots meet shows its state:
+##   stitched star - a bloom can still grow here (0-1 of its hexes filled)
+##   bud           - two hexes filled; its knots show what the last one needs
+##   flower        - bloomed (drawn by add_bloom)
+##   nothing       - can no longer bloom
 func _refresh_buds() -> void:
 	for c in _buds.get_children():
 		c.queue_free()
+	var seen := {}
+	for base in game.plots:
+		for v in PlotGrid.plot_weave_points(base):
+			if seen.has(v):
+				continue
+			seen[v] = true
+			var filled := 0
+			var in_valley := true
+			for h in Hex.vertex_hexes(v):
+				in_valley = in_valley and game.is_in_valley(PlotGrid.plot_of(h))
+				if game.board.has(h):
+					filled += 1
+			if not in_valley or filled >= 2:
+				continue
+			var star := MeshInstance3D.new()
+			star.mesh = textile.star_mesh(STAR_THREAD)
+			star.position = vertex_pos(v, SEAM_H + 0.01 if filled == 1 else SLOT_H + 0.01)
+			star.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			star.scale = Vector3.ONE * 2.0
+			_buds.add_child(star)
 	for corner: Dictionary in game.open_corners():
 		if corner.needs.is_empty():
 			continue

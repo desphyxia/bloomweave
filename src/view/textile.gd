@@ -379,3 +379,37 @@ func bud_mesh(needs: Array) -> ArrayMesh:
 		mesh.surface_set_material(mesh.get_surface_count() - 1, satin((needs[i] as Color).lightened(0.2)))
 	_cache[key] = mesh
 	return mesh
+
+
+## A small stitched star (three crossing stitches and a centre knot) that
+## marks a corner where a bloom can still grow.
+func star_mesh(color: Color) -> ArrayMesh:
+	var key := "star|" + color.to_html()
+	if _cache.has(key):
+		return _cache[key]
+	var bar := CapsuleMesh.new()
+	bar.radius = 0.5
+	bar.height = 1.0
+	bar.radial_segments = 6
+	bar.rings = 2
+	var dot := SphereMesh.new()
+	dot.radius = 0.5
+	dot.height = 1.0
+	dot.radial_segments = 8
+	dot.rings = 4
+	var mesh := ArrayMesh.new()
+	var stitches := SurfaceTool.new()
+	stitches.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var under := SurfaceTool.new()
+	under.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for k in 3:
+		var basis := Basis(Vector3.UP, PI * k / 3.0) * Basis(Vector3.FORWARD, PI / 2.0)
+		under.append_from(bar, 0, Transform3D(basis.scaled(Vector3(0.075, 0.38, 0.075)), Vector3(0, 0.02, 0)))
+		stitches.append_from(bar, 0, Transform3D(basis.scaled(Vector3(0.05, 0.34, 0.05)), Vector3(0, 0.04, 0)))
+	stitches.append_from(dot, 0, Transform3D(Basis().scaled(Vector3.ONE * 0.11), Vector3(0, 0.06, 0)))
+	under.commit(mesh)
+	mesh.surface_set_material(0, satin(Color(0.25, 0.2, 0.15)))
+	stitches.commit(mesh)
+	mesh.surface_set_material(1, satin(color))
+	_cache[key] = mesh
+	return mesh
