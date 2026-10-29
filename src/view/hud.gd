@@ -58,8 +58,8 @@ func setup(p_game: ValleyGame) -> void:
 ## it would be placed; `selected` tells whether a plot is chosen.
 func refresh(arranged: Array, selected: bool, preview_count: int) -> void:
 	var s := game.score_breakdown()
-	_info.text = "%s%s\nSeeds %d   ·   Score %d   ·   Pieces left %d" % [
-		game.valley.get("name", "Valley"), _build_label(), game.seeds, s.total, game.pieces_left()]
+	_info.text = "%s   ·   game #%d%s\nSeeds %d   ·   Score %d   ·   Pieces left %d" % [
+		game.valley.get("name", "Valley"), game.game_seed, _build_label(), game.seeds, s.total, game.pieces_left()]
 	_current.biomes = arranged
 	for c in _upcoming_box.get_children():
 		c.queue_free()
@@ -128,7 +128,7 @@ func _build_bloom_guide() -> void:
 	for c in _blooms_box.get_children():
 		c.queue_free()
 	var title := Label.new()
-	title.text = "Blooms (clockwise)" if game.clockwise_blooms() else "Blooms"
+	title.text = "Blooms (clockwise)" if game.clockwise_blooms() else "Blooms (any order)"
 	title.add_theme_font_size_override("font_size", 17)
 	_blooms_box.add_child(title)
 	var valley_biomes: Array = game.valley.get("biomes", [])
@@ -142,8 +142,8 @@ func _build_bloom_guide() -> void:
 		row.add_theme_constant_override("separation", 6)
 		var icon := CornerIcon.new()
 		icon.data = data
-		icon.custom_minimum_size = Vector2(34, 34)
 		icon.clockwise = game.clockwise_blooms()
+		icon.custom_minimum_size = Vector2(34, 34) if icon.clockwise else Vector2(62, 24)
 		icon.bloom_color = Color(bloom.get("color", "#ffffff"))
 		icon.biomes = bloom.trio
 		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE

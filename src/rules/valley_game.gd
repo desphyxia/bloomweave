@@ -18,6 +18,7 @@ var settled := {}        # animal id -> Array of weave points (its corridor)
 var look_ahead_active := false
 var turn := 0
 var rng := RandomNumberGenerator.new()
+var game_seed := 0      # shown on screen so a valley can be replayed exactly
 
 var _plot_set := {}
 
@@ -25,10 +26,12 @@ var _plot_set := {}
 func _init(p_data: GameData, p_valley: Dictionary, rng_seed: int = -1) -> void:
 	data = p_data
 	valley = p_valley
-	if rng_seed >= 0:
-		rng.seed = rng_seed
-	else:
-		rng.randomize()
+	if rng_seed < 0:
+		var r := RandomNumberGenerator.new()
+		r.randomize()
+		rng_seed = r.randi_range(100000, 999999)
+	game_seed = rng_seed
+	rng.seed = rng_seed
 	plots = PlotGrid.plots_within(center, int(valley.outline.radius))
 	for p in plots:
 		_plot_set[p] = true

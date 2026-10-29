@@ -13,6 +13,10 @@ The web build is published to GitHub Pages on every push to `master`.
 The info panel shows the build (commit) id; each deploy gives the game data
 file a new name so browsers always load the latest version.
 
+The info panel also shows the **game number** (e.g. `game #424242`). Add
+`?seed=424242` to the page address to replay exactly that valley (same
+pieces in the same order); handy when reporting a bug.
+
 - **Tap a glowing plot** to try the current piece there; tap it again (or
   press **Turn**) to rotate it. **Mirror** flips it.
 - **Place** puts it down. Flowers show where corners will bloom.

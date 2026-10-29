@@ -94,9 +94,11 @@ blooms now while keeping corridor routes and future corners open.
     its three hexes, in that hex's biome colour (with a dark outline stitch),
     and a centre in the bloom's own colour. Blooms and buds stand on short
     stems above the puffy patches.
-  - *Corner diagrams in the guide:* the Blooms panel draws each recipe as
-    three coloured wedges meeting at a point (with a clockwise arrow when the
-    order rule is on), not as a piece you could place.
+  - *Recipe guide matches the rule:* with the order rule on, the Blooms panel
+    draws each recipe as three coloured wedges meeting at a point with a
+    clockwise arrow. With it off ("any order"), recipes are drawn as three
+    biome swatches joined by "+", because a ring suggests an order that
+    doesn't matter (playtest: a bloom looked "reversed" next to the ring).
   - *Perfect piece:* a placement that completes 2+ corners and makes every
     one of them bloom gets a petal burst and a "Perfect piece!" message.
     Feedback only for now (about one per valley for the greedy test player).

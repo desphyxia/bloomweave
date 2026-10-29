@@ -29,6 +29,16 @@ func _chain(start: Vector3i, n: int) -> Array[Vector3i]:
 	return out
 
 
+func test_same_game_number_replays_the_same_valley() -> void:
+	var a := _game(123456)
+	var b := _game(123456)
+	assert_int(a.game_seed).is_equal(123456)
+	assert_array(a.pile).is_equal(b.pile)
+	var c := ValleyGame.new(data, data.valley("first_valley"))
+	assert_bool(c.game_seed >= 100000 and c.game_seed <= 999999).is_true()
+	assert_array(ValleyGame.new(data, data.valley("first_valley"), c.game_seed).pile).is_equal(c.pile)
+
+
 func test_setup() -> void:
 	var g := _game()
 	assert_int(g.plots.size()).is_equal(19)

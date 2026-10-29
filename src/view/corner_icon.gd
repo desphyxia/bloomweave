@@ -1,8 +1,10 @@
 class_name CornerIcon
 extends Control
-## A bloom recipe drawn as a corner: three wedges in the biome colours meeting
-## at a point, with the bloom's own colour in the middle. When the valley's
-## blooms need clockwise order, a small arrow shows the reading direction.
+## A bloom recipe. When the valley's blooms need clockwise order, it is drawn
+## as a corner: three wedges in the biome colours meeting at a point, the
+## bloom's colour in the middle and an arrow showing the reading direction.
+## Otherwise order doesn't matter, so it is drawn as an unordered set: three
+## biome swatches in a row joined by "+" (a ring would suggest an order).
 
 var biomes: Array = []:
 	set(value):
@@ -22,6 +24,9 @@ func _notification(what: int) -> void:
 
 func _draw() -> void:
 	if biomes.size() != 3 or data == null:
+		return
+	if not clockwise:
+		_draw_set()
 		return
 	var c := size / 2.0
 	var r := minf(size.x, size.y) * (0.36 if clockwise else 0.46)
@@ -45,3 +50,20 @@ func _draw() -> void:
 		var back := tip - tangent * 5.0
 		var side := Vector2.from_angle(a_end) * 3.0
 		draw_colored_polygon(PackedVector2Array([tip, back + side, back - side]), INK)
+
+
+func _draw_set() -> void:
+	var r := minf(size.y * 0.42, size.x / 7.5)
+	var gap := (size.x - 6.0 * r) / 2.0
+	for i in 3:
+		var c := Vector2(r + i * (2.0 * r + gap), size.y / 2.0)
+		var pts := PackedVector2Array()
+		for k in 6:
+			pts.append(c + Hex.corner_offset(k, r))
+		draw_colored_polygon(pts, data.biome_color(biomes[i]))
+		pts.append(pts[0])
+		draw_polyline(pts, INK, 1.5, true)
+		if i < 2:
+			var plus := c + Vector2(r + gap / 2.0, 0)
+			draw_line(plus - Vector2(3, 0), plus + Vector2(3, 0), INK, 1.5)
+			draw_line(plus - Vector2(0, 3), plus + Vector2(0, 3), INK, 1.5)

@@ -68,7 +68,7 @@ func _setup_scene() -> void:
 
 
 func _new_game() -> void:
-	game = ValleyGame.new(data, data.valley(VALLEY_ID))
+	game = ValleyGame.new(data, data.valley(VALLEY_ID), _requested_seed())
 	selected = null
 	arrangement = game.current_piece()
 	_first_turn = true
@@ -76,6 +76,26 @@ func _new_game() -> void:
 	hud.setup(game)
 	hud.set_costs(game.valley.get("seed_costs", {}))
 	_update()
+
+
+## A game number to replay: `?seed=123456` in the web page address, or
+## `-- --seed 123456` on the command line. Used for the first game only.
+var _seed_used := false
+
+
+func _requested_seed() -> int:
+	if _seed_used:
+		return -1
+	_seed_used = true
+	var value := ""
+	if OS.has_feature("web"):
+		var v: Variant = JavaScriptBridge.eval("new URLSearchParams(window.location.search).get('seed') || ''")
+		value = str(v) if v != null else ""
+	var args := OS.get_cmdline_user_args()
+	var i := args.find("--seed")
+	if i >= 0 and i + 1 < args.size():
+		value = args[i + 1]
+	return int(value) if value.is_valid_int() else -1
 
 
 func _arranged() -> Array:
