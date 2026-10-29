@@ -6,7 +6,7 @@
   "landmark": { "name": "Old Oak", "biomes": ["forest", "meadow", "wetland"] },
   "pile": { "distinct": 14, "double": 4, "single": 0 },
   "animals": ["otter", "deer"],
-  "bloom_order": "clockwise",
+  "bloom_order": "any",
   "scoring": { "bloom": 2, "seeds_per_point": 3 },
   "seed_costs": { "set_aside": 1, "swap": 1, "look_ahead": 2 },
   "look_ahead_count": 3

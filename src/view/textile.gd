@@ -272,3 +272,110 @@ func flower_mesh(petal_color: Color, ghost: bool = false) -> ArrayMesh:
 	mesh.surface_set_material(2, satin(Color(0.96, 0.75, 0.25), ghost))
 	_cache[key] = mesh
 	return mesh
+
+
+## A recipe flower: two petals pointing at each of the corner's three hexes,
+## in that hex's biome colour, each with a dark outline stitch so it reads
+## on top of the same colour; the centre knot is the bloom's own colour.
+## `petals` is an Array of [angle (radians, in the x-z plane), Color].
+func recipe_flower_mesh(petals: Array, centre: Color, ghost: bool = false, stem: float = 0.0) -> ArrayMesh:
+	var parts := []
+	for p: Array in petals:
+		parts.append("%.2f:%s" % [p[0], (p[1] as Color).to_html()])
+	var key := "recipe|%s|%s|%s|%.2f" % [",".join(parts), centre.to_html(), ghost, stem]
+	if _cache.has(key):
+		return _cache[key]
+	var blob := SphereMesh.new()
+	blob.radius = 0.5
+	blob.height = 1.0
+	blob.radial_segments = 10
+	blob.rings = 5
+	var mesh := ArrayMesh.new()
+	var outline := SurfaceTool.new()
+	outline.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var by_color := {}
+	for p: Array in petals:
+		for spread in [-0.42, 0.42]:
+			var a: float = p[0] + spread
+			var basis := Basis(Vector3.UP, -a)
+			var at := Vector3(cos(a) * 0.12, 0.05, sin(a) * 0.12)
+			outline.append_from(blob, 0, Transform3D(basis.scaled(Vector3(0.25, 0.06, 0.16)), at - Vector3(0, 0.012, 0)))
+			var c: Color = p[1]
+			var k := c.to_html()
+			if not by_color.has(k):
+				var st := SurfaceTool.new()
+				st.begin(Mesh.PRIMITIVE_TRIANGLES)
+				by_color[k] = [st, c]
+			(by_color[k][0] as SurfaceTool).append_from(blob, 0, Transform3D(basis.scaled(Vector3(0.21, 0.07, 0.12)), at))
+	outline.commit(mesh)
+	mesh.surface_set_material(0, satin(Color(0.22, 0.19, 0.16), ghost))
+	var i := 1
+	if stem > 0.0:
+		var stalk := CylinderMesh.new()
+		stalk.top_radius = 0.02
+		stalk.bottom_radius = 0.025
+		stalk.height = stem
+		stalk.radial_segments = 6
+		var st := SurfaceTool.new()
+		st.begin(Mesh.PRIMITIVE_TRIANGLES)
+		st.append_from(stalk, 0, Transform3D(Basis(), Vector3(0, -stem / 2.0 + 0.03, 0)))
+		st.commit(mesh)
+		mesh.surface_set_material(i, satin(Color(0.33, 0.52, 0.3), ghost))
+		i += 1
+	for k: String in by_color:
+		(by_color[k][0] as SurfaceTool).commit(mesh)
+		mesh.surface_set_material(i, satin((by_color[k][1] as Color).lightened(0.12), ghost))
+		i += 1
+	var knot := SurfaceTool.new()
+	knot.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for q in [Vector3(0.0, 0.1, 0.0), Vector3(0.03, 0.09, 0.02), Vector3(-0.03, 0.09, 0.02), Vector3(0.0, 0.09, -0.035)]:
+		knot.append_from(blob, 0, Transform3D(Basis().scaled(Vector3.ONE * 0.07), q))
+	knot.commit(mesh)
+	mesh.surface_set_material(i, satin(centre, ghost))
+	_cache[key] = mesh
+	return mesh
+
+
+## A closed bud on an open corner: a green calyx with one coloured knot for
+## each biome that would make the corner bloom.
+func bud_mesh(needs: Array) -> ArrayMesh:
+	var parts := []
+	for c: Color in needs:
+		parts.append(c.to_html())
+	var key := "bud|" + ",".join(parts)
+	if _cache.has(key):
+		return _cache[key]
+	var blob := SphereMesh.new()
+	blob.radius = 0.5
+	blob.height = 1.0
+	blob.radial_segments = 8
+	blob.rings = 4
+	var mesh := ArrayMesh.new()
+	var calyx := SurfaceTool.new()
+	calyx.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var stalk := CylinderMesh.new()
+	stalk.top_radius = 0.018
+	stalk.bottom_radius = 0.022
+	stalk.height = 0.22
+	stalk.radial_segments = 6
+	calyx.append_from(stalk, 0, Transform3D(Basis(), Vector3(0, 0.11, 0)))
+	calyx.append_from(blob, 0, Transform3D(Basis().scaled(Vector3(0.12, 0.1, 0.12)), Vector3(0, 0.25, 0)))
+	calyx.commit(mesh)
+	mesh.surface_set_material(0, fabric(Color(0.33, 0.52, 0.3), {"fuzz": 0.3, "weave_strength": 0.0}))
+	var n := needs.size()
+	for i in n:
+		var st := SurfaceTool.new()
+		st.begin(Mesh.PRIMITIVE_TRIANGLES)
+		var a := TAU * i / maxf(n, 1)
+		var off := Vector3(cos(a), 0, sin(a)) * (0.06 if n > 1 else 0.0) + Vector3(0, 0.2, 0)
+		# A dark ring under each knot keeps it readable on any patch colour.
+		st.append_from(blob, 0, Transform3D(Basis().scaled(Vector3.ONE * 0.112), off + Vector3(0, 0.112, 0)))
+		st.commit(mesh)
+		mesh.surface_set_material(mesh.get_surface_count() - 1, satin(Color(0.22, 0.19, 0.16)))
+		var top := SurfaceTool.new()
+		top.begin(Mesh.PRIMITIVE_TRIANGLES)
+		top.append_from(blob, 0, Transform3D(Basis().scaled(Vector3.ONE * 0.104), off + Vector3(0, 0.12, 0)))
+		top.commit(mesh)
+		mesh.surface_set_material(mesh.get_surface_count() - 1, satin((needs[i] as Color).lightened(0.2)))
+	_cache[key] = mesh
+	return mesh

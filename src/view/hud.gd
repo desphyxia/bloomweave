@@ -48,8 +48,9 @@ func setup(p_game: ValleyGame) -> void:
 	_end.visible = false
 	_hint_panel.visible = true
 	_hint.text = "Tap a glowing plot to try the piece there. Tap it again to turn it."
+	_hint.text += "\nBuds on corners show which biome the corner still needs to bloom."
 	if game.clockwise_blooms():
-		_hint.text += "\nBlooms need their biomes in clockwise order (see Blooms)."
+		_hint.text += "\nIn this valley the biomes must go clockwise (see Blooms)."
 	_build_bloom_guide()
 
 
@@ -139,20 +140,14 @@ func _build_bloom_guide() -> void:
 			continue
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 6)
-		var icon := _icon(Vector2(34, 34))
+		var icon := CornerIcon.new()
+		icon.data = data
+		icon.custom_minimum_size = Vector2(34, 34)
+		icon.clockwise = game.clockwise_blooms()
+		icon.bloom_color = Color(bloom.get("color", "#ffffff"))
 		icon.biomes = bloom.trio
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		row.add_child(icon)
-		var dot := Panel.new()
-		var sb := StyleBoxFlat.new()
-		sb.bg_color = Color(bloom.get("color", "#ffffff"))
-		sb.border_color = Color(0.2, 0.22, 0.18, 0.7)
-		sb.set_border_width_all(1)
-		sb.set_corner_radius_all(5)
-		dot.add_theme_stylebox_override("panel", sb)
-		dot.custom_minimum_size = Vector2(11, 11)
-		dot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		row.add_child(dot)
 		var l := Label.new()
 		l.text = bloom.name
 		l.add_theme_font_size_override("font_size", 15)

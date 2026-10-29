@@ -8,6 +8,8 @@ const HEX_SIZE := 1.0
 const SEAM_H := 0.12    # patch height at its edges, where seams, blooms and trails sit
 const PUFF := 0.21      # extra height in the middle of a patch
 const TILE_H := 0.2     # picking plane for taps
+const FLOWER_SCALE := 1.9
+const FLOWER_LIFT := 0.26  # blooms stand this high above the corner
 const SLOT_H := 0.035   # thickness of an empty plot's backing cloth
 const SLOT_INSET := 0.05  # gap between neighbouring empty plots
 
@@ -30,6 +32,7 @@ var _slot_mesh: ArrayMesh
 var _slots: Node3D
 var _tiles: Node3D
 var _blooms: Node3D
+var _buds: Node3D
 var _animals: Node3D
 var _ghost: Node3D
 var _seams: Node3D
@@ -42,7 +45,7 @@ func _ready() -> void:
 	_patch = textile.patch_mesh(HEX_SIZE, SEAM_H, PUFF)
 	_plot_shape = _inset_plot_shape()
 	_slot_mesh = _plot_cloth_mesh(_plot_shape)
-	for n in ["_slots", "_tiles", "_blooms", "_animals", "_ghost", "_seams"]:
+	for n in ["_slots", "_tiles", "_blooms", "_buds", "_animals", "_ghost", "_seams"]:
 		var node := Node3D.new()
 		node.name = n.trim_prefix("_")
 		add_child(node)
@@ -62,7 +65,7 @@ func setup(p_game: ValleyGame) -> void:
 	game = p_game
 	data = game.data
 	_animal_spots.clear()
-	for parent in [_slots, _tiles, _blooms, _animals, _ghost, _seams]:
+	for parent in [_slots, _tiles, _blooms, _buds, _animals, _ghost, _seams]:
 		for c in parent.get_children():
 			c.queue_free()
 	for base: Vector2i in game.placed:
@@ -80,6 +83,7 @@ func refresh() -> void:
 	_refresh_slots()
 	_refresh_seams()
 	_refresh_trails()
+	_refresh_buds()
 
 
 # --- Coordinates -------------------------------------------------------------
@@ -251,10 +255,13 @@ func set_ghost(base: Vector2i, arranged: Array, preview: Array) -> void:
 	var hexes := PlotGrid.plot_hexes(base)
 	for i in 3:
 		_ghost.add_child(_make_tile(hexes[i], arranged[i], true))
+	var biome_of := {}
+	for i in 3:
+		biome_of[hexes[i]] = arranged[i]
 	for b: Dictionary in preview:
-		var f := _make_flower(b.bloom, true)
-		f.position = vertex_pos(b.vertex, SEAM_H + 0.06)
-		f.scale = Vector3.ONE * 1.6
+		var f := _make_flower(b.vertex, b.bloom, biome_of, true)
+		f.position = vertex_pos(b.vertex, SEAM_H + FLOWER_LIFT + 0.04)
+		f.scale = Vector3.ONE * FLOWER_SCALE * 1.1
 		_ghost.add_child(f)
 
 
@@ -278,8 +285,8 @@ func _refresh_seams() -> void:
 
 
 func add_bloom(v: Vector3i, bloom_id: String, animate: bool) -> void:
-	var f := _make_flower(bloom_id, false)
-	f.position = vertex_pos(v, SEAM_H + 0.03)
+	var f := _make_flower(v, bloom_id, {}, false)
+	f.position = vertex_pos(v, SEAM_H + FLOWER_LIFT)
 	_blooms.add_child(f)
 	if animate:
 		var full := f.scale
@@ -289,13 +296,68 @@ func add_bloom(v: Vector3i, bloom_id: String, animate: bool) -> void:
 		tw.tween_property(f, "scale", full, 0.5)
 
 
-func _make_flower(bloom_id: String, ghost: bool) -> MeshInstance3D:
+## A bloom that shows its recipe: two petals point at each of the corner's
+## hexes in that hex's biome colour; the centre is the bloom's colour.
+## `biome_of` supplies biomes not yet on the board (the ghost piece).
+func _make_flower(v: Vector3i, bloom_id: String, biome_of: Dictionary, ghost: bool) -> MeshInstance3D:
 	var bloom: Dictionary = data.blooms_by_id.get(bloom_id, {})
+	var centre := Hex.vertex_world(v, HEX_SIZE)
+	var petals := []
+	for h in Hex.vertex_hexes(v):
+		var biome: String = biome_of.get(h, game.board.get(h, ""))
+		var dir := Hex.to_world(h, HEX_SIZE) - centre
+		petals.append([snappedf(dir.angle(), 0.01), data.biome_color(biome)])
 	var mi := MeshInstance3D.new()
-	mi.mesh = textile.flower_mesh(Color(bloom.get("color", "#ffffff")), ghost)
-	mi.scale = Vector3.ONE * 1.35
-	mi.rotation.y = randf() * TAU
+	# Corners sit in the dip between puffy patches, so blooms stand on a
+	# short stem to rise above them.
+	mi.mesh = textile.recipe_flower_mesh(petals, Color(bloom.get("color", "#ffffff")), ghost, FLOWER_LIFT / FLOWER_SCALE)
+	mi.scale = Vector3.ONE * FLOWER_SCALE
 	return mi
+
+
+## Buds on open corners: a closed bud whose coloured knots show which
+## biome(s) the empty hex needs for the corner to bloom.
+func _refresh_buds() -> void:
+	for c in _buds.get_children():
+		c.queue_free()
+	for corner: Dictionary in game.open_corners():
+		if corner.needs.is_empty():
+			continue
+		var colors := []
+		for b: String in corner.needs:
+			colors.append(data.biome_color(b))
+		var mi := MeshInstance3D.new()
+		mi.mesh = textile.bud_mesh(colors)
+		mi.position = vertex_pos(corner.vertex, SEAM_H)
+		mi.scale = Vector3.ONE * 2.1
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		_buds.add_child(mi)
+
+
+## A burst of petals rising from a piece: the perfect-piece celebration.
+func celebrate(base: Vector2i) -> void:
+	var hexes := PlotGrid.plot_hexes(base)
+	var centre := (hex_pos(hexes[0]) + hex_pos(hexes[1]) + hex_pos(hexes[2])) / 3.0
+	var petal := SphereMesh.new()
+	petal.radius = 0.5
+	petal.height = 1.0
+	petal.radial_segments = 6
+	petal.rings = 3
+	for i in 18:
+		var mi := MeshInstance3D.new()
+		mi.mesh = petal
+		mi.material_override = textile.satin(BiomeDecor.FLOWER_COLORS[i % BiomeDecor.FLOWER_COLORS.size()])
+		mi.scale = Vector3(0.12, 0.04, 0.08)
+		mi.position = centre + Vector3(0, SEAM_H + PUFF, 0)
+		mi.rotation.y = randf() * TAU
+		add_child(mi)
+		var a := TAU * i / 18.0 + randf() * 0.3
+		var target := centre + Vector3(cos(a) * randf_range(1.0, 1.7), randf_range(0.9, 1.6), sin(a) * randf_range(1.0, 1.7))
+		var tw := create_tween().set_parallel().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		tw.tween_property(mi, "position", target, 1.4)
+		tw.tween_property(mi, "rotation:y", mi.rotation.y + randf_range(-3.0, 3.0), 1.4)
+		tw.tween_property(mi, "scale", Vector3.ONE * 0.001, 1.4).set_delay(0.4)
+		tw.chain().tween_callback(mi.queue_free)
 
 
 ## Corridors: a bright embroidered thread along the piece borders between

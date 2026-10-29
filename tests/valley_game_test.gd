@@ -197,14 +197,47 @@ func test_score_breakdown() -> void:
 	assert_int(s.total).is_equal(14)
 
 
-func test_first_valley_uses_clockwise_blooms() -> void:
-	assert_bool(_game().clockwise_blooms()).is_true()
+func _clockwise_game(rng_seed: int = 1) -> ValleyGame:
+	var v := data.valley("first_valley").duplicate(true)
+	v.bloom_order = "clockwise"
+	return ValleyGame.new(data, v, rng_seed)
+
+
+func test_first_valley_blooms_in_any_order() -> void:
+	assert_bool(_game().clockwise_blooms()).is_false()
+	assert_bool(_clockwise_game().clockwise_blooms()).is_true()
+
+
+func test_open_corners_list_exactly_the_biomes_that_bloom() -> void:
+	for clockwise in [false, true]:
+		var g := _clockwise_game(5) if clockwise else _game(5)
+		for _turn in 8:
+			g.place(g.legal_plots()[0], g.current_piece())
+		var corners := g.open_corners()
+		assert_bool(corners.is_empty()).is_false()
+		for c: Dictionary in corners:
+			var ring := Hex.vertex_hexes_clockwise(c.vertex)
+			assert_bool(g.board.has(c.hex)).is_false()
+			for b: String in g.valley.biomes:
+				var trio := []
+				for h in ring:
+					trio.append(b if h == c.hex else g.board[h])
+				var blooms := not data.bloom_for(trio, clockwise).is_empty()
+				assert_bool(c.needs.has(b)).is_equal(blooms)
+
+
+func test_perfect_piece_needs_two_corners_all_blooming() -> void:
+	assert_bool(ValleyGame.is_perfect(2, 2)).is_true()
+	assert_bool(ValleyGame.is_perfect(3, 3)).is_true()
+	assert_bool(ValleyGame.is_perfect(1, 1)).is_false()
+	assert_bool(ValleyGame.is_perfect(3, 2)).is_false()
+	assert_bool(ValleyGame.is_perfect(0, 0)).is_false()
 
 
 func test_mirrored_corner_does_not_bloom_with_clockwise_rule() -> void:
 	# Find a placement that blooms, then check the corner's reverse order
 	# would not have bloomed.
-	var g := _game(3)
+	var g := _clockwise_game(3)
 	for _turn in 10:
 		for p in g.legal_plots():
 			for a in Piece.distinct_arrangements(g.current_piece()):
@@ -220,7 +253,7 @@ func test_mirrored_corner_does_not_bloom_with_clockwise_rule() -> void:
 
 func test_full_games_keep_rules_consistent() -> void:
 	for rng_seed in range(12):
-		var g := _game(100 + rng_seed)
+		var g := _clockwise_game(100 + rng_seed) if rng_seed % 2 == 1 else _game(100 + rng_seed)
 		var spent := 0
 		var animal_seeds := 0
 		var steps := 0
@@ -247,8 +280,11 @@ func test_full_games_keep_rules_consistent() -> void:
 						best_n = n
 						best_plot = p
 						best_arr = a
+			var completed := g.completed_corners(best_plot)
 			var r := g.place(best_plot, best_arr)
 			assert_bool(r.ok).is_true()
+			assert_int(r.completed).is_equal(completed)
+			assert_bool(r.blooms.size() <= completed).is_true()
 			for id: String in r.settled:
 				animal_seeds += int(data.animals[id].seeds)
 		assert_int(g.placed.size()).is_equal(19)

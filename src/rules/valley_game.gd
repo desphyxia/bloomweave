@@ -150,6 +150,7 @@ func place(base: Vector2i, arranged: Array) -> Dictionary:
 		return {"ok": false}
 	var seeds_before := seeds
 	var new_blooms := preview(base, arranged)
+	var completed := completed_corners(base)
 	_put(base, arranged)
 	pile.pop_front()
 	turn += 1
@@ -167,7 +168,66 @@ func place(base: Vector2i, arranged: Array) -> Dictionary:
 		"settled": newly_settled,
 		"seeds_gained": seeds - seeds_before,
 		"finished": is_finished(),
+		"completed": completed,
+		"perfect": is_perfect(completed, new_blooms.size()),
 	}
+
+
+## How many corners placing a piece on `base` would complete (corners whose
+## other two hexes are already filled).
+func completed_corners(base: Vector2i) -> int:
+	var hexes := PlotGrid.plot_hexes(base)
+	var n := 0
+	for v in PlotGrid.plot_weave_points(base):
+		var filled := 0
+		for h in Hex.vertex_hexes(v):
+			if board.has(h) and not hexes.has(h):
+				filled += 1
+		if filled == 2:
+			n += 1
+	return n
+
+
+## A perfect piece completes at least two corners and every one of them
+## blooms (like Dorfromantik's perfect placement, but for corners).
+static func is_perfect(completed: int, bloomed: int) -> bool:
+	return completed >= 2 and bloomed == completed
+
+
+## Corners waiting for their last hex: two hexes are filled, the third is an
+## empty hex in the valley. Each entry: {"vertex", "hex" (the empty one),
+## "needs" (biomes that would make it bloom, in data order)}. A corner whose
+## two biomes can no longer bloom has an empty "needs" list.
+func open_corners() -> Array:
+	var out := []
+	var seen := {}
+	var clockwise := clockwise_blooms()
+	for base in plots:
+		if placed.has(base):
+			continue
+		for v in PlotGrid.plot_weave_points(base):
+			if seen.has(v):
+				continue
+			seen[v] = true
+			var ring := Hex.vertex_hexes_clockwise(v)
+			var missing := -1
+			var filled := 0
+			for i in 3:
+				if board.has(ring[i]):
+					filled += 1
+				else:
+					missing = i
+			if filled != 2:
+				continue
+			var needs := []
+			for b: String in valley.biomes:
+				var trio := []
+				for i in 3:
+					trio.append(b if i == missing else board[ring[i]])
+				if not data.bloom_for(trio, clockwise).is_empty():
+					needs.append(b)
+			out.append({"vertex": v, "hex": ring[missing], "needs": needs})
+	return out
 
 
 func _put(base: Vector2i, arranged: Array) -> void:

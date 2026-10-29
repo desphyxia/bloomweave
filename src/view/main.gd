@@ -144,13 +144,16 @@ func _place() -> void:
 	for id: String in result.settled:
 		board.add_animal(id, game.settled[id], true)
 	board.refresh()
+	if result.perfect:
+		board.celebrate(base)
+	var perfect := "Perfect piece!  " if result.perfect else ""
 	if not result.settled.is_empty():
 		var who := []
 		for id: String in result.settled:
 			who.append(data.animals[id].name)
-		hud.toast("%s moved in!  +%d seeds" % [" and ".join(who), result.seeds_gained])
+		hud.toast("%s%s moved in!  +%d seeds" % [perfect, " and ".join(who), result.seeds_gained])
 	elif not names.is_empty():
-		hud.toast("%s bloomed  +%d seed%s" % [", ".join(names), names.size(), "" if names.size() == 1 else "s"])
+		hud.toast("%s%s bloomed  +%d seed%s" % [perfect, ", ".join(names), names.size(), "" if names.size() == 1 else "s"])
 	_update()
 	if result.finished:
 		hud.show_end()

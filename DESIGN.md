@@ -78,12 +78,28 @@ blooms now while keeping corridor routes and future corners open.
 - **Difficulty comes from each valley's bloom rules:** whether order
   matters, which trios bloom, and (later) a 5th biome. Doubles stay for
   variety; animal needs add on top.
-- **Clockwise blooms (first valley on).** A bloom needs its three biomes in
-  the order listed in its recipe, going clockwise around the corner (any
-  starting point); the reverse order makes nothing. This halves the matching
-  orders and makes Mirror a real choice. Set per valley with
-  `"bloom_order": "clockwise"`. The HUD shows each bloom's recipe as a mini
-  piece drawn clockwise.
+- **Clockwise blooms are a later-valley challenge.** With
+  `"bloom_order": "clockwise"` a bloom needs its three biomes in the order
+  listed in its recipe, going clockwise round the corner (any starting
+  point); the reverse makes nothing, which makes Mirror a real choice. The
+  first valley uses `"any"` (any three different biomes bloom) so it's easy
+  to learn; later valleys switch the rule on as a step up.
+- **Readable blooms** (Dorfromantik's matching is easy to read because each
+  check is local and binary; these bring that to corners):
+  - *Buds on open corners:* every corner with two of its three hexes filled
+    shows a bud on a stem, with one coloured knot per biome that would make
+    it bloom. Reading a corner becomes colour matching. Corners that can no
+    longer bloom show no bud.
+  - *Blooms show their recipe:* each bloom has two petals pointing at each of
+    its three hexes, in that hex's biome colour (with a dark outline stitch),
+    and a centre in the bloom's own colour. Blooms and buds stand on short
+    stems above the puffy patches.
+  - *Corner diagrams in the guide:* the Blooms panel draws each recipe as
+    three coloured wedges meeting at a point (with a clockwise arrow when the
+    order rule is on), not as a piece you could place.
+  - *Perfect piece:* a placement that completes 2+ corners and makes every
+    one of them bloom gets a petal burst and a "Perfect piece!" message.
+    Feedback only for now (about one per valley for the greedy test player).
 - **Bloom preview stays:** the ghost piece shows flowers where corners would
   bloom.
 - **Wildlife corridors are the large-scale goal** (instead of Dorfromantik's
@@ -295,8 +311,11 @@ before it's built. Progression through discoveries replaces score-based unlocks.
 - **Seed actions:** "Use set-aside" (free) brings the reserved piece back as
   the current piece; the current one becomes next. If the pile runs out, the
   reserved piece is played automatically.
-- **Balance check** (200 runs, greedy player that maximises blooms each turn,
-  never spends seeds), with clockwise blooms: about 12.5 of 24 possible
+- **Balance check, first valley without the order rule** (200 runs, greedy
+  player): about 16 of 24 corners bloom, otters settle in about 91% of runs,
+  deer in about 73%. Easy, as intended for the first valley.
+- **Balance check with clockwise blooms** (200 runs, greedy player that
+  maximises blooms each turn, never spends seeds): about 12.5 of 24 possible
   corners bloom (was 16 without the order rule); a bloom is possible on about
   65% of turns (was 83%); otters settle in about 70% of runs, deer in about
   44%; about 15 seeds are left over.

@@ -16,8 +16,10 @@ file a new name so browsers always load the latest version.
 - **Tap a glowing plot** to try the current piece there; tap it again (or
   press **Turn**) to rotate it. **Mirror** flips it.
 - **Place** puts it down. Flowers show where corners will bloom.
-- A corner blooms when its three biomes go **clockwise** in a bloom's recipe
-  order. The Blooms panel shows each recipe as a mini piece, read clockwise.
+- A corner blooms when its three hexes hold one of the bloom recipes (the
+  Blooms panel). **Buds** on open corners show which biome(s) the last hex
+  needs. Later valleys can require the biomes in **clockwise** order.
+- Complete two or more corners and make them all bloom for a **perfect piece**.
 - Each bloom gives a seed. Spend seeds to set a piece aside, swap the next
   piece in, or look further ahead.
 - **Touch:** drag with one finger to pan. With two fingers, pinch to zoom,
