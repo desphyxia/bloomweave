@@ -166,14 +166,15 @@ func _place() -> void:
 	board.refresh()
 	if result.perfect:
 		board.celebrate(base)
-	var perfect := "Perfect piece!  " if result.perfect else ""
+	var perfect := "Perfect piece! All six bloomed  +%d seeds\n" % int(game.valley.scoring.get("perfect_seeds", 0)) if result.perfect else ""
 	if not result.settled.is_empty():
 		var who := []
 		for id: String in result.settled:
 			who.append(data.animals[id].name)
 		hud.toast("%s%s moved in!  +%d seeds" % [perfect, " and ".join(who), result.seeds_gained])
 	elif not names.is_empty():
-		hud.toast("%s%s bloomed  +%d seed%s" % [perfect, ", ".join(names), names.size(), "" if names.size() == 1 else "s"])
+		var combo := "  ·  %d at once!" % names.size() if names.size() > 1 else ""
+		hud.toast("%s%s bloomed  +%d points%s" % [perfect, ", ".join(names), result.points, combo])
 	_update()
 	if result.finished:
 		hud.show_end()

@@ -103,9 +103,16 @@ blooms now while keeping corridor routes and future corners open.
     clockwise arrow. With it off ("any order"), recipes are drawn as three
     biome swatches joined by "+", because a ring suggests an order that
     doesn't matter (playtest: a bloom looked "reversed" next to the ring).
-  - *Perfect piece:* a placement that completes 2+ corners and makes every
-    one of them bloom gets a petal burst and a "Perfect piece!" message.
-    Feedback only for now (about one per valley for the greedy test player).
+  - *Combo points:* blooms made by the same placement are worth more each:
+    2, 3, 4, 5, 6, 7 points (2 blooms = 5, 3 = 9, 6 = 27). Settings
+    `bloom` and `combo_step` in each valley's scoring. The Place button shows
+    the points a placement would earn. Rewards leaving gaps on purpose so a
+    later piece completes several corners at once. (Greedy test player: 2
+    blooms in one placement about once per valley, never 3+.)
+  - *Perfect piece:* all six bloom spots around a piece bloom, which is only
+    possible when it fills a gap with every neighbouring plot placed. A rare
+    jackpot: +5 seeds (`perfect_seeds`), a big petal burst and a message, on
+    top of the 27 combo points.
 - **Bloom preview stays:** the ghost piece shows flowers where corners would
   bloom.
 - **Wildlife corridors are the large-scale goal** (instead of Dorfromantik's

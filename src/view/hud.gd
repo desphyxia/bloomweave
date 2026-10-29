@@ -77,7 +77,7 @@ func refresh(arranged: Array, selected: bool, preview_count: int) -> void:
 	_buttons.rotate.disabled = not selected
 	_buttons.mirror.disabled = not selected
 	_buttons.place.disabled = not selected
-	_buttons.place.text = "Place +%d" % preview_count if selected and preview_count > 0 else "Place"
+	_buttons.place.text = "Place  +%d pts" % game.combo_points(preview_count) if selected and preview_count > 0 else "Place"
 	_buttons.set_aside.disabled = not game.can_set_aside()
 	_buttons.use_reserve.disabled = not game.can_use_reserve()
 	_buttons.swap.disabled = not game.can_swap()

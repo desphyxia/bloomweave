@@ -197,7 +197,7 @@ func test_deer_need_enough_forest_blooms() -> void:
 
 func test_score_breakdown() -> void:
 	var g := _game()
-	g.blooms[Vector3i(2, -1, Hex.DOWN)] = "fern_hollow"
+	g.bloom_points = 2
 	g.settled["otter"] = []
 	g.seeds = 7  # 3 seeds per point -> 2 points
 	var s := g.score_breakdown()
@@ -236,12 +236,20 @@ func test_open_corners_list_exactly_the_biomes_that_bloom() -> void:
 				assert_bool(c.needs.has(b)).is_equal(blooms)
 
 
-func test_perfect_piece_needs_two_corners_all_blooming() -> void:
-	assert_bool(ValleyGame.is_perfect(2, 2)).is_true()
-	assert_bool(ValleyGame.is_perfect(3, 3)).is_true()
-	assert_bool(ValleyGame.is_perfect(1, 1)).is_false()
-	assert_bool(ValleyGame.is_perfect(3, 2)).is_false()
+func test_perfect_piece_needs_all_six_spots_blooming() -> void:
+	assert_bool(ValleyGame.is_perfect(6, 6)).is_true()
+	assert_bool(ValleyGame.is_perfect(6, 5)).is_false()
+	assert_bool(ValleyGame.is_perfect(3, 3)).is_false()
 	assert_bool(ValleyGame.is_perfect(0, 0)).is_false()
+
+
+func test_combo_points_rise_per_bloom() -> void:
+	var g := _game()
+	assert_int(g.combo_points(0)).is_equal(0)
+	assert_int(g.combo_points(1)).is_equal(2)
+	assert_int(g.combo_points(2)).is_equal(5)
+	assert_int(g.combo_points(3)).is_equal(9)
+	assert_int(g.combo_points(6)).is_equal(27)
 
 
 func test_mirrored_corner_does_not_bloom_with_clockwise_rule() -> void:
@@ -266,6 +274,8 @@ func test_full_games_keep_rules_consistent() -> void:
 		var g := _clockwise_game(100 + rng_seed) if rng_seed % 2 == 1 else _game(100 + rng_seed)
 		var spent := 0
 		var animal_seeds := 0
+		var perfect_seeds := 0
+		var points := 0
 		var steps := 0
 		while not g.is_finished():
 			steps += 1
@@ -297,10 +307,16 @@ func test_full_games_keep_rules_consistent() -> void:
 			assert_bool(r.blooms.size() <= completed).is_true()
 			for id: String in r.settled:
 				animal_seeds += int(data.animals[id].seeds)
+			assert_int(r.points).is_equal(g.combo_points(r.blooms.size()))
+			assert_bool(r.perfect).is_equal(r.completed == 6 and r.blooms.size() == 6)
+			points += r.points
+			if r.perfect:
+				perfect_seeds += int(g.valley.scoring.perfect_seeds)
 		assert_int(g.placed.size()).is_equal(19)
 		assert_int(g.board.size()).is_equal(57)
 		assert_int(g.pieces_left()).is_equal(0)
-		assert_int(g.seeds).is_equal(g.blooms.size() + animal_seeds - spent)
+		assert_int(g.seeds).is_equal(g.blooms.size() + animal_seeds + perfect_seeds - spent)
+		assert_int(g.score_breakdown().blooms).is_equal(points)
 		_assert_blooms_consistent(g)
 
 

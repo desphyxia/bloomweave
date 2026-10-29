@@ -23,7 +23,8 @@ pieces in the same order); handy when reporting a bug.
 - A corner blooms when its three hexes hold one of the bloom recipes (the
   Blooms panel). **Buds** on open corners show which biome(s) the last hex
   needs. Later valleys can require the biomes in **clockwise** order.
-- Complete two or more corners and make them all bloom for a **perfect piece**.
+- Blooms made by the same piece score more each (2, 3, 4… points). Fill a
+  gap so all six corners around a piece bloom for a **perfect piece** (+5 seeds).
 - Each bloom gives a seed. Spend seeds to set a piece aside, swap the next
   piece in, or look further ahead.
 - **Touch:** drag with one finger to pan. With two fingers, pinch to zoom,

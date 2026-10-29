@@ -14,6 +14,7 @@ var pile: Array = []     # pieces still to place; pile[0] is the current piece
 var reserve: Array = []  # the set-aside piece, or [] when the slot is empty
 var seeds := 0
 var blooms := {}         # weave point (Vector3i) -> bloom id
+var bloom_points := 0    # points earned from blooms (with combo bonuses)
 var settled := {}        # animal id -> Array of weave points (its corridor)
 var look_ahead_active := false
 var turn := 0
@@ -147,7 +148,8 @@ func clockwise_blooms() -> bool:
 
 
 ## Place the current piece, arranged as `arranged` (slot order), on `base`.
-## Returns {"ok", "blooms", "settled", "seeds_gained", "finished"}.
+## Returns {"ok", "blooms", "points", "settled", "seeds_gained",
+## "finished", "completed", "perfect"}.
 func place(base: Vector2i, arranged: Array) -> Dictionary:
 	if not can_place(base) or not Piece.same_biomes(arranged, current_piece()):
 		return {"ok": false}
@@ -161,6 +163,11 @@ func place(base: Vector2i, arranged: Array) -> Dictionary:
 	for b: Dictionary in new_blooms:
 		blooms[b.vertex] = b.bloom
 		seeds += 1
+	var points := combo_points(new_blooms.size())
+	bloom_points += points
+	var perfect := is_perfect(completed, new_blooms.size())
+	if perfect:
+		seeds += int(valley.get("scoring", {}).get("perfect_seeds", 0))
 	if pile.is_empty() and not reserve.is_empty():
 		pile.append(reserve)
 		reserve = []
@@ -172,8 +179,19 @@ func place(base: Vector2i, arranged: Array) -> Dictionary:
 		"seeds_gained": seeds - seeds_before,
 		"finished": is_finished(),
 		"completed": completed,
-		"perfect": is_perfect(completed, new_blooms.size()),
+		"perfect": perfect,
+		"points": points,
 	}
+
+
+## Points for `n` blooms made by one placement. Each extra bloom in the same
+## placement is worth `combo_step` more than the one before:
+## with bloom 2 and step 1 -> 1 bloom 2, 2 blooms 5, 3 blooms 9, 6 blooms 27.
+func combo_points(n: int) -> int:
+	var scoring: Dictionary = valley.get("scoring", {})
+	var base := int(scoring.get("bloom", 1))
+	var step := int(scoring.get("combo_step", 0))
+	return n * base + step * n * (n - 1) / 2
 
 
 ## How many corners placing a piece on `base` would complete (corners whose
@@ -191,10 +209,10 @@ func completed_corners(base: Vector2i) -> int:
 	return n
 
 
-## A perfect piece completes at least two corners and every one of them
-## blooms (like Dorfromantik's perfect placement, but for corners).
+## A perfect piece makes all six bloom spots around it bloom. That is only
+## possible when it fills a gap with every neighbouring plot already placed.
 static func is_perfect(completed: int, bloomed: int) -> bool:
-	return completed >= 2 and bloomed == completed
+	return completed == 6 and bloomed == 6
 
 
 ## Corners waiting for their last hex: two hexes are filled, the third is an
@@ -402,7 +420,7 @@ func animal_progress(id: String) -> Dictionary:
 
 func score_breakdown() -> Dictionary:
 	var scoring: Dictionary = valley.get("scoring", {})
-	var bloom_pts := blooms.size() * int(scoring.get("bloom", 1))
+	var bloom_pts := bloom_points
 	var animal_pts := 0
 	for id: String in settled:
 		animal_pts += int(data.animals[id].get("points", 0))

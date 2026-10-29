@@ -367,7 +367,7 @@ func celebrate(base: Vector2i) -> void:
 	petal.height = 1.0
 	petal.radial_segments = 6
 	petal.rings = 3
-	for i in 18:
+	for i in 42:
 		var mi := MeshInstance3D.new()
 		mi.mesh = petal
 		mi.material_override = textile.satin(BiomeDecor.FLOWER_COLORS[i % BiomeDecor.FLOWER_COLORS.size()])
@@ -375,8 +375,9 @@ func celebrate(base: Vector2i) -> void:
 		mi.position = centre + Vector3(0, SEAM_H + PUFF, 0)
 		mi.rotation.y = randf() * TAU
 		add_child(mi)
-		var a := TAU * i / 18.0 + randf() * 0.3
-		var target := centre + Vector3(cos(a) * randf_range(1.0, 1.7), randf_range(0.9, 1.6), sin(a) * randf_range(1.0, 1.7))
+		var a := TAU * i / 42.0 + randf() * 0.3
+		var reach := randf_range(1.2, 2.6)
+		var target := centre + Vector3(cos(a) * reach, randf_range(1.0, 2.4), sin(a) * reach)
 		var tw := create_tween().set_parallel().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 		tw.tween_property(mi, "position", target, 1.4)
 		tw.tween_property(mi, "rotation:y", mi.rotation.y + randf_range(-3.0, 3.0), 1.4)
