@@ -222,8 +222,9 @@ blooms now while keeping corridor routes and future corners open.
     carries felt woods, sheep and three red-roofed cottages, and a silk
     stream runs down from the hills into a pool at the valley's edge.
     Further out, layered distant hills and slow felt clouds under a soft sky.
-  - *Living surroundings:* hills and stream start greyed and regain colour as
-    the valley is restored; an animal that moves in also appears on the
+  - *Living surroundings:* the whole landscape (ground, hills, woods, sheep,
+    cottages, stream, distant hills) starts washed-out grey and regains
+    colour in step with how much of the valley is restored; an animal that moves in also appears on the
     hills; a finished valley gets birds circling and chimney smoke.
   - *Camera:* tilted 3D view with free orbit and zoom.
   - *Sound:* soft ambient music; each biome adds nature sounds that layer up

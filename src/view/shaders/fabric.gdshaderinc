@@ -16,6 +16,7 @@ uniform float fleck = 0.0;            // share of tweed flecks (0..1)
 uniform float sheen = 0.0;            // silk rim sheen
 uniform float rough = 0.9;
 uniform float opacity = 1.0;
+uniform float wash = 0.0;            // 0 = full colour, 1 = washed-out grey
 
 varying vec3 world_pos;
 
@@ -51,7 +52,10 @@ void fragment() {
 	vec3 col = base_color.rgb * (1.0 + weave + n);
 	float fl = step(1.0 - fleck, bw_hash(floor(world_pos.xz * 55.0)));
 	col = mix(col, fleck_color.rgb, fl * 0.7 * fade);
-	ALBEDO = col * COLOR.rgb;  // vertex colour tints merged meshes (white otherwise)
+	col *= COLOR.rgb;  // vertex colour tints merged meshes (white otherwise)
+	float grey = dot(col, vec3(0.3, 0.59, 0.11));
+	col = mix(col, vec3(grey) * vec3(0.98, 0.97, 0.95), wash);
+	ALBEDO = col;
 	ROUGHNESS = rough;
 	SPECULAR = 0.25 + sheen * 0.4;
 	float rim = pow(1.0 - clamp(dot(NORMAL, VIEW), 0.0, 1.0), 3.0);

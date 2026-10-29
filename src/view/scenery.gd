@@ -11,7 +11,8 @@ extends Node3D
 ##     birds and chimney smoke
 ## Purely visual; reads the game state but never changes it.
 
-const FADED := Color(0.66, 0.65, 0.6)
+const FADED := Color(0.58, 0.57, 0.55)
+const START_FADE := 0.95        # how washed-out the land is before restoring
 const FADE_MARGIN := 2          # rings of faded hexes beyond the valley
 const FADED_EDGE := 0.04
 const FADED_PUFF := 0.05
@@ -104,15 +105,14 @@ func setup(p_game: ValleyGame) -> void:
 ## Recolour everything that depends on how much has been restored.
 func refresh() -> void:
 	_rebuild_faded_land()
+	# The whole landscape (ground, hills, woods, sheep, cottages, stream,
+	# distant hills) is washed out at first and regains colour as the valley
+	# is restored. Scenery has its own Textile, so this never touches the board.
 	var restored := float(game.placed.size()) / maxf(game.plots.size(), 1.0)
-	var step := roundf(restored * STEPS) / STEPS
-	for pair: Array in _hills:
-		var base: Color = pair[1]
-		var col := _greyed(base, 0.65 * (1.0 - step))
-		(pair[0] as MeshInstance3D).material_override = textile.fabric(col, {"weave_scale": 6.0, "weave_strength": 0.12, "fuzz": 0.18})
-	if _stream:
-		var water := _greyed(Color(0.5, 0.76, 0.9), 0.6 * (1.0 - step))
-		_stream.material_override = textile.fabric(water, {"weave_scale": 30.0, "weave_strength": 0.05, "sheen": 1.2 * step + 0.2, "rough": 0.3})
+	var fade := START_FADE * (1.0 - restored)
+	for m: Variant in textile._cache.values():
+		if m is ShaderMaterial and m != _faded_land_mi.material_override:
+			(m as ShaderMaterial).set_shader_parameter("wash", fade)
 
 
 ## An animal that moved in also shows up on the hills.
@@ -303,6 +303,7 @@ func _quilted_hills(rng: RandomNumberGenerator) -> void:
 		mi.mesh = dome
 		mi.scale = Vector3(radius * 2.0, height * 2.0, radius * 2.0)
 		mi.position = Vector3(c.x, y0, c.y)
+		mi.material_override = textile.fabric(greens[i % greens.size()], {"weave_scale": 6.0, "weave_strength": 0.12, "fuzz": 0.18})
 		add_child(mi)
 		_hills.append([mi, greens[i % greens.size()]])
 		# Quilting: running stitches round the hill at two heights.
@@ -450,6 +451,7 @@ func _stream_mesh() -> void:
 	ps.commit(mesh)
 	_stream = MeshInstance3D.new()
 	_stream.mesh = mesh
+	_stream.material_override = textile.fabric(Color(0.5, 0.76, 0.9), {"weave_scale": 30.0, "weave_strength": 0.05, "sheen": 1.0, "rough": 0.3})
 	_stream.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(_stream)
 
