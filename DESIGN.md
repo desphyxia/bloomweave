@@ -42,6 +42,10 @@ blooms now while keeping corridor routes and future corners open.
   - First valley: forest, meadow, wetland, **heath** (purple heather and
     gorse). Heath replaced rock from the original draft, which felt boring;
     rock may return later in a livelier form (e.g. mossy stone).
+- **Blooms are made as needed.** Of the 56 all-different trios (8 biomes),
+  only those used by shipped levels or regions get a named bloom; content
+  grows with the levels. Custom mode only offers biome mixes whose trios
+  all have blooms.
 - **Fixed plot grid (no holes).** The grid is pre-split into trefoil-shaped
   plots, and every piece fills exactly one whole plot, so holes can't happen.
   - Hex `(q,r)` belongs to the plot whose base `(q0,r0)` has
@@ -196,7 +200,9 @@ blooms now while keeping corridor routes and future corners open.
 - **Influence is visual only (for now).** Where two pieces meet at a seam,
   good biome pairs show small signs of life (taller trees by wetland,
   heather creeping into meadow beside heath). No effect on rules or score.
-  Pairs are defined in a data table so they can gain rules later.
+  Pairs are defined in a data table so they can gain rules later. Good
+  pairs are **natural neighbours** (wetland + forest, heath + meadow);
+  pairs that don't meet in nature (e.g. heath + wetland) stay plain.
   - *Recorded for later:* influence as a full mechanic, where pairs change
     hexes (e.g. forest next to wetland becomes "lush forest", which can make
     special blooms). Revisit if playtests show the game lacks depth.
@@ -301,8 +307,10 @@ blooms now while keeping corridor routes and future corners open.
     to turn it (instantly), press and hold (0.45 s) to place it as shown.
     Double-tap to place was tried and dropped: telling it apart from a turn
     made turning feel slow.
-  - *Sound:* soft ambient music; each biome adds nature sounds that layer up
-    as the valley fills; fabric rustle on placement.
+  - *Sound:* **folk acoustic** music (soft guitar, harp, fiddle, recorder),
+    one tune per region; each biome adds nature sounds (birdsong, water,
+    wind in heather) that layer up as the valley fills; fabric rustle on
+    placement.
   - *Feedback:* blooms and settling animals use short, gentle animations that
     never interrupt; the player can keep placing straight away.
 - **Tech: Godot 4 + GDScript** (switched from three.js; iPhone and Android
@@ -338,9 +346,6 @@ blooms now while keeping corridor routes and future corners open.
 
 ### Biomes and valleys
 - Which same-biome recipes exist (names, looks).
-- Content load: 8 biomes = 56 possible all-different trios (120 with
-  repeats). Do all of them need a bloom, or only the trios that appear in
-  the valleys we ship?
 
 ### Wildlife corridors
 - Later twist (recorded, not chosen for now): animals prefer trails that run
@@ -351,7 +356,7 @@ blooms now while keeping corridor routes and future corners open.
 - Fine-tuning the point values in playtests.
 
 ### Biome interactions
-- Which pairs count as good pairs, and what each looks like.
+- What each good pair looks like.
 
 ### Requests / goals
 - The animal roster: which animals exist and their exact asks.
@@ -364,8 +369,7 @@ blooms now while keeping corridor routes and future corners open.
 - Which discoveries open which bonus levels and biomes.
 
 ### Atmosphere
-- Exact fabric and stitch look in three.js (materials, outlines, puffiness).
-- Music direction and how biome sounds layer.
+- Exact biome sound layers and how they mix.
 
 ## Dorfromantik comparison
 
