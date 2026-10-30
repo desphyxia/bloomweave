@@ -582,6 +582,30 @@ func _refresh_trails() -> void:
 	_trails.mesh = textile.tube_mesh(lines, 0.07)
 
 
+## The hidden visitor, standing on a hex of the pattern that brought it.
+func add_visitor(id: String, h: Vector2i, animate: bool) -> void:
+	var node := Node3D.new()
+	node.position = hex_pos(h, SEAM_H + PUFF * 0.8)
+	node.rotation.y = -PI / 5.0
+	node.add_child(FeltAnimal.build(textile, id, 1.3))
+	var label := Label3D.new()
+	label.text = data.animals.get(id, {}).get("name", id)
+	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	label.font_size = 64
+	label.pixel_size = 0.005
+	label.outline_size = 12
+	label.modulate = Color(0.45, 0.2, 0.32)
+	label.outline_modulate = Color(1, 0.98, 0.92)
+	label.position = Vector3(0, 1.4, 0)
+	node.add_child(label)
+	_animals.add_child(node)
+	if animate:
+		node.scale = Vector3.ONE * 0.01
+		var tw := create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		tw.tween_interval(0.4)
+		tw.tween_property(node, "scale", Vector3.ONE, 0.7)
+
+
 func add_animal(id: String, corridor: Array, animate: bool) -> void:
 	if corridor.is_empty():
 		return

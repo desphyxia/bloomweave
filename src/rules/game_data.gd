@@ -82,6 +82,11 @@ func validate() -> Array[String]:
 			if not biomes.has(b):
 				errors.append("Bloom %s uses unknown biome %s." % [bl.id, b])
 	for a: Dictionary in animals.values():
+		var pattern: Dictionary = a.get("pattern", {})
+		if a.get("hidden", false) and not ["biome_patch", "biome_near"].has(pattern.get("kind", "")):
+			errors.append("Visitor %s has an unknown pattern." % a.id)
+		if pattern.has("biome") and not biomes.has(pattern.biome):
+			errors.append("Visitor %s needs unknown biome %s." % [a.id, pattern.biome])
 		var needs: Dictionary = a.get("needs", {})
 		if needs.has("biome") and not biomes.has(needs.biome):
 			errors.append("Animal %s needs unknown biome %s." % [a.id, needs.biome])
@@ -108,6 +113,8 @@ func validate_valley(v: Dictionary) -> Array[String]:
 	for id: String in v.get("blooms", []):
 		if not blooms_by_id.has(id):
 			errors.append("Valley %s lists unknown bloom %s." % [v.get("id"), id])
+	if v.has("visitor") and not animals.get(v.visitor, {}).get("hidden", false):
+		errors.append("Valley %s visitor %s is not a hidden animal." % [v.get("id"), v.visitor])
 	var pile: Dictionary = v.get("pile", {})
 	var pieces := int(pile.get("distinct", 0)) + int(pile.get("double", 0)) + int(pile.get("single", 0))
 	if pieces != plot_count - 1:

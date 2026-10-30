@@ -18,6 +18,8 @@ var seeds := 0
 var blooms := {}         # weave point (Vector3i) -> bloom id
 var bloom_points := 0    # points earned from blooms (with combo bonuses)
 var settled := {}        # animal id -> Array of weave points (its corridor)
+var visitor_found := false
+var visitor_spot := Vector2i.ZERO  # a hex of the pattern that brought it
 var look_ahead_active := false
 var turn := 0
 var rng := RandomNumberGenerator.new()
@@ -264,7 +266,7 @@ func clockwise_blooms() -> bool:
 
 
 ## Place the current piece, arranged as `arranged` (slot order), on `base`.
-## Returns {"ok", "blooms", "points", "settled", "seeds_gained",
+## Returns {"ok", "blooms", "points", "settled", "visitor", "seeds_gained",
 ## "finished", "completed", "perfect"}.
 func place(base: Vector2i, arranged: Array) -> Dictionary:
 	if not can_place(base) or not Piece.same_biomes(arranged, current_piece()):
@@ -288,7 +290,9 @@ func place(base: Vector2i, arranged: Array) -> Dictionary:
 		pile.append(reserve)
 		reserve = []
 	var newly_settled := check_animals()
+	var visitor := check_visitor()
 	return {
+		"visitor": visitor,
 		"ok": true,
 		"blooms": new_blooms,
 		"settled": newly_settled,
@@ -599,15 +603,81 @@ func animal_progress(id: String) -> Array:
 	return best
 
 
+# --- Hidden visitor --------------------------------------------------------------
+
+## The valley's hidden visitor ({} if none). Its `pattern` is the secret:
+##   biome_patch - `min_hexes` hexes of `biome` joined in one patch
+##   biome_near  - `min_hexes` hexes of `biome` next to an obstacle `near`
+func visitor() -> Dictionary:
+	return data.animals.get(valley.get("visitor", ""), {})
+
+
+## How far the pattern has got: {"have", "need", "hexes"} (hexes of the best
+## match so far).
+func visitor_progress() -> Dictionary:
+	var pattern: Dictionary = visitor().get("pattern", {})
+	var need := int(pattern.get("min_hexes", 1))
+	var hexes: Array[Vector2i] = []
+	match pattern.get("kind", ""):
+		"biome_patch":
+			hexes = largest_patch(pattern.biome)
+		"biome_near":
+			for h: Vector2i in board:
+				if board[h] != pattern.biome:
+					continue
+				for nb in Hex.neighbors(h):
+					if obstacles.get(nb, "") == pattern.near:
+						hexes.append(h)
+						break
+	return {"have": hexes.size(), "need": need, "hexes": hexes}
+
+
+## The biggest group of joined hexes of one biome.
+func largest_patch(biome: String) -> Array[Vector2i]:
+	var seen := {}
+	var best: Array[Vector2i] = []
+	for start: Vector2i in board:
+		if seen.has(start) or board[start] != biome:
+			continue
+		var group: Array[Vector2i] = []
+		var stack: Array[Vector2i] = [start]
+		seen[start] = true
+		while not stack.is_empty():
+			var h: Vector2i = stack.pop_back()
+			group.append(h)
+			for nb in Hex.neighbors(h):
+				if not seen.has(nb) and board.get(nb, "") == biome:
+					seen[nb] = true
+					stack.append(nb)
+		if group.size() > best.size():
+			best = group
+	return best
+
+
+## Bring the visitor if its pattern is now built. Returns its id when it
+## arrives this turn, else "".
+func check_visitor() -> String:
+	var v := visitor()
+	if visitor_found or v.is_empty():
+		return ""
+	var pr := visitor_progress()
+	if pr.have < pr.need:
+		return ""
+	visitor_found = true
+	visitor_spot = pr.hexes[pr.hexes.size() / 2]
+	seeds += int(v.get("seeds", 0))
+	return v.id
+
+
 # --- Stars ----------------------------------------------------------------------
 
 ## A level's three stars: the valley restored, all residents settled, the
-## hidden visitor found (not in the game yet, so always false).
+## hidden visitor found.
 func stars() -> Dictionary:
 	return {
 		"restored": is_finished(),
 		"residents": settled.size() == _residents.size() and not _residents.is_empty(),
-		"visitor": false,
+		"visitor": visitor_found,
 	}
 
 
@@ -627,6 +697,8 @@ func score_breakdown() -> Dictionary:
 	var animal_pts := 0
 	for id: String in settled:
 		animal_pts += int(animal(id).get("points", 0))
+	if visitor_found:
+		animal_pts += int(visitor().get("points", 0))
 	var per_point := int(scoring.get("seeds_per_point", 0))
 	var seed_pts := seeds / per_point if per_point > 0 else 0
 	return {

@@ -225,7 +225,16 @@ blooms now while keeping corridor routes and future corners open.
     the hidden visitor 5. Set per animal in data.
   - *The hidden visitor is hinted by a riddle* on the valley's journal page
     (e.g. "something stirs where three heaths meet the water"); the full
-    answer is shown once it's found.
+    answer is shown once it's found. Until the journal exists, the riddle is
+    a line in the residents panel.
+  - *Visitor patterns vary per valley*, from a small set: a big joined patch
+    of one biome, biome hexes along an obstacle, or (later) several of one
+    bloom in a corridor. A visitor gives 20 points and 5 seeds.
+  - *First visitors:* **Heatherfold – red grouse**, 6+ heath hexes joined in
+    one patch ("A red-browed bird calls go-back, go-back where the heather
+    runs wide and unbroken."); **Willowmere – grey heron**, 6+ wetland hexes
+    touching the lake ("A grey shadow stands still where the reeds wade into
+    the mere.").
 - **Placement and start.** Each piece must touch a piece already placed, so
   the valley grows outward like restoration spreading. Every valley starts
   from a fixed **landmark piece** in its centre: three different biomes from
@@ -360,7 +369,8 @@ blooms now while keeping corridor routes and future corners open.
 
 ### Requests / goals
 - The animal roster: which animals exist and their exact asks.
-- Riddle wording, and how hard each visitor's pattern is.
+- Riddle wording for later visitors, and whether riddles get easier hints
+  after a few tries.
 
 ### Difficulty and run length
 - How fast each difficulty lever ramps across regions.
@@ -408,8 +418,10 @@ placing well); the dropped open mode would have brought it back. Progression thr
 - Godot web export, deployed to GitHub Pages.
 - Rules in their own module with unit tests: hex math, plot lookup, corner
   lookup, bloom checks, corridor finding.
-- Later: journal, the quilted world map and regions, hidden visitor,
-  sound, influence visuals, Custom mode and more Progression levels.
+- Hidden visitors: the red grouse (Heatherfold) and the grey heron
+  (Willowmere), with riddles in the residents panel.
+- Later: journal, the quilted world map and regions, sound, influence
+  visuals, Custom mode and more Progression levels.
 
 ### Prototype notes
 
@@ -444,9 +456,15 @@ placing well); the dropped open mode would have brought it back. Progression thr
   change what that animal asks for there. Needs can combine `min_blooms`,
   `biome` + `min_biome_blooms`, `near` (obstacle kind) + `min_near_blooms`,
   and `bloom` + `min_bloom_count`. Level order is `data/progression.json`.
-- **Stars (for now):** restored; all residents settled; hidden visitor (not
-  in the game yet, so the third star can't be earned). Residents settled in
-  an unfinished game still count when you leave to the level list.
+- **Stars:** restored; all residents settled; hidden visitor found.
+  Residents settled in an unfinished game still count when you leave to the
+  level list.
+- **Visitor tuning** (100 runs each; "sought" = a greedy player that goes for
+  the pattern first, without seed actions): grouse at 6 heath hexes comes by
+  chance in 4% of runs and in 48% when sought (7 hexes: 1% / 35%); heron at 6
+  wetland hexes by the lake comes by chance in 0% and in 93% when sought
+  (4 hexes: 30% / 100%; 5: 10% / 98%). Aim: rare by luck, reachable on
+  purpose.
 - **Willowmere tuning** (100 runs, greedy player that ignores animals): about
   16 blooms, Deep Wood about 2 per game. A one-plot lake had only 4 bloom
   spots by its shore and no horseshoe read, so the lake is 3 plots. Forest

@@ -80,6 +80,7 @@
     },
     "badger"
   ],
+  "visitor": "heron",
   "bloom_order": "any",
   "scoring": {
     "bloom": 2,

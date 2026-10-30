@@ -35,6 +35,35 @@
       },
       "points": 12,
       "seeds": 3
+    },
+    {
+      "id": "grouse",
+      "name": "Red grouse",
+      "hidden": true,
+      "riddle": "A red-browed bird calls go-back, go-back where the heather runs wide and unbroken.",
+      "found_text": "6+ heath hexes joined in one patch.",
+      "pattern": {
+        "kind": "biome_patch",
+        "biome": "heath",
+        "min_hexes": 6
+      },
+      "points": 20,
+      "seeds": 5
+    },
+    {
+      "id": "heron",
+      "name": "Grey heron",
+      "hidden": true,
+      "riddle": "A grey shadow stands still where the reeds wade into the mere.",
+      "found_text": "6+ wetland hexes touching the lake.",
+      "pattern": {
+        "kind": "biome_near",
+        "biome": "wetland",
+        "near": "lake",
+        "min_hexes": 6
+      },
+      "points": 20,
+      "seeds": 5
     }
   ]
 }

@@ -1,13 +1,44 @@
 {
   "id": "first_valley",
   "name": "Heatherfold",
-  "biomes": ["forest", "meadow", "wetland", "heath"],
-  "outline": { "radius": 2 },
-  "landmark": { "name": "Old Oak", "biomes": ["forest", "meadow", "wetland"] },
-  "pile": { "distinct": 14, "double": 4, "single": 0 },
-  "animals": ["otter", "deer"],
+  "biomes": [
+    "forest",
+    "meadow",
+    "wetland",
+    "heath"
+  ],
+  "outline": {
+    "radius": 2
+  },
+  "landmark": {
+    "name": "Old Oak",
+    "biomes": [
+      "forest",
+      "meadow",
+      "wetland"
+    ]
+  },
+  "pile": {
+    "distinct": 14,
+    "double": 4,
+    "single": 0
+  },
+  "animals": [
+    "otter",
+    "deer"
+  ],
+  "visitor": "grouse",
   "bloom_order": "any",
-  "scoring": { "bloom": 2, "combo_step": 1, "perfect_seeds": 5, "seeds_per_point": 3 },
-  "seed_costs": { "set_aside": 1, "swap": 1, "look_ahead": 2 },
+  "scoring": {
+    "bloom": 2,
+    "combo_step": 1,
+    "perfect_seeds": 5,
+    "seeds_per_point": 3
+  },
+  "seed_costs": {
+    "set_aside": 1,
+    "swap": 1,
+    "look_ahead": 2
+  },
   "look_ahead_count": 3
 }

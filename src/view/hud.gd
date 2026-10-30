@@ -134,6 +134,20 @@ func _refresh_animals() -> void:
 			l.text = "%s: %s" % [a.name, ", ".join(parts)]
 		l.tooltip_text = a.description
 		_animals_box.add_child(l)
+	# The hidden visitor: a riddle until it comes, then what brought it.
+	var v := game.visitor()
+	if not v.is_empty():
+		var vl := Label.new()
+		vl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		vl.custom_minimum_size.x = 260 if _compact else 300
+		vl.add_theme_font_size_override("font_size", 13 if _compact else 15)
+		if game.visitor_found:
+			vl.text = "%s visited! (%s)" % [v.name, v.get("found_text", "")]
+			vl.add_theme_color_override("font_color", ACCENT)
+		else:
+			vl.text = "Visitor?  \"%s\"" % v.get("riddle", "")
+			vl.add_theme_color_override("font_color", Color(0.42, 0.36, 0.44))
+		_animals_box.add_child(vl)
 
 
 ## The valley's blooms, each drawn as a mini piece with its biomes in
@@ -194,6 +208,8 @@ func show_end(result: Dictionary = {}) -> void:
 	var names := []
 	for id: String in game.settled:
 		names.append(game.animal(id).name)
+	if game.visitor_found:
+		names.append(game.visitor().name)
 	lines.append("Animals: %s  (%d points)" % [", ".join(names) if not names.is_empty() else "none yet", s.animals])
 	lines.append("Seeds left: %d  (%d points)" % [game.seeds, s.seeds])
 	lines.append("")

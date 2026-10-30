@@ -14,8 +14,8 @@ The info panel shows the build (commit) id; each deploy gives the game data
 file a new name so browsers always load the latest version.
 
 The game opens on the list of **valleys** (levels). Each has three stars:
-restore it, settle all its residents, find its hidden visitor (coming
-later). Finishing a valley opens the next one; progress is saved in the
+restore it, settle all its residents, find its hidden visitor (a riddle
+in the residents panel hints at the secret pattern that brings it). Finishing a valley opens the next one; progress is saved in the
 browser. **Valleys** in the info panel brings the list back.
 
 The info panel also shows the **game number** (e.g. `game #424242`). Add

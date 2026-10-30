@@ -237,12 +237,16 @@ func _place() -> void:
 	for id: String in result.settled:
 		board.add_animal(id, game.settled[id], true)
 		scenery.on_settled(id)
+	if result.visitor != "":
+		board.add_visitor(result.visitor, game.visitor_spot, true)
 	board.refresh()
 	scenery.refresh()
 	if result.perfect:
 		board.celebrate(base)
 	var perfect := "Perfect piece! All six bloomed  +%d seeds\n" % int(game.valley.scoring.get("perfect_seeds", 0)) if result.perfect else ""
-	if not result.settled.is_empty():
+	if result.visitor != "":
+		hud.toast("%sA visitor! The %s came.  +%d seeds" % [perfect, game.visitor().name.to_lower(), result.seeds_gained])
+	elif not result.settled.is_empty():
 		var who := []
 		for id: String in result.settled:
 			who.append(data.animals[id].name)

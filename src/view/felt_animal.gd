@@ -14,6 +14,8 @@ const LOOKS := {
 
 
 static func build(textile: Textile, id: String, size: float = 1.0) -> Node3D:
+	if id == "grouse" or id == "heron":
+		return _bird(textile, id, size)
 	var look: Array = LOOKS.get(id, LOOKS.otter)
 	var node := Node3D.new()
 	var body := MeshInstance3D.new()
@@ -45,4 +47,48 @@ static func build(textile: Textile, id: String, size: float = 1.0) -> Node3D:
 			stripe.position = head.position + Vector3(0.0, 0.055, side * 0.032) * size
 			stripe.material_override = textile.fabric(Color(0.16, 0.15, 0.14), FELT)
 			node.add_child(stripe)
+	return node
+
+
+static func _part(textile: Textile, node: Node3D, mesh: Mesh, color: Color, at: Vector3, scale: Vector3) -> void:
+	var mi := MeshInstance3D.new()
+	mi.mesh = mesh
+	mi.position = at
+	mi.scale = scale
+	mi.material_override = textile.fabric(color, FELT)
+	node.add_child(mi)
+
+
+## Birds for the hidden visitors: a plump red grouse, a tall grey heron.
+static func _bird(textile: Textile, id: String, size: float) -> Node3D:
+	var node := Node3D.new()
+	var ball := SphereMesh.new()
+	ball.radius = 0.5
+	ball.height = 1.0
+	var stick := CylinderMesh.new()
+	stick.top_radius = 0.5
+	stick.bottom_radius = 0.5
+	stick.height = 1.0
+	stick.radial_segments = 6
+	var beak := Color(0.9, 0.7, 0.25)
+	if id == "grouse":
+		var brown := Color(0.5, 0.26, 0.17)
+		_part(textile, node, ball, brown, Vector3(0, 0.16, 0) * size, Vector3(0.36, 0.26, 0.26) * size)
+		_part(textile, node, ball, brown.darkened(0.15), Vector3(-0.17, 0.2, 0) * size, Vector3(0.12, 0.16, 0.14) * size)
+		_part(textile, node, ball, brown.lightened(0.08), Vector3(0.16, 0.32, 0) * size, Vector3.ONE * 0.16 * size)
+		# The red eyebrows.
+		for side in [-1.0, 1.0]:
+			_part(textile, node, ball, Color(0.85, 0.12, 0.1), Vector3(0.19, 0.38, side * 0.05) * size, Vector3(0.07, 0.03, 0.03) * size)
+		_part(textile, node, ball, Color(0.2, 0.17, 0.12), Vector3(0.25, 0.31, 0) * size, Vector3(0.06, 0.03, 0.035) * size)
+	else:
+		var grey := Color(0.66, 0.68, 0.7)
+		for side in [-1.0, 1.0]:
+			_part(textile, node, stick, beak.darkened(0.2), Vector3(0, 0.18, side * 0.04) * size, Vector3(0.02, 0.36, 0.02) * size)
+		_part(textile, node, ball, grey, Vector3(0, 0.44, 0) * size, Vector3(0.34, 0.2, 0.18) * size)
+		_part(textile, node, ball, grey.darkened(0.2), Vector3(-0.14, 0.46, 0) * size, Vector3(0.16, 0.12, 0.14) * size)
+		_part(textile, node, stick, Color(0.92, 0.92, 0.9), Vector3(0.14, 0.62, 0) * size, Vector3(0.05, 0.26, 0.05) * size)
+		_part(textile, node, ball, Color(0.95, 0.95, 0.93), Vector3(0.17, 0.77, 0) * size, Vector3.ONE * 0.1 * size)
+		_part(textile, node, ball, Color(0.15, 0.15, 0.17), Vector3(0.15, 0.8, 0) * size, Vector3(0.08, 0.03, 0.06) * size)
+		_part(textile, node, stick, beak, Vector3(0.27, 0.76, 0) * size, Vector3(0.02, 0.16, 0.02) * size)
+		(node.get_child(node.get_child_count() - 1) as Node3D).rotation.z = PI / 2.0
 	return node
