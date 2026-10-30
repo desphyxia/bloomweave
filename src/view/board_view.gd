@@ -261,7 +261,9 @@ func set_ghost(base: Vector2i, arranged: Array, preview: Array) -> void:
 	for i in 3:
 		biome_of[hexes[i]] = arranged[i]
 	for b: Dictionary in preview:
-		var f := _make_flower(b.vertex, b.bloom, biome_of, true)
+		# Solid, not see-through: transparent layers sort unreliably on phones
+		# and the dark outline could end up on top, turning the flower black.
+		var f := _make_flower(b.vertex, b.bloom, biome_of, false)
 		f.position = vertex_pos(b.vertex, SEAM_H + FLOWER_LIFT + 0.04)
 		f.scale = Vector3.ONE * FLOWER_SCALE * 1.1
 		_ghost.add_child(f)

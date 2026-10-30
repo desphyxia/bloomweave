@@ -299,7 +299,7 @@ func recipe_flower_mesh(petals: Array, centre: Color, ghost: bool = false, stem:
 			var a: float = p[0] + spread
 			var basis := Basis(Vector3.UP, -a)
 			var at := Vector3(cos(a) * 0.12, 0.05, sin(a) * 0.12)
-			outline.append_from(blob, 0, Transform3D(basis.scaled(Vector3(0.25, 0.06, 0.16)), at - Vector3(0, 0.012, 0)))
+			outline.append_from(blob, 0, Transform3D(basis.scaled(Vector3(0.235, 0.05, 0.145)), at - Vector3(0, 0.015, 0)))
 			var c: Color = p[1]
 			var k := c.to_html()
 			if not by_color.has(k):
@@ -308,7 +308,7 @@ func recipe_flower_mesh(petals: Array, centre: Color, ghost: bool = false, stem:
 				by_color[k] = [st, c]
 			(by_color[k][0] as SurfaceTool).append_from(blob, 0, Transform3D(basis.scaled(Vector3(0.21, 0.07, 0.12)), at))
 	outline.commit(mesh)
-	mesh.surface_set_material(0, satin(Color(0.22, 0.19, 0.16), ghost))
+	mesh.surface_set_material(0, satin(Color(0.36, 0.3, 0.24), ghost))
 	var i := 1
 	if stem > 0.0:
 		var stalk := CylinderMesh.new()
