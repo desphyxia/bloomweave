@@ -12,6 +12,7 @@ var dimmed := false:
 		dimmed = value
 		queue_redraw()
 var empty_text := ""
+var empty_font_size := 18
 
 
 func _notification(what: int) -> void:
@@ -23,7 +24,7 @@ func _draw() -> void:
 	if biomes.is_empty():
 		if empty_text != "":
 			var font := get_theme_default_font()
-			var fs := 18
+			var fs := empty_font_size
 			var w := font.get_string_size(empty_text, HORIZONTAL_ALIGNMENT_CENTER, -1, fs).x
 			draw_string(font, Vector2((size.x - w) / 2.0, size.y / 2.0 + fs / 3.0), empty_text,
 				HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(0.36, 0.33, 0.28, 0.8))

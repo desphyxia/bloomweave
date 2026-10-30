@@ -31,8 +31,11 @@ func _on_resize() -> void:
 	var px := Vector2(win.size)
 	var dpr := maxf(DisplayServer.screen_get_scale(), 1.0)
 	var css_short := minf(px.x, px.y) / dpr
-	var base := 540 if css_short < 600.0 else 800
+	var phone := css_short < 600.0
+	# A larger virtual canvas on phones = everything (text included) a bit smaller.
+	var base := 580 if phone else 800
 	win.content_scale_size = Vector2i(base, base)
+	hud.set_compact(phone)
 	rig.fit(px.x / maxf(px.y, 1.0))
 
 

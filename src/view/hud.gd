@@ -24,6 +24,11 @@ var _toast: Label
 var _toast_tween: Tween
 var _hint: Label
 var _hint_panel: PanelContainer
+var _flow: HFlowContainer
+var _cards: PanelContainer
+var _card_labels: Array[Label] = []
+var _compact := false             # phone layout: small piece panel on the right
+var _small_icon := Vector2(64, 64)
 var _end: PanelContainer
 var _end_label: Label
 
@@ -65,12 +70,12 @@ func refresh(arranged: Array, selected: bool, preview_count: int) -> void:
 	for c in _upcoming_box.get_children():
 		c.queue_free()
 	for p: Array in game.upcoming():
-		var icon := _icon(Vector2(64, 64))
+		var icon := _icon(_small_icon)
 		icon.biomes = p
 		icon.dimmed = true
 		_upcoming_box.add_child(icon)
 	if game.upcoming().is_empty():
-		var none := _icon(Vector2(64, 64))
+		var none := _icon(_small_icon)
 		none.empty_text = "—"
 		_upcoming_box.add_child(none)
 	_reserve.biomes = game.reserve
@@ -228,6 +233,7 @@ func _build_top() -> void:
 
 func _build_bottom() -> void:
 	var flow := HFlowContainer.new()
+	_flow = flow
 	flow.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 	flow.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	flow.offset_left = 12
@@ -273,8 +279,10 @@ func _build_bottom() -> void:
 
 	# Pieces: current, upcoming, reserve.
 	var cards := _panel()
+	_cards = cards
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 14)
+	row.name = "row"
 	cards.add_child(row)
 	_current = _icon(Vector2(104, 104))
 	row.add_child(_labeled("Current", _current))
@@ -299,6 +307,35 @@ func _build_bottom() -> void:
 	_add_button(grid, "look_ahead", "Look ahead")
 	flow.add_child(actions_panel)
 	_buttons.place.add_theme_color_override("font_color", ACCENT)
+
+
+## Phone layout: a smaller piece panel aligned to the right, smaller labels.
+func set_compact(on: bool) -> void:
+	if on == _compact and _current.custom_minimum_size.x > 0:
+		return
+	_compact = on
+	_current.custom_minimum_size = Vector2(68, 68) if on else Vector2(104, 104)
+	_small_icon = Vector2(42, 42) if on else Vector2(64, 64)
+	_reserve.custom_minimum_size = _small_icon
+	_reserve.empty_font_size = 13 if on else 18
+	_reserve.queue_redraw()
+	for c in _upcoming_box.get_children():
+		(c as Control).custom_minimum_size = _small_icon
+	for l in _card_labels:
+		l.add_theme_font_size_override("font_size", 12 if on else 15)
+	(_cards.get_node("row") as HBoxContainer).add_theme_constant_override("separation", 8 if on else 14)
+	_cards.add_theme_stylebox_override("panel", _panel_style(6 if on else 12))
+	_flow.alignment = FlowContainer.ALIGNMENT_END if on else FlowContainer.ALIGNMENT_CENTER
+
+
+func _panel_style(margin: int) -> StyleBoxFlat:
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = PAPER
+	sb.set_corner_radius_all(14)
+	sb.set_content_margin_all(margin)
+	sb.border_color = Color(0.2, 0.24, 0.2, 0.25)
+	sb.set_border_width_all(1)
+	return sb
 
 
 ## Label seed costs from the valley data once it is known.
@@ -358,6 +395,7 @@ func _labeled(text: String, content: Control) -> VBoxContainer:
 	l.text = text
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	l.add_theme_font_size_override("font_size", 15)
+	_card_labels.append(l)
 	box.add_child(l)
 	content.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	box.add_child(content)
