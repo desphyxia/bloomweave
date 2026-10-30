@@ -59,7 +59,7 @@ void fragment() {
 	ROUGHNESS = rough;
 	SPECULAR = 0.25 + sheen * 0.4;
 	float rim = pow(1.0 - clamp(dot(NORMAL, VIEW), 0.0, 1.0), 3.0);
-	EMISSION = base_color.rgb * rim * sheen * 0.5;
+	EMISSION = base_color.rgb * COLOR.rgb * rim * sheen * 0.5;
 #ifdef GHOST
 	ALPHA = opacity;
 #endif

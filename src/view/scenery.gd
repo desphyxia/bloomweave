@@ -27,7 +27,6 @@ var _faded: Array[Vector2i] = []  # hexes of faded land, in mesh order
 var _faded_mesh: ArrayMesh        # one hex patch, copied per hex
 var _faded_land_mi: MeshInstance3D
 var _patch_arrays: Array = []     # [vertices, normals] of one patch (all surfaces)
-var _hills: Array = []          # [MeshInstance3D, base Color]
 var _domes: Array = []          # [center Vector2, radius, height, base y]
 var _stream: MeshInstance3D
 var _clouds: Node3D
@@ -82,7 +81,6 @@ func setup(p_game: ValleyGame) -> void:
 	for c in get_children():
 		c.queue_free()
 	_faded.clear()
-	_hills.clear()
 	_domes.clear()
 	_smoke.clear()
 	_cottages.clear()
@@ -291,6 +289,9 @@ func _quilted_hills(rng: RandomNumberGenerator) -> void:
 	dome.rings = 14
 	var count := 20
 	var seams: Array = []
+	# All hills go into one mesh (one draw call); colour rides on the vertices.
+	var hills := MeshBatch.new()
+	hills.textile = textile
 	for i in count:
 		var a := TAU * i / count + rng.randf_range(-0.1, 0.1)
 		var dist := _inner_r + rng.randf_range(5.0, 9.0)
@@ -299,13 +300,8 @@ func _quilted_hills(rng: RandomNumberGenerator) -> void:
 		var c := Vector2(cos(a), sin(a)) * dist
 		var y0 := -height * 0.35
 		_domes.append([c, radius, height, y0])
-		var mi := MeshInstance3D.new()
-		mi.mesh = dome
-		mi.scale = Vector3(radius * 2.0, height * 2.0, radius * 2.0)
-		mi.position = Vector3(c.x, y0, c.y)
-		mi.material_override = textile.fabric(greens[i % greens.size()], {"weave_scale": 6.0, "weave_strength": 0.12, "fuzz": 0.18})
-		add_child(mi)
-		_hills.append([mi, greens[i % greens.size()]])
+		hills.add(dome, Transform3D(Basis().scaled(Vector3(radius * 2.0, height * 2.0, radius * 2.0)), Vector3(c.x, y0, c.y)),
+			Color.WHITE, textile.fabric(greens[i % greens.size()], {"weave_scale": 6.0, "weave_strength": 0.12, "fuzz": 0.18}))
 		# Quilting: running stitches round the hill at two heights.
 		for frac in [0.25, 0.7]:
 			var yh: float = frac * (height + y0)
@@ -318,6 +314,9 @@ func _quilted_hills(rng: RandomNumberGenerator) -> void:
 				var p1 := Vector3(c.x + cos(a1) * rr, yh + 0.03, c.y + sin(a1) * rr)
 				if _surface(Vector2(p0.x, p0.z)) <= yh + 0.05:
 					seams.append([p0, p1])
+	var hills_mi := MeshInstance3D.new()
+	hills_mi.mesh = hills.commit()
+	add_child(hills_mi)
 	add_child(textile.stitches(seams, 1, 0.5, 0.035, Color(0.3, 0.36, 0.24)))
 	_hill_details(rng)
 
@@ -341,7 +340,8 @@ func _hill_point(a: float, t: float) -> Vector3:
 
 
 func _hill_details(rng: RandomNumberGenerator) -> void:
-	var b := BiomeDecor._Builder.new()
+	var b := MeshBatch.new()
+	b.textile = textile
 	var cone := CylinderMesh.new()
 	cone.top_radius = 0.0
 	cone.bottom_radius = 1.0
@@ -370,14 +370,13 @@ func _hill_details(rng: RandomNumberGenerator) -> void:
 			var p3 := _hill_point(a + rng.randf_range(-0.12, 0.12), clampf(t + rng.randf_range(-0.15, 0.15), 0.0, 1.0))
 			var s := rng.randf_range(0.8, 1.5)
 			var green: Color = tree_greens[rng.randi() % tree_greens.size()]
-			var key := "tree" + green.to_html()
 			var mat := textile.fabric(green, felt)
 			if rng.randf() < 0.6:
-				b.add(key, mat, cone, Transform3D(Basis().scaled(Vector3(0.45, 1.1, 0.45) * s), p3 + Vector3(0, 0.5 * s, 0)))
-				b.add(key, mat, cone, Transform3D(Basis().scaled(Vector3(0.32, 0.8, 0.32) * s), p3 + Vector3(0, 0.95 * s, 0)))
+				b.add(cone, Transform3D(Basis().scaled(Vector3(0.45, 1.1, 0.45) * s), p3 + Vector3(0, 0.5 * s, 0)), Color.WHITE, mat)
+				b.add(cone, Transform3D(Basis().scaled(Vector3(0.32, 0.8, 0.32) * s), p3 + Vector3(0, 0.95 * s, 0)), Color.WHITE, mat)
 			else:
-				b.add("trunk", textile.fabric(Color(0.45, 0.32, 0.2), felt), post, Transform3D(Basis().scaled(Vector3(0.1, 0.5, 0.1) * s), p3 + Vector3(0, 0.25 * s, 0)))
-				b.add(key, mat, ball, Transform3D(Basis().scaled(Vector3(0.9, 0.8, 0.9) * s), p3 + Vector3(0, 0.75 * s, 0)))
+				b.add(post, Transform3D(Basis().scaled(Vector3(0.1, 0.5, 0.1) * s), p3 + Vector3(0, 0.25 * s, 0)), Color.WHITE, textile.fabric(Color(0.45, 0.32, 0.2), felt))
+				b.add(ball, Transform3D(Basis().scaled(Vector3(0.9, 0.8, 0.9) * s), p3 + Vector3(0, 0.75 * s, 0)), Color.WHITE, mat)
 	# Sheep.
 	var wool := textile.fabric(Color(0.96, 0.95, 0.9), {"fuzz": 0.5, "weave_strength": 0.0})
 	var face := textile.fabric(Color(0.2, 0.18, 0.17), felt)
@@ -385,8 +384,8 @@ func _hill_details(rng: RandomNumberGenerator) -> void:
 		var a := rng.randf() * TAU
 		var p3 := _hill_point(a, rng.randf_range(0.05, 0.5))
 		var dir := Vector3(cos(a + PI / 2.0), 0, sin(a + PI / 2.0))
-		b.add("wool", wool, ball, Transform3D(Basis().scaled(Vector3(0.42, 0.3, 0.3)), p3 + Vector3(0, 0.2, 0)))
-		b.add("face", face, ball, Transform3D(Basis().scaled(Vector3.ONE * 0.16), p3 + dir * 0.22 + Vector3(0, 0.25, 0)))
+		b.add(ball, Transform3D(Basis().scaled(Vector3(0.42, 0.3, 0.3)), p3 + Vector3(0, 0.2, 0)), Color.WHITE, wool)
+		b.add(ball, Transform3D(Basis().scaled(Vector3.ONE * 0.16), p3 + dir * 0.22 + Vector3(0, 0.25, 0)), Color.WHITE, face)
 	# Cottages with red roofs and chimneys.
 	var wall := textile.fabric(Color(0.95, 0.92, 0.84), {"weave_scale": 20.0, "weave_strength": 0.1})
 	var roof := textile.fabric(Color(0.72, 0.32, 0.26), {"weave_scale": 12.0, "weave_strength": 0.15})
@@ -399,11 +398,11 @@ func _hill_details(rng: RandomNumberGenerator) -> void:
 		var a := STREAM_ANGLE + 0.5 + k * 1.9
 		var p3 := _hill_point(a, 0.15)
 		var spin := Basis(Vector3.UP, -a)
-		b.add("wall", wall, box, Transform3D(spin.scaled(Vector3(0.9, 0.6, 0.7)), p3 + Vector3(0, 0.3, 0)))
+		b.add(box, Transform3D(spin.scaled(Vector3(0.9, 0.6, 0.7)), p3 + Vector3(0, 0.3, 0)), Color.WHITE, wall)
 		var roof_basis := spin * Basis(Vector3.RIGHT, PI / 2.0) * Basis(Vector3.UP, PI / 6.0)
-		b.add("roof", roof, prism, Transform3D(roof_basis.scaled(Vector3(0.95, 0.95, 0.95)), p3 + Vector3(0, 0.82, 0)))
+		b.add(prism, Transform3D(roof_basis.scaled(Vector3(0.95, 0.95, 0.95)), p3 + Vector3(0, 0.82, 0)), Color.WHITE, roof)
 		var chimney := p3 + spin * Vector3(0.25, 1.0, 0.1)
-		b.add("roof", roof, box, Transform3D(spin.scaled(Vector3(0.14, 0.35, 0.14)), chimney))
+		b.add(box, Transform3D(spin.scaled(Vector3(0.14, 0.35, 0.14)), chimney), Color.WHITE, roof)
 		_cottages.append(chimney + Vector3(0, 0.25, 0))
 	var mi := MeshInstance3D.new()
 	mi.mesh = b.commit()
@@ -464,14 +463,15 @@ func _distant_hills(rng: RandomNumberGenerator) -> void:
 	dome.rings = 8
 	var layers := [[38.0, Color(0.5, 0.6, 0.5)], [52.0, Color(0.6, 0.67, 0.62)], [70.0, Color(0.72, 0.76, 0.74)]]
 	for layer: Array in layers:
-		var b := BiomeDecor._Builder.new()
+		var b := MeshBatch.new()
+		b.textile = textile
 		var mat := textile.fabric(layer[1], {"weave_scale": 2.0, "weave_strength": 0.08, "fuzz": 0.1})
 		for i in 16:
 			var a := TAU * i / 16.0 + rng.randf_range(-0.15, 0.15)
 			var dist: float = layer[0] + rng.randf_range(-4.0, 4.0)
 			var radius := rng.randf_range(9.0, 15.0)
 			var height: float = rng.randf_range(5.0, 11.0) * float(layer[0]) / 40.0
-			b.add("hill", mat, dome, Transform3D(Basis().scaled(Vector3(radius * 2.0, height * 2.0, radius * 2.0)), Vector3(cos(a) * dist, -height * 0.3, sin(a) * dist)))
+			b.add(dome, Transform3D(Basis().scaled(Vector3(radius * 2.0, height * 2.0, radius * 2.0)), Vector3(cos(a) * dist, -height * 0.3, sin(a) * dist)), Color.WHITE, mat)
 		var mi := MeshInstance3D.new()
 		mi.mesh = b.commit()
 		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -481,7 +481,8 @@ func _distant_hills(rng: RandomNumberGenerator) -> void:
 func _make_clouds(rng: RandomNumberGenerator) -> void:
 	_clouds = Node3D.new()
 	add_child(_clouds)
-	var b := BiomeDecor._Builder.new()
+	var b := MeshBatch.new()
+	b.textile = textile
 	var ball := SphereMesh.new()
 	ball.radius = 0.5
 	ball.height = 1.0
@@ -495,7 +496,7 @@ func _make_clouds(rng: RandomNumberGenerator) -> void:
 		for k in rng.randi_range(3, 5):
 			var off := Vector3(rng.randf_range(-3.0, 3.0), rng.randf_range(-0.4, 0.6), rng.randf_range(-1.5, 1.5))
 			var s := rng.randf_range(2.5, 4.5)
-			b.add("cloud", mat, ball, Transform3D(Basis().scaled(Vector3(s * 1.4, s * 0.7, s)), c + off))
+			b.add(ball, Transform3D(Basis().scaled(Vector3(s * 1.4, s * 0.7, s)), c + off), Color.WHITE, mat)
 	var mi := MeshInstance3D.new()
 	mi.mesh = b.commit()
 	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF

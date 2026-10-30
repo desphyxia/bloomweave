@@ -33,6 +33,16 @@ var _slot_mesh: ArrayMesh
 var _slots: Node3D
 var _tiles: Node3D
 var _blooms: Node3D
+# Settled pieces and blooms are merged into a few meshes (one surface per
+# material) to keep draw calls low on phones. Newly placed ones show as
+# separate nodes while they animate, then get merged in.
+var _patches: ChunkedBatch
+var _details: ChunkedBatch
+var _flowers: ChunkedBatch
+var _baked_plots := {}   # plot base -> true, already in the batches
+var _baked_blooms := {}  # weave point -> true
+var _animating := 0
+var _decor_cache := {}   # "q,r|biome" -> ArrayMesh
 var _buds: Node3D
 var _animals: Node3D
 var _ghost: Node3D
@@ -51,6 +61,14 @@ func _ready() -> void:
 		node.name = n.trim_prefix("_")
 		add_child(node)
 		set(n, node)
+	for n in ["patches", "details", "flowers"]:
+		var cb := ChunkedBatch.new()
+		cb.name = n + "_batch"
+		cb.textile = textile
+		add_child(cb)
+		set("_" + n, cb)
+	_patches.cast_shadows = false
+	_flowers.per_chunk = 8
 	_trails = MeshInstance3D.new()
 	_trails.material_override = textile.thread(TRAIL_THREAD)
 	add_child(_trails)
@@ -69,13 +87,12 @@ func setup(p_game: ValleyGame) -> void:
 	for parent in [_slots, _tiles, _blooms, _buds, _animals, _ghost, _seams]:
 		for c in parent.get_children():
 			c.queue_free()
-	for base: Vector2i in game.placed:
-		var arranged := []
-		for h in PlotGrid.plot_hexes(base):
-			arranged.append(game.board[h])
-		add_piece(base, arranged, false)
-	for v: Vector3i in game.blooms:
-		add_bloom(v, game.blooms[v], false)
+	_animating = 0
+	for cb: ChunkedBatch in [_patches, _details, _flowers]:
+		cb.clear()
+	_baked_plots.clear()
+	_baked_blooms.clear()
+	_bake()
 	refresh()
 
 
@@ -220,6 +237,9 @@ func _plot_outline(base: Vector2i, y: float) -> Array:
 # --- Pieces --------------------------------------------------------------------
 
 func add_piece(base: Vector2i, arranged: Array, animate: bool) -> void:
+	if not animate:
+		_bake()
+		return
 	var piece := Node3D.new()
 	_tiles.add_child(piece)
 	var hexes := PlotGrid.plot_hexes(base)
@@ -231,6 +251,7 @@ func add_piece(base: Vector2i, arranged: Array, animate: bool) -> void:
 		var tw := create_tween().set_parallel().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 		tw.tween_property(piece, "position:y", 0.0, 0.35)
 		tw.tween_property(piece, "scale", Vector3.ONE, 0.35)
+		_track(tw)
 
 
 func _make_tile(h: Vector2i, biome: String, ghost: bool) -> Node3D:
@@ -289,15 +310,68 @@ func _refresh_seams() -> void:
 
 
 func add_bloom(v: Vector3i, bloom_id: String, animate: bool) -> void:
+	if not animate:
+		_bake()
+		return
 	var f := _make_flower(v, bloom_id, {}, false)
 	f.position = vertex_pos(v, SEAM_H + FLOWER_LIFT)
 	_blooms.add_child(f)
-	if animate:
-		var full := f.scale
-		f.scale = Vector3.ONE * 0.01
-		var tw := create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		tw.tween_interval(0.25)
-		tw.tween_property(f, "scale", full, 0.5)
+	var full := f.scale
+	f.scale = Vector3.ONE * 0.01
+	var tw := create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.tween_interval(0.25)
+	tw.tween_property(f, "scale", full, 0.5)
+	_track(tw)
+
+
+## Count running drop/bloom animations; when the last one ends, merge
+## everything into the batches and drop the separate nodes.
+func _track(tw: Tween) -> void:
+	_animating += 1
+	tw.finished.connect(func() -> void:
+		_animating -= 1
+		if _animating <= 0:
+			_animating = 0
+			_bake())
+
+
+## Add pieces and blooms not yet merged to the batches, rebuild the merged
+## meshes and free the loose animation nodes.
+func _bake() -> void:
+	for c in _tiles.get_children():
+		c.queue_free()
+	for c in _blooms.get_children():
+		c.queue_free()
+	for base: Vector2i in game.placed:
+		if _baked_plots.has(base):
+			continue
+		_baked_plots[base] = true
+		_patches.next_item()
+		_details.next_item()
+		for h in PlotGrid.plot_hexes(base):
+			var biome: String = game.board[h]
+			var b: Dictionary = data.biomes.get(biome, {})
+			var xf := Transform3D(Basis(), hex_pos(h))
+			var tint := BiomeDecor.tile_tint(h, data.biome_color(biome))
+			_patches.add(_patch, xf, tint, textile.fabric(Color.WHITE, b.get("fabric", {})))
+			_details.add(_decor_for(h, biome), xf)
+	for v: Vector3i in game.blooms:
+		if _baked_blooms.has(v):
+			continue
+		_baked_blooms[v] = true
+		_flowers.next_item()
+		var f := _make_flower(v, game.blooms[v], {}, false)
+		_flowers.add(f.mesh, Transform3D(Basis().scaled(f.scale), vertex_pos(v, SEAM_H + FLOWER_LIFT)))
+		f.free()
+	for cb: ChunkedBatch in [_patches, _details, _flowers]:
+		cb.commit()
+
+
+func _decor_for(h: Vector2i, biome: String) -> Mesh:
+	var key := "%d,%d|%s" % [h.x, h.y, biome]
+	if not _decor_cache.has(key):
+		_decor_cache[key] = decor.build(h, biome, false)
+	return _decor_cache[key]
 
 
 ## A bloom that shows its recipe: two petals point at each of the corner's

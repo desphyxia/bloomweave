@@ -29,5 +29,7 @@ questions".
 - Balance sim: `godot --headless --path . -s res://tools/simulate.gd`
 - Screenshot (needs a display, e.g. `xvfb-run`):
   `godot --path . --rendering-driver opengl3 --resolution 1280x800 -s res://tools/screenshot.gd -- out.png 10`
+- Draw-call breakdown (needs a display):
+  `godot --path . --rendering-driver opengl3 -s res://tools/perf_probe.gd -- 13`
 - Web export: `godot --headless --path . --export-release "Web" build/web/index.html`
   (templates: `scripts/fetch_web_templates.py 4.7.2`)

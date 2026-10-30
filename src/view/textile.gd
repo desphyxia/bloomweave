@@ -16,6 +16,7 @@ const GHOST_OPACITY := 0.72
 const FABRIC_KEYS := ["weave_scale", "weave_strength", "fuzz", "fleck", "sheen", "rough"]
 
 var _cache := {}
+var _neutral := {}  # material instance id -> [white twin, colour]
 
 
 # --- Materials ----------------------------------------------------------------
@@ -36,6 +37,8 @@ func fabric(color: Color, params: Dictionary = {}, ghost: bool = false) -> Shade
 		m.set_shader_parameter("fleck_color", Color(params.fleck_color))
 	m.set_shader_parameter("opacity", GHOST_OPACITY)
 	_cache[key] = m
+	if color != Color.WHITE:
+		_neutral[m.get_instance_id()] = [fabric(Color.WHITE, params, ghost), color]
 	return m
 
 
@@ -48,6 +51,8 @@ func satin(color: Color, ghost: bool = false) -> ShaderMaterial:
 	m.set_shader_parameter("color", color)
 	m.set_shader_parameter("opacity", GHOST_OPACITY)
 	_cache[key] = m
+	if color != Color.WHITE:
+		_neutral[m.get_instance_id()] = [satin(Color.WHITE, ghost), color]
 	return m
 
 
@@ -59,7 +64,18 @@ func thread(color: Color) -> ShaderMaterial:
 	m.shader = THREAD
 	m.set_shader_parameter("color", color)
 	_cache[key] = m
+	if color != Color.WHITE:
+		_neutral[m.get_instance_id()] = [thread(Color.WHITE), color]
 	return m
+
+
+## The white twin of a coloured material plus the colour it had, so merged
+## meshes can carry colour per vertex and share one material (one draw call).
+## Materials made elsewhere come back unchanged with white.
+func neutral(m: Material) -> Array:
+	if m and _neutral.has(m.get_instance_id()):
+		return _neutral[m.get_instance_id()]
+	return [m, Color.WHITE]
 
 
 # --- Patch shape --------------------------------------------------------------

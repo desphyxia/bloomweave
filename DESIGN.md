@@ -245,6 +245,14 @@ blooms now while keeping corridor routes and future corners open.
   - Axial coordinates; any vertex returns its three surrounding hexes.
   - Not C#: Godot's C# export to iOS/Android is still marked experimental,
     and C# can't export to the web.
+  - **Phone performance budget:** settled pieces, blooms and scenery are
+    merged into a few meshes, with colour stored in the vertices so tinted
+    cloth shares one material (one draw call per material, not per colour).
+    The board merges in chunks of 6 pieces, so a placement only rebuilds its
+    chunk (a few ms). 3D renders at no more than 2 device pixels per CSS
+    pixel (≈67 % on 3× iPhones; the interface stays sharp), and phones use a
+    2048 shadow map. With 13 pieces placed: ~250 draw calls, down from ~1750.
+    `tools/perf_probe.gd` breaks the draw calls down by part.
 
 ## Open questions
 

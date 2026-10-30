@@ -35,6 +35,10 @@ func _on_resize() -> void:
 	# A larger virtual canvas on phones = everything (text included) a bit smaller.
 	var base := 580 if phone else 800
 	win.content_scale_size = Vector2i(base, base)
+	# Fill rate is the main cost on phones: draw 3D at most 2 device pixels per
+	# CSS pixel (about half the pixels on a 3x iPhone). The interface stays sharp.
+	win.scaling_3d_scale = clampf(2.0 / dpr, 0.5, 1.0)
+	RenderingServer.directional_shadow_atlas_set_size(2048 if phone else 4096, true)
 	hud.set_compact(phone)
 	rig.fit(px.x / maxf(px.y, 1.0))
 

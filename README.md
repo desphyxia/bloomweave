@@ -62,7 +62,7 @@ scripts/fetch_web_templates.py 4.7.2
 - `src/view` — 3D board, camera, HUD
 - `data` — biomes, blooms, animals, influence pairs, valleys (JSON)
 - `tests` — gdUnit4 tests for core and rules
-- `tools` — balance simulation and screenshot helpers
+- `tools` — balance simulation, screenshot and draw-call (perf) helpers
 
 ### GitHub Pages
 

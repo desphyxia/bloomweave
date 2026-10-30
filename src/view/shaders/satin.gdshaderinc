@@ -12,7 +12,7 @@ uniform float opacity = 1.0;
 
 void fragment() {
 	float s = 0.86 + 0.14 * sin(UV.x * lines);
-	ALBEDO = color.rgb * s;
+	ALBEDO = color.rgb * COLOR.rgb * s;  // vertex colour tints merged meshes
 	ROUGHNESS = 0.45;
 	SPECULAR = 0.55;
 #ifdef GHOST

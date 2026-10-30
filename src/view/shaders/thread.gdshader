@@ -9,7 +9,7 @@ uniform float twist = 28.0;
 void fragment() {
 	float s = sin(UV.x * twist + UV.y * 6.2831853 * 2.0);
 	float strand = 0.78 + 0.22 * smoothstep(-0.7, 0.7, s);
-	ALBEDO = color.rgb * strand;
+	ALBEDO = color.rgb * COLOR.rgb * strand;  // vertex colour tints merged meshes
 	ROUGHNESS = 0.6;
 	SPECULAR = 0.45;
 }
