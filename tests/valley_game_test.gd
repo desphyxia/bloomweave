@@ -191,8 +191,10 @@ func test_deer_need_enough_forest_blooms() -> void:
 	for v in chain:
 		g.blooms[v] = "cotton_grass_moor"  # no forest
 	assert_bool(g.check_animals().has("deer")).is_false()
-	assert_int(g.animal_progress("deer").blooms).is_equal(n)
-	assert_int(g.animal_progress("deer").biome_blooms).is_equal(0)
+	var pr := g.animal_progress("deer")
+	assert_int(pr[0].have).is_equal(n)
+	assert_int(pr[1].have).is_equal(0)
+	assert_str(pr[1].label).is_equal("forest")
 
 
 func test_score_breakdown() -> void:
@@ -232,7 +234,7 @@ func test_open_corners_list_exactly_the_biomes_that_bloom() -> void:
 				var trio := []
 				for h in ring:
 					trio.append(b if h == c.hex else g.board[h])
-				var blooms := not data.bloom_for(trio, clockwise).is_empty()
+				var blooms := not g.bloom_for(trio).is_empty()
 				assert_bool(c.needs.has(b)).is_equal(blooms)
 
 
@@ -270,8 +272,12 @@ func test_mirrored_corner_does_not_bloom_with_clockwise_rule() -> void:
 
 
 func test_full_games_keep_rules_consistent() -> void:
-	for rng_seed in range(12):
-		var g := _clockwise_game(100 + rng_seed) if rng_seed % 2 == 1 else _game(100 + rng_seed)
+	for rng_seed in range(16):
+		var g: ValleyGame
+		if rng_seed >= 12:
+			g = ValleyGame.new(data, data.valley("willowmere"), 100 + rng_seed)
+		else:
+			g = _clockwise_game(100 + rng_seed) if rng_seed % 2 == 1 else _game(100 + rng_seed)
 		var spent := 0
 		var animal_seeds := 0
 		var perfect_seeds := 0
@@ -306,14 +312,14 @@ func test_full_games_keep_rules_consistent() -> void:
 			assert_int(r.completed).is_equal(completed)
 			assert_bool(r.blooms.size() <= completed).is_true()
 			for id: String in r.settled:
-				animal_seeds += int(data.animals[id].seeds)
+				animal_seeds += int(g.animal(id).seeds)
 			assert_int(r.points).is_equal(g.combo_points(r.blooms.size()))
 			assert_bool(r.perfect).is_equal(r.completed == 6 and r.blooms.size() == 6)
 			points += r.points
 			if r.perfect:
 				perfect_seeds += int(g.valley.scoring.perfect_seeds)
-		assert_int(g.placed.size()).is_equal(19)
-		assert_int(g.board.size()).is_equal(57)
+		assert_int(g.placed.size()).is_equal(g.plots.size())
+		assert_int(g.board.size()).is_equal(g.plots.size() * 3)
 		assert_int(g.pieces_left()).is_equal(0)
 		assert_int(g.seeds).is_equal(g.blooms.size() + animal_seeds + perfect_seeds - spent)
 		assert_int(g.score_breakdown().blooms).is_equal(points)
@@ -336,7 +342,7 @@ func _assert_blooms_consistent(g: ValleyGame) -> void:
 			if trio.size() < 3:
 				assert_bool(g.blooms.has(v)).is_false()
 				continue
-			var bloom := data.bloom_for(trio, g.clockwise_blooms())
+			var bloom := g.bloom_for(trio)
 			if bloom.is_empty():
 				assert_bool(g.blooms.has(v)).is_false()
 			else:

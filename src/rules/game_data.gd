@@ -48,20 +48,21 @@ static func trio_key(trio: Array) -> String:
 	return "+".join(t)
 
 
-## The bloom a trio of biomes makes, or {} if none. Only trios of three
-## different biomes bloom (same-biome blooms are out of the prototype).
+## The bloom a trio of biomes makes, or {} if none. Recipes may repeat a
+## biome (e.g. three forests = Deep Wood). Which recipes are active is up to
+## each valley (see ValleyGame.bloom_for).
 ## With `clockwise`, `trio` must be in clockwise order around the corner and
 ## only matches a bloom listed in that same cyclic order; the reverse order
 ## makes nothing.
 func bloom_for(trio: Array, clockwise: bool = false) -> Dictionary:
-	if Piece.kind(trio) != Piece.DISTINCT:
-		return {}
 	var bloom: Dictionary = blooms.get(trio_key(trio), {})
 	if bloom.is_empty() or not clockwise:
 		return bloom
 	var t: Array = bloom.trio
-	var i := trio.find(t[0])
-	return bloom if trio[(i + 1) % 3] == t[1] else {}
+	for start in 3:
+		if trio[start] == t[0] and trio[(start + 1) % 3] == t[1] and trio[(start + 2) % 3] == t[2]:
+			return bloom
+	return {}
 
 
 func biome_color(id: String) -> Color:
@@ -72,8 +73,8 @@ func biome_color(id: String) -> Color:
 func validate() -> Array[String]:
 	var errors: Array[String] = []
 	for bl: Dictionary in blooms_by_id.values():
-		if bl.trio.size() != 3 or Piece.kind(bl.trio) != Piece.DISTINCT:
-			errors.append("Bloom %s needs three different biomes." % bl.id)
+		if bl.trio.size() != 3:
+			errors.append("Bloom %s needs three biomes." % bl.id)
 		for b: String in bl.trio:
 			if not biomes.has(b):
 				errors.append("Bloom %s uses unknown biome %s." % [bl.id, b])
@@ -89,7 +90,21 @@ func validate_valley(v: Dictionary) -> Array[String]:
 	for b: String in v.get("biomes", []):
 		if not biomes.has(b):
 			errors.append("Valley %s uses unknown biome %s." % [v.get("id"), b])
-	var plot_count := PlotGrid.plots_within(Vector2i.ZERO, int(v.outline.radius)).size()
+	var outline := ValleyGame.outline_plots(v)
+	var plot_count := outline.size()
+	if not outline.has(ValleyGame.landmark_plot(v)):
+		errors.append("Valley %s landmark is outside its outline." % v.get("id"))
+	for base: Vector2i in ValleyGame.obstacle_plots(v):
+		if not PlotGrid.is_base(base):
+			errors.append("Valley %s obstacle %s is not a plot base." % [v.get("id"), base])
+		if outline.has(base):
+			errors.append("Valley %s obstacle %s overlaps the outline." % [v.get("id"), base])
+	for base: Vector2i in outline:
+		if not PlotGrid.is_base(base):
+			errors.append("Valley %s plot %s is not a plot base." % [v.get("id"), base])
+	for id: String in v.get("blooms", []):
+		if not blooms_by_id.has(id):
+			errors.append("Valley %s lists unknown bloom %s." % [v.get("id"), id])
 	var pile: Dictionary = v.get("pile", {})
 	var pieces := int(pile.get("distinct", 0)) + int(pile.get("double", 0)) + int(pile.get("single", 0))
 	if pieces != plot_count - 1:
@@ -97,7 +112,8 @@ func validate_valley(v: Dictionary) -> Array[String]:
 	var landmark: Array = v.get("landmark", {}).get("biomes", [])
 	if landmark.size() != 3 or Piece.kind(landmark) != Piece.DISTINCT:
 		errors.append("Valley %s landmark needs three different biomes." % v.get("id"))
-	for a: String in v.get("animals", []):
+	for entry: Variant in v.get("animals", []):
+		var a: String = entry if entry is String else str(entry.get("id", ""))
 		if not animals.has(a):
 			errors.append("Valley %s lists unknown animal %s." % [v.get("id"), a])
 	return errors

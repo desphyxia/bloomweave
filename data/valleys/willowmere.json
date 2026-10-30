@@ -1,0 +1,94 @@
+{
+  "id": "willowmere",
+  "name": "Willowmere",
+  "biomes": [
+    "forest",
+    "meadow",
+    "wetland",
+    "heath"
+  ],
+  "outline": {
+    "plots": [
+      [-4, -1],
+      [-4, 2],
+      [-3, -3],
+      [-3, 0],
+      [-2, -2],
+      [-2, 1],
+      [-1, -4],
+      [-1, -1],
+      [0, -3],
+      [1, -5],
+      [1, -2],
+      [1, 1],
+      [2, -4],
+      [2, -1],
+      [2, 2],
+      [3, -6],
+      [3, -3],
+      [3, 0],
+      [4, -5],
+      [4, -2],
+      [5, -4],
+      [5, -1],
+      [6, -3]
+    ]
+  },
+  "obstacles": [
+    {
+      "kind": "lake",
+      "plots": [
+        [0, 0]
+      ]
+    }
+  ],
+  "landmark": {
+    "name": "Old Oak",
+    "plot": [2, -4],
+    "biomes": [
+      "forest",
+      "meadow",
+      "wetland"
+    ]
+  },
+  "blooms": [
+    "fern_hollow",
+    "foxglove_glade",
+    "misty_carr",
+    "cotton_grass_moor",
+    "deep_wood"
+  ],
+  "pile": {
+    "distinct": 12,
+    "double": 10,
+    "single": 0,
+    "weights": {
+      "forest": 1.6
+    }
+  },
+  "animals": [
+    {
+      "id": "otter",
+      "description": "A corridor of 5+ blooms, with 2+ of them by the lake.",
+      "needs": {
+        "min_blooms": 5,
+        "near": "lake",
+        "min_near_blooms": 2
+      }
+    },
+    "badger"
+  ],
+  "bloom_order": "any",
+  "scoring": {
+    "bloom": 2,
+    "combo_step": 1,
+    "perfect_seeds": 5,
+    "seeds_per_point": 3
+  },
+  "seed_costs": {
+    "set_aside": 1,
+    "swap": 1,
+    "look_ahead": 2
+  },
+  "look_ahead_count": 3
+}

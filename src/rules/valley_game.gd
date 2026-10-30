@@ -1,13 +1,15 @@
 class_name ValleyGame
 extends RefCounted
-## Rules for one run of Valley mode: a fixed outline of plots, a landmark
-## piece in the centre, and exactly enough pieces to fill every other plot.
+## Rules for one valley: a fixed outline of plots (a radius, or a list of
+## plots), optional obstacle plots (a lake...) that pieces can't fill, a
+## landmark piece, and exactly enough pieces to fill every other plot.
 ## Pure logic with no scene or node dependencies, so it is testable headless.
 
 var data: GameData
 var valley: Dictionary
 var center := Vector2i.ZERO
 var plots: Array[Vector2i] = []
+var obstacles := {}      # hex (Vector2i) -> obstacle kind ("lake", ...)
 var board := {}          # hex (Vector2i) -> biome id
 var placed := {}         # plot base (Vector2i) -> true
 var pile: Array = []     # pieces still to place; pile[0] is the current piece
@@ -22,6 +24,9 @@ var rng := RandomNumberGenerator.new()
 var game_seed := 0      # shown on screen so a valley can be replayed exactly
 
 var _plot_set := {}
+var _recipes := {}       # bloom id -> true, the blooms this valley allows
+var _residents: Array[String] = []
+var _animals := {}       # id -> animal with this valley's needs applied
 
 
 func _init(p_data: GameData, p_valley: Dictionary, rng_seed: int = -1) -> void:
@@ -33,18 +38,89 @@ func _init(p_data: GameData, p_valley: Dictionary, rng_seed: int = -1) -> void:
 		rng_seed = r.randi_range(100000, 999999)
 	game_seed = rng_seed
 	rng.seed = rng_seed
-	plots = PlotGrid.plots_within(center, int(valley.outline.radius))
+	center = landmark_plot(valley)
+	plots = outline_plots(valley)
 	for p in plots:
 		_plot_set[p] = true
+	for o: Dictionary in valley.get("obstacles", []):
+		for b: Array in o.get("plots", []):
+			for h in PlotGrid.plot_hexes(Vector2i(int(b[0]), int(b[1]))):
+				obstacles[h] = str(o.get("kind", "lake"))
+	for id: String in valley_bloom_ids(data, valley):
+		_recipes[id] = true
+	for entry: Variant in valley.get("animals", []):
+		var a := _resolve_animal(entry)
+		_residents.append(a.id)
+		_animals[a.id] = a
 	_put(center, valley.landmark.biomes)
 	pile = _build_pile()
+
+
+## The valley's plots: `outline.plots` (a list of plot bases) or every plot
+## within `outline.radius` steps of the landmark.
+static func outline_plots(v: Dictionary) -> Array[Vector2i]:
+	var outline: Dictionary = v.get("outline", {})
+	if outline.has("plots"):
+		var out: Array[Vector2i] = []
+		for b: Array in outline.plots:
+			out.append(Vector2i(int(b[0]), int(b[1])))
+		return out
+	return PlotGrid.plots_within(landmark_plot(v), int(outline.get("radius", 2)))
+
+
+static func landmark_plot(v: Dictionary) -> Vector2i:
+	var at: Array = v.get("landmark", {}).get("plot", [0, 0])
+	return Vector2i(int(at[0]), int(at[1]))
+
+
+static func obstacle_plots(v: Dictionary) -> Array[Vector2i]:
+	var out: Array[Vector2i] = []
+	for o: Dictionary in v.get("obstacles", []):
+		for b: Array in o.get("plots", []):
+			out.append(Vector2i(int(b[0]), int(b[1])))
+	return out
+
+
+## The bloom recipes a valley uses: its `blooms` list, or by default every
+## all-different trio of its biomes that has a bloom.
+static func valley_bloom_ids(d: GameData, v: Dictionary) -> Array[String]:
+	var out: Array[String] = []
+	if v.has("blooms"):
+		for id: String in v.blooms:
+			out.append(id)
+		return out
+	var biomes: Array = v.get("biomes", [])
+	for bl: Dictionary in d.blooms_by_id.values():
+		var fits := Piece.kind(bl.trio) == Piece.DISTINCT
+		for b: String in bl.trio:
+			fits = fits and biomes.has(b)
+		if fits:
+			out.append(bl.id)
+	return out
+
+
+## The blooms this valley allows, in data order.
+func recipes() -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	for bl: Dictionary in data.blooms_by_id.values():
+		if _recipes.has(bl.id):
+			out.append(bl)
+	return out
+
+
+## The bloom a trio (clockwise around a corner) makes in this valley, or {}.
+func bloom_for(trio: Array) -> Dictionary:
+	var bloom := data.bloom_for(trio, clockwise_blooms())
+	return bloom if not bloom.is_empty() and _recipes.has(bloom.id) else {}
 
 
 # --- Pieces -------------------------------------------------------------------
 
 func _build_pile() -> Array:
-	var biome_pool: Array = valley.biomes
 	var mix: Dictionary = valley.pile
+	if mix.has("weights"):
+		return _build_weighted_pile(mix)
+	var biome_pool: Array = valley.biomes
 	var out := []
 	for _i in int(mix.get("distinct", 0)):
 		var b := biome_pool.duplicate()
@@ -61,6 +137,46 @@ func _build_pile() -> Array:
 		out.append([a, a, a])
 	_shuffle(out)
 	return out
+
+
+## Like _build_pile, but biomes are drawn by `pile.weights` (biome -> weight,
+## default 1), e.g. more forest so Deep Wood can grow.
+func _build_weighted_pile(mix: Dictionary) -> Array:
+	var out := []
+	for _i in int(mix.get("distinct", 0)):
+		var piece := []
+		while piece.size() < 3:
+			piece.append(_weighted_biome(mix.weights, piece))
+		_shuffle(piece)
+		out.append(piece)
+	for _i in int(mix.get("double", 0)):
+		var a := _weighted_biome(mix.weights, [])
+		var piece := [a, a, _weighted_biome(mix.weights, [a])]
+		_shuffle(piece)
+		out.append(piece)
+	for _i in int(mix.get("single", 0)):
+		var a := _weighted_biome(mix.weights, [])
+		out.append([a, a, a])
+	_shuffle(out)
+	return out
+
+
+func _weighted_biome(weights: Dictionary, exclude: Array) -> String:
+	var total := 0.0
+	for b: String in valley.biomes:
+		if not exclude.has(b):
+			total += float(weights.get(b, 1.0))
+	var roll := rng.randf() * total
+	for b: String in valley.biomes:
+		if exclude.has(b):
+			continue
+		roll -= float(weights.get(b, 1.0))
+		if roll <= 0.0:
+			return b
+	for b: String in valley.biomes:
+		if not exclude.has(b):
+			return b
+	return valley.biomes[0]
 
 
 ## Replace the pile (for tests and scripted valleys).
@@ -136,7 +252,7 @@ func preview(base: Vector2i, arranged: Array) -> Array:
 				trio.append(board[h])
 		if trio.size() < 3:
 			continue
-		var bloom := data.bloom_for(trio, clockwise_blooms())
+		var bloom := bloom_for(trio)
 		if not bloom.is_empty():
 			out.append({"vertex": v, "bloom": bloom.id})
 	return out
@@ -222,7 +338,6 @@ static func is_perfect(completed: int, bloomed: int) -> bool:
 func open_corners() -> Array:
 	var out := []
 	var seen := {}
-	var clockwise := clockwise_blooms()
 	for base in plots:
 		if placed.has(base):
 			continue
@@ -245,7 +360,7 @@ func open_corners() -> Array:
 				var trio := []
 				for i in 3:
 					trio.append(b if i == missing else board[ring[i]])
-				if not data.bloom_for(trio, clockwise).is_empty():
+				if not bloom_for(trio).is_empty():
 					needs.append(b)
 			out.append({"vertex": v, "hex": ring[missing], "needs": needs})
 	return out
@@ -378,12 +493,77 @@ func blooms_touching(corridor: Array, biome: String) -> int:
 	return n
 
 
-func animal_satisfied_by(animal: Dictionary, corridor: Array) -> bool:
-	var needs: Dictionary = animal.get("needs", {})
-	if corridor.size() < int(needs.get("min_blooms", 1)):
-		return false
+## How many blooms in a corridor sit next to an obstacle of `kind` (one of
+## the bloom's hexes borders it, e.g. on the lake shore).
+func blooms_near(corridor: Array, kind: String) -> int:
+	var n := 0
+	for v: Vector3i in corridor:
+		if is_near_obstacle(v, kind):
+			n += 1
+	return n
+
+
+func is_near_obstacle(v: Vector3i, kind: String) -> bool:
+	for h in Hex.vertex_hexes(v):
+		for nb in Hex.neighbors(h):
+			if obstacles.get(nb, "") == kind:
+				return true
+	return false
+
+
+## How many blooms in a corridor are the bloom `bloom_id`.
+func blooms_of(corridor: Array, bloom_id: String) -> int:
+	var n := 0
+	for v: Vector3i in corridor:
+		if blooms[v] == bloom_id:
+			n += 1
+	return n
+
+
+## The resident animals' ids, in the valley's order.
+func residents() -> Array[String]:
+	return _residents
+
+
+## A resident with this valley's needs applied. Valleys list animals by id,
+## or as {"id", "needs", "description"} to change what that animal asks for.
+func animal(id: String) -> Dictionary:
+	return _animals.get(id, data.animals.get(id, {}))
+
+
+func _resolve_animal(entry: Variant) -> Dictionary:
+	if entry is String:
+		return data.animals[entry]
+	var e: Dictionary = entry
+	var a: Dictionary = data.animals[e.id].duplicate(true)
+	for k: String in e:
+		a[k] = e[k]
+	return a
+
+
+## Each of an animal's needs measured on a corridor, as
+## [{"label", "have", "need"}] (blooms first). A corridor satisfies the animal
+## when every `have` reaches its `need`.
+func animal_checks(id: String, corridor: Array) -> Array:
+	var needs: Dictionary = animal(id).get("needs", {})
+	var out := [{"label": "blooms", "have": corridor.size(), "need": int(needs.get("min_blooms", 1))}]
 	if needs.has("biome"):
-		return blooms_touching(corridor, needs.biome) >= int(needs.get("min_biome_blooms", 1))
+		out.append({"label": str(needs.biome), "have": blooms_touching(corridor, needs.biome),
+			"need": int(needs.get("min_biome_blooms", 1))})
+	if needs.has("near"):
+		out.append({"label": "by the %s" % needs.near, "have": blooms_near(corridor, needs.near),
+			"need": int(needs.get("min_near_blooms", 1))})
+	if needs.has("bloom"):
+		var bl: Dictionary = data.blooms_by_id.get(needs.bloom, {})
+		out.append({"label": str(bl.get("name", needs.bloom)), "have": blooms_of(corridor, needs.bloom),
+			"need": int(needs.get("min_bloom_count", 1))})
+	return out
+
+
+func animal_satisfied_by(id: String, corridor: Array) -> bool:
+	for c: Dictionary in animal_checks(id, corridor):
+		if c.have < c.need:
+			return false
 	return true
 
 
@@ -391,29 +571,52 @@ func animal_satisfied_by(animal: Dictionary, corridor: Array) -> bool:
 func check_animals() -> Array:
 	var out := []
 	var groups := corridors()
-	for id: String in valley.get("animals", []):
+	for id: String in _residents:
 		if settled.has(id):
 			continue
-		var animal: Dictionary = data.animals[id]
 		for g: Array in groups:
-			if animal_satisfied_by(animal, g):
+			if animal_satisfied_by(id, g):
 				settled[id] = g
-				seeds += int(animal.get("seeds", 0))
+				seeds += int(animal(id).get("seeds", 0))
 				out.append(id)
 				break
 	return out
 
 
-## The animal's best corridor so far: {"blooms", "biome_blooms"}.
-func animal_progress(id: String) -> Dictionary:
-	var animal: Dictionary = data.animals[id]
-	var biome: String = animal.get("needs", {}).get("biome", "")
-	var best := {"blooms": 0, "biome_blooms": 0}
+## The animal's best corridor so far, as animal_checks entries: the corridor
+## that meets the most of its needs (counting partial progress).
+func animal_progress(id: String) -> Array:
+	var best: Array = animal_checks(id, [])
+	var best_score := -1.0
 	for g: Array in corridors():
-		var bb := blooms_touching(g, biome) if biome != "" else g.size()
-		if g.size() + bb > best.blooms + best.biome_blooms:
-			best = {"blooms": g.size(), "biome_blooms": bb}
+		var checks := animal_checks(id, g)
+		var score := 0.0
+		for c: Dictionary in checks:
+			score += minf(float(c.have) / maxf(float(c.need), 1.0), 1.0)
+		if score > best_score:
+			best_score = score
+			best = checks
 	return best
+
+
+# --- Stars ----------------------------------------------------------------------
+
+## A level's three stars: the valley restored, all residents settled, the
+## hidden visitor found (not in the game yet, so always false).
+func stars() -> Dictionary:
+	return {
+		"restored": is_finished(),
+		"residents": settled.size() == _residents.size() and not _residents.is_empty(),
+		"visitor": false,
+	}
+
+
+func star_count() -> int:
+	var n := 0
+	for k: String in stars():
+		if stars()[k]:
+			n += 1
+	return n
 
 
 # --- Score --------------------------------------------------------------------
@@ -423,7 +626,7 @@ func score_breakdown() -> Dictionary:
 	var bloom_pts := bloom_points
 	var animal_pts := 0
 	for id: String in settled:
-		animal_pts += int(data.animals[id].get("points", 0))
+		animal_pts += int(animal(id).get("points", 0))
 	var per_point := int(scoring.get("seeds_per_point", 0))
 	var seed_pts := seeds / per_point if per_point > 0 else 0
 	return {
