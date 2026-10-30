@@ -146,6 +146,22 @@ blooms now while keeping corridor routes and future corners open.
     runs out), which would have brought Dorfromantik's economy loop back.
 - **Many different valley shapes.** Outlines vary widely between valleys,
   not just the round first valley.
+  - *Custom shapes are carved by terrain:* the generator makes hills and
+    ridges, and the valley is the low ground between them, so the outline
+    always matches the landscape around it (passes, side basins; cliffs
+    become obstacles). Rejected for now: river-carved, quilt-block patterns,
+    player-painted outlines, and a plain random blob (too boring).
+  - *Custom sizes:* presets S / M / L / XL, about 20 / 35 / 50 / 75 plots
+    (roughly 6 / 12 / 18 / 30 minutes).
+  - *Progression levels can be big too*, and there may be a very large
+    number of them. They're made by **generate, curate, fix**: the
+    generator makes many candidates offline, the balance sim plays them,
+    the good ones are kept and saved as fixed level files; key levels are
+    hand-made.
+- **Obstacles as fixed features.** Some valleys have obstacle hexes inside
+  the outline (lake, cliff, ruins) that pieces can't fill. Blooms can't use
+  them, but they shape the board and can count for animals (e.g. otters
+  like a lake shore).
 - **Seeds are the bloom currency.** Each bloom gives 1 seed. You always see
   the current piece and the next one. Spend seeds to: set the current piece
   aside in a single reserve slot; swap the current piece with the next one;
@@ -167,7 +183,7 @@ blooms now while keeping corridor routes and future corners open.
     special blooms). Revisit if playtests show the game lacks depth.
 - **Run length grows with progress.** First valleys are small (~20 plots,
   ~5–8 min). Later valleys grow to 30–45 plots (~10–20 min). Larger games
-  are also wanted: big valleys (60+ plots), e.g. through Custom mode. Every valley can be paused and resumed at any time.
+  are also wanted: big valleys (60+ plots), in both modes. Every valley can be paused and resumed at any time.
 - **Animals: residents plus a hidden visitor.** Each valley shows its 2–4
   resident animals and their needs before the first piece (e.g. "Otters: a
   5-bloom corridor touching wetland"). One hidden visitor also settles if a
@@ -274,9 +290,9 @@ blooms now while keeping corridor routes and future corners open.
 ## Open questions
 
 ### Geometry and placement
-- Whether outlines include obstacles such as a lake or cliff.
-- How Custom mode generates a shape (rules that keep it fair and
-  valley-like) and which sizes it offers.
+- Terrain generator details: what keeps a carved valley fair (connected,
+  no one-plot inlets, enough weave points) and how obstacles are placed.
+- Which obstacle kinds exist and exactly how each counts for animals.
 - Which landmark each valley has.
 
 ### Biomes and valleys
@@ -305,8 +321,6 @@ blooms now while keeping corridor routes and future corners open.
 - How hidden visitors are hinted at, if at all.
 
 ### Difficulty and run length
-- Whether Progression also has big levels, or large games live only in
-  Custom mode.
 - Difficulty curve across valleys (piece mix, valley shape, animal needs).
 
 ### Progression and unlocks
