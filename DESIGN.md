@@ -162,6 +162,10 @@ blooms now while keeping corridor routes and future corners open.
   the outline (lake, cliff, ruins) that pieces can't fill. Blooms can't use
   them, but they shape the board and can count for animals (e.g. otters
   like a lake shore).
+  - *First obstacle kinds:* **lake** (otters, herons, frogs want corridors
+    along its shore), **cliff / crag** (eagles and goats; splits the
+    valley), **ruins** (an old wall or chapel; owls and bats) and **ancient
+    wood** (a grove too old to change; badgers and owls).
 - **Seeds are the bloom currency.** Each bloom gives 1 seed. You always see
   the current piece and the next one. Spend seeds to: set the current piece
   aside in a single reserve slot; swap the current piece with the next one;
@@ -220,7 +224,9 @@ blooms now while keeping corridor routes and future corners open.
   the valley grows outward like restoration spreading. Every valley starts
   from a fixed **landmark piece** in its centre: three different biomes from
   that valley, with a landmark at its confluence (an old tree, a spring). It
-  follows the normal rules but is the valley's heart.
+  follows the normal rules but is the valley's heart. **One landmark per
+  region** (e.g. Old Oak, Spring, Standing Stone, Mill), with small
+  variations between its levels, gives each region its identity.
 - **Same-biome trios may bloom, selectively.** Some trios with repeated
   biomes get a recipe (e.g. three forests = "deep wood", two wetlands + a
   meadow = "reed bed"); not every trio does. Each valley lists its recipes,
@@ -233,8 +239,11 @@ blooms now while keeping corridor routes and future corners open.
   - *Custom mode recipes come from the journal:* the all-different trios of
     the chosen biomes plus the same-biome recipes already discovered for
     them.
-- **Scoring: points.** 1 per bloom, a bonus per settled animal, a little per
-  leftover seed (exact values tuned in playtests). Best score kept per valley.
+- **Scoring: points.** Blooms (2 each, rising in combos), a bonus per
+  settled animal that scales with its difficulty (about 8 for an easy
+  resident, 12–15 for a hard one, 20 for the hidden visitor; set per animal
+  in data), and 1 point per 3 leftover seeds as a small tiebreaker. Best
+  score kept per valley.
 - **Prototype animals: otters and deer.** Otters want a corridor of 4+ blooms
   that includes wetland; deer want a long corridor (6+ blooms) passing
   through forest.
@@ -324,8 +333,8 @@ blooms now while keeping corridor routes and future corners open.
 ### Geometry and placement
 - Terrain generator details: what keeps a carved valley fair (connected,
   no one-plot inlets, enough weave points) and how obstacles are placed.
-- Which obstacle kinds exist and exactly how each counts for animals.
-- Which landmark each valley has.
+- Exactly how "near an obstacle" is measured for animals.
+- Which landmark each region has.
 
 ### Biomes and valleys
 - Which same-biome recipes exist (names, looks).
@@ -339,7 +348,7 @@ blooms now while keeping corridor routes and future corners open.
   a trail would matter too.
 
 ### Scoring and economy
-- Exact point values for animals and leftover seeds.
+- Fine-tuning the point values in playtests.
 
 ### Biome interactions
 - Which pairs count as good pairs, and what each looks like.
