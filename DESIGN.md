@@ -201,6 +201,13 @@ blooms now while keeping corridor routes and future corners open.
   meadow = "reed bed"); not every trio does. Each valley lists its recipes,
   keeping it readable at about 4–6. The first valley only has all-different
   recipes so far.
+  - *Recipe list per valley:* its all-different trios plus one or two
+    same-biome recipes, which are the special, harder-to-plan extras.
+  - *Same points as other blooms*, but a special look, and they stand out
+    in the journal.
+  - *Custom mode recipes come from the journal:* the all-different trios of
+    the chosen biomes plus the same-biome recipes already discovered for
+    them.
 - **Scoring: points.** 1 per bloom, a bonus per settled animal, a little per
   leftover seed (exact values tuned in playtests). Best score kept per valley.
 - **Prototype animals: otters and deer.** Otters want a corridor of 4+ blooms
@@ -296,9 +303,7 @@ blooms now while keeping corridor routes and future corners open.
 - Which landmark each valley has.
 
 ### Biomes and valleys
-- Which same-biome recipes exist, and whether a valley can turn
-  all-different recipes off in favour of same-biome ones.
-- How Custom mode picks recipes for a generated valley.
+- Which same-biome recipes exist (names, looks).
 - Content load: 8 biomes = 56 possible all-different trios (120 with
   repeats). Do all of them need a bloom, or only the trios that appear in
   the valleys we ship?
