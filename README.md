@@ -19,7 +19,7 @@ pieces in the same order); handy when reporting a bug.
 
 - **Tap a glowing plot** to try the current piece there; tap it again (or
   press **Turn**) to rotate it. **Mirror** flips it.
-- **Place** (or a **double-tap** on the plot) puts it down. Flowers show where corners will bloom.
+- **Place** (or **press and hold** the plot) puts it down. Flowers show where corners will bloom.
 - A corner blooms when its three hexes hold one of the bloom recipes (the
   Blooms panel). **Buds** on open corners show which biome(s) the last hex
   needs. Later valleys can require the biomes in **clockwise** order.

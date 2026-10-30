@@ -228,8 +228,9 @@ blooms now while keeping corridor routes and future corners open.
     hills; a finished valley gets birds circling and chimney smoke.
   - *Camera:* tilted 3D view with free orbit and zoom.
   - *Placing by touch:* tap a plot to preview the piece there, tap it again
-    to turn it, double-tap to place it as shown. To tell the two apart, a
-    turn waits out the double-tap window (0.25 s; 0.35 s felt slow).
+    to turn it (instantly), press and hold (0.45 s) to place it as shown.
+    Double-tap to place was tried and dropped: telling it apart from a turn
+    made turning feel slow.
   - *Sound:* soft ambient music; each biome adds nature sounds that layer up
     as the valley fills; fabric rustle on placement.
   - *Feedback:* blooms and settling animals use short, gentle animations that
