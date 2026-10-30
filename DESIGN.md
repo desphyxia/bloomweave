@@ -128,13 +128,20 @@ blooms now while keeping corridor routes and future corners open.
     (weave point → seam → weave point) running along piece outlines.
   - Rejected: biome regions (too close to Dorfromantik), no large-scale goal
     (risk of samey play).
-- **Game modes.** Start with **Valley mode**: each valley has a fixed outline
-  made of plots, and you get exactly enough pieces to fill it. The run ends
-  when the valley is fully restored; every run in a valley has the same
-  length, and the score measures quality (blooms, corridors, discoveries),
-  not how long you lasted. Blooms earn *choice*, not extra pieces. An
-  **open mode** (map grows until the pile runs out) may come later as a
-  second mode.
+- **Valley rules (both modes).** Each valley has a fixed outline made of
+  plots, and you get exactly enough pieces to fill it. The run ends when the
+  valley is fully restored; every run in a valley has the same length, and
+  the score measures quality (blooms, corridors, discoveries), not how long
+  you lasted. Blooms earn *choice*, not extra pieces.
+- **Two game modes:**
+  - **Progression:** a series of levels, each a hand-made valley with a
+    predefined shape (plus its biome mix, rules, animals and landmark).
+    Levels unlock through discoveries.
+  - **Custom:** valleys with generated shapes and sizes.
+  - These replace the earlier "open mode" idea (map grows until the pile
+    runs out), which would have brought Dorfromantik's economy loop back.
+- **Many different valley shapes.** Outlines vary widely between valleys,
+  not just the round first valley.
 - **Seeds are the bloom currency.** Each bloom gives 1 seed. You always see
   the current piece and the next one. Spend seeds to: set the current piece
   aside in a single reserve slot; swap the current piece with the next one;
@@ -156,8 +163,7 @@ blooms now while keeping corridor routes and future corners open.
     special blooms). Revisit if playtests show the game lacks depth.
 - **Run length grows with progress.** First valleys are small (~20 plots,
   ~5–8 min). Later valleys grow to 30–45 plots (~10–20 min). Larger games
-  are also wanted: big valleys (60+ plots) as an option, and the open mode
-  later. Every valley can be paused and resumed at any time.
+  are also wanted: big valleys (60+ plots), e.g. through Custom mode. Every valley can be paused and resumed at any time.
 - **Animals: residents plus a hidden visitor.** Each valley shows its 2–4
   resident animals and their needs before the first piece (e.g. "Otters: a
   5-bloom corridor touching wetland"). One hidden visitor also settles if a
@@ -170,8 +176,9 @@ blooms now while keeping corridor routes and future corners open.
   from a fixed **landmark piece** in its centre: three different biomes from
   that valley, with a landmark at its confluence (an old tree, a spring). It
   follows the normal rules but is the valley's heart.
-- **Same-biome trios don't bloom in the prototype.** Only all-different trios
-  bloom for now; revisit later.
+- **Same-biome trios may bloom.** Trios with repeated biomes (e.g. three
+  forests = "deep wood", or two forests + a wetland) can be named blooms too.
+  The first valley only has all-different recipes so far.
 - **Scoring: points.** 1 per bloom, a bonus per settled animal, a little per
   leftover seed (exact values tuned in playtests). Best score kept per valley.
 - **Prototype animals: otters and deer.** Otters want a corridor of 4+ blooms
@@ -261,16 +268,21 @@ blooms now while keeping corridor routes and future corners open.
 ## Open questions
 
 ### Geometry and placement
-- Valley outlines: shape, and whether outlines include obstacles such as a
-  lake or cliff.
+- Whether outlines include obstacles such as a lake or cliff.
+- How Custom mode generates a shape (rules that keep it fair and
+  valley-like) and which sizes it offers.
 - Which landmark each valley has.
 
 ### Biomes and valleys
-- Are valleys hand-made (a curated list of biome mixes) or generated (a
-  random mix each run)?
-- Same-biome blooms (e.g. three forests = "deep wood") after the prototype?
-- Content load: 8 biomes = 56 possible all-different trios. Do all of them
-  need a bloom, or only the trios that appear in the valleys we ship?
+- Custom mode: is the biome mix generated or chosen too, and only from
+  biomes already discovered in Progression? Do Custom games add to the
+  journal?
+- Which same-biome trios bloom (all-same, two-plus-one, or only some), and
+  how that fits the 4–5 biome readability limit (4 biomes have 20 trios
+  when repeats count, vs 4 all-different).
+- Content load: 8 biomes = 56 possible all-different trios (120 with
+  repeats). Do all of them need a bloom, or only the trios that appear in
+  the valleys we ship?
 
 ### Wildlife corridors
 - Later twist (recorded): animals prefer trails that run between
@@ -290,8 +302,8 @@ blooms now while keeping corridor routes and future corners open.
 - How hidden visitors are hinted at, if at all.
 
 ### Difficulty and run length
-- How large games are offered: big valleys unlocked by discoveries, a
-  size option per valley, or both.
+- Whether Progression also has big levels, or large games live only in
+  Custom mode.
 - Difficulty curve across valleys (piece mix, valley shape, animal needs).
 
 ### Progression and unlocks
@@ -307,18 +319,17 @@ blooms now while keeping corridor routes and future corners open.
 |---|---|---|---|
 | Tile | Single hex, 6 edge segments | Trefoil of 3 whole-hex biomes | Distinct |
 | Matching | Edges match edges | Trios meet at vertices | Distinct |
-| Run end | Stack runs out | Valley mode: valley is full. Open mode (later): pile runs out | Distinct (Valley); **Close** (Open) |
-| Extending the run | Perfect placements and quests add tiles | Valley mode: blooms earn choice, not pieces | Distinct (Valley) |
+| Run end | Stack runs out | The valley is full (both modes) | Distinct |
+| Extending the run | Perfect placements and quests add tiles | Blooms earn choice, not pieces | Distinct |
 | Meta | Score unlocks tiles and biomes | Discoveries (blooms, animals) unlock valleys and biomes | Distinct |
 | Terrain set | One fixed set of terrain types in every run | Different biome mix per valley | Distinct |
 | Board | Freeform single hexes | Fixed grid of trefoil plots | Distinct |
 | Mood | Cozy, pastoral | Cozy, restoration | Close (genre-typical) |
 | Look | Soft low-poly 3D, model-railway feel | Textile / embroidered quilt | Distinct |
 
-Pieces, matching, board and terrain sets are clearly different. Valley mode
-replaces Dorfromantik's economy loop (finite stack, earn more tiles by placing
-well). An open mode would bring that loop back, so it needs its own twist
-before it's built. Progression through discoveries replaces score-based unlocks.
+Pieces, matching, board and terrain sets are clearly different. Fixed
+valleys replace Dorfromantik's economy loop (finite stack, earn more tiles by
+placing well); the dropped open mode would have brought it back. Progression through discoveries replaces score-based unlocks.
 
 ## Prototype scope (built)
 
@@ -334,7 +345,7 @@ before it's built. Progression through discoveries replaces score-based unlocks.
 - Rules in their own module with unit tests: hex math, plot lookup, corner
   lookup, bloom checks, corridor finding.
 - Later: journal and unlocks, hidden visitor, sound, textile shaders,
-  influence visuals, open mode.
+  influence visuals, Custom mode and more Progression levels.
 
 ### Prototype notes
 
