@@ -14,12 +14,12 @@ var selected: Variant = null  # plot base (Vector2i) or null
 var arrangement: Array = []   # the current piece as it would be placed
 var _first_turn := true
 # Double-tap a plot to place there: the second tap must land on the same plot
-# within this many milliseconds.
+# within this many milliseconds. A tap on the selected plot turns the piece
+# only once that window has passed, so a double-tap never turns it first.
 const DOUBLE_TAP_MS := 350
 var _last_tap_ms := -100000
 var _last_tap_base: Variant = null
-var _arrangement_before_tap: Array = []
-
+var _pending_turn_ms := -1  # time of the tap whose turn is waiting, or -1
 
 func _ready() -> void:
 	data = GameData.load_dir()
@@ -150,21 +150,23 @@ func _on_tapped(screen_pos: Vector2) -> void:
 	var now := Time.get_ticks_msec()
 	var double: bool = base != null and base == _last_tap_base and now - _last_tap_ms <= DOUBLE_TAP_MS
 	if double:
-		# Place it as it looked before this double-tap (the first tap may have
-		# turned it).
 		_last_tap_base = null
+		_pending_turn_ms = -1
 		if game.can_place(base):
-			arrangement = _arrangement_before_tap
 			selected = base
 			_place()
 		return
 	_last_tap_ms = now
 	_last_tap_base = base
-	_arrangement_before_tap = _arranged()
+	_pending_turn_ms = -1
 	if base == null or not game.can_place(base):
 		selected = null
 	elif selected == base:
-		_turn()
+		_pending_turn_ms = now
+		get_tree().create_timer(DOUBLE_TAP_MS / 1000.0).timeout.connect(func() -> void:
+			if _pending_turn_ms == now and selected == base:
+				_pending_turn_ms = -1
+				_turn())
 		return
 	else:
 		selected = base
