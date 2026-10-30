@@ -199,7 +199,7 @@ func _faded_land(rng: RandomNumberGenerator) -> void:
 	for q in range(-outer, outer + 1):
 		for r in range(-outer, outer + 1):
 			var h := Vector2i(q, r)
-			if valley.has(h) or Hex.distance(Vector2i.ZERO, h) > outer:
+			if valley.has(h) or game.obstacles.has(h) or Hex.distance(Vector2i.ZERO, h) > outer:
 				continue
 			var p := Hex.to_world(h)
 			_faded.append(h)
@@ -506,27 +506,7 @@ func _make_clouds(rng: RandomNumberGenerator) -> void:
 # --- Helpers ------------------------------------------------------------------
 
 func _felt_animal(id: String, size: float) -> Node3D:
-	var node := Node3D.new()
-	var col := Color(0.62, 0.44, 0.28) if id == "deer" else Color(0.36, 0.27, 0.21)
-	var felt := {"fuzz": 0.4, "weave_strength": 0.0, "rough": 1.0}
-	var body := MeshInstance3D.new()
-	var bm := CapsuleMesh.new()
-	bm.radius = 0.14 * size
-	bm.height = 0.55 * size
-	body.mesh = bm
-	body.rotation.z = PI / 2.0
-	body.position.y = (0.45 if id == "deer" else 0.18) * size
-	body.material_override = textile.fabric(col, felt)
-	node.add_child(body)
-	var head := MeshInstance3D.new()
-	var hm := SphereMesh.new()
-	hm.radius = 0.11 * size
-	hm.height = 0.22 * size
-	head.mesh = hm
-	head.position = Vector3(0.26, 0.68 if id == "deer" else 0.26, 0) * size
-	head.material_override = textile.fabric(col.lightened(0.12), felt)
-	node.add_child(head)
-	return node
+	return FeltAnimal.build(textile, id, size)
 
 
 static func _greyed(c: Color, amount: float) -> Color:

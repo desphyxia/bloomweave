@@ -1,7 +1,8 @@
 extends Node3D
 ## Connects the rules (ValleyGame) with the board, camera and HUD.
 
-const VALLEY_ID := "first_valley"
+var level_id := "first_valley"
+var progress: Progress
 
 var data: GameData
 var game: ValleyGame
@@ -16,10 +17,25 @@ var _first_turn := true
 
 func _ready() -> void:
 	data = GameData.load_dir()
+	progress = Progress.load_from(data.levels)
+	# Start on the first open level not yet restored, behind the level list.
+	# A level or game number in the address starts that game straight away.
+	level_id = data.levels[0]
+	for id: String in data.levels:
+		if progress.is_unlocked(id):
+			level_id = id
+			if not progress.stars(id).restored:
+				break
+	var wanted := _start_param("level")
+	var direct := wanted != "" or _start_param("seed") != ""
+	if wanted != "" and data.levels.has(wanted):
+		level_id = wanted
 	_setup_scene()
 	_new_game()
 	get_window().size_changed.connect(_on_resize)
 	_on_resize()
+	if not direct:
+		hud.show_levels(progress, false)
 
 
 ## Keep the interface readable on phones: a smaller virtual canvas when the
@@ -87,12 +103,13 @@ func _setup_scene() -> void:
 
 
 func _new_game() -> void:
-	game = ValleyGame.new(data, data.valley(VALLEY_ID), _requested_seed())
+	game = ValleyGame.new(data, data.valley(level_id), _requested_seed())
 	selected = null
 	arrangement = game.current_piece()
 	_first_turn = true
 	board.setup(game)
 	scenery.setup(game)
+	_frame_valley()
 	hud.setup(game)
 	hud.set_costs(game.valley.get("seed_costs", {}))
 	_update()
@@ -107,15 +124,38 @@ func _requested_seed() -> int:
 	if _seed_used:
 		return -1
 	_seed_used = true
+	var value := _start_param("seed")
+	return int(value) if value.is_valid_int() else -1
+
+
+## A start option from the page address (`?level=willowmere`) or the
+## command line (`-- --level willowmere`); "" when not given.
+static func _start_param(name: String) -> String:
 	var value := ""
 	if OS.has_feature("web"):
-		var v: Variant = JavaScriptBridge.eval("new URLSearchParams(window.location.search).get('seed') || ''")
+		var v: Variant = JavaScriptBridge.eval("new URLSearchParams(window.location.search).get('%s') || ''" % name)
 		value = str(v) if v != null else ""
 	var args := OS.get_cmdline_user_args()
-	var i := args.find("--seed")
+	var i := args.find("--" + name)
 	if i >= 0 and i + 1 < args.size():
 		value = args[i + 1]
-	return int(value) if value.is_valid_int() else -1
+	return value
+
+
+## Point the camera at the middle of the valley, further out for big ones.
+func _frame_valley() -> void:
+	var lo := Vector2(INF, INF)
+	var hi := Vector2(-INF, -INF)
+	for base in game.plots:
+		for h in PlotGrid.plot_hexes(base):
+			var p := Hex.to_world(h, BoardView.HEX_SIZE)
+			lo = lo.min(p)
+			hi = hi.max(p)
+	var mid := (lo + hi) / 2.0
+	rig.focus = Vector3(mid.x, 0.0, mid.y)
+	# The first valley (radius 2) spans 13.5 world units across.
+	rig.size_scale = maxf(1.0, maxf(hi.x - lo.x, hi.y - lo.y) / 13.5)
+	_on_resize()
 
 
 func _arranged() -> Array:
@@ -213,7 +253,20 @@ func _place() -> void:
 	_update()
 	if result.finished:
 		scenery.on_finished()
-		hud.show_end()
+		var before := progress.stars(level_id).duplicate()
+		progress.record(level_id, game)
+		progress.save()
+		var after := progress.stars(level_id)
+		var fresh := {}
+		for k: String in after:
+			fresh[k] = after[k] and not before.get(k, false)
+		var next := progress.next_level(level_id)
+		hud.show_end({
+			"stars": after,
+			"fresh": fresh,
+			"next_name": data.valley(next).get("name", "") if next != "" else "",
+			"next_open": next != "" and progress.is_unlocked(next),
+		})
 
 
 func _on_action(id: String) -> void:
@@ -241,6 +294,32 @@ func _on_action(id: String) -> void:
 			_update()
 		"restart":
 			_new_game()
+		"next":
+			var next := progress.next_level(level_id)
+			if next != "" and progress.is_unlocked(next):
+				_start_level(next)
+		"levels", "levels_end":
+			# Keep stars earned so far (e.g. all residents) even if the valley
+			# isn't finished.
+			if not game.is_finished() and not game.settled.is_empty():
+				progress.record(level_id, game)
+				progress.save()
+			selected = null
+			_update()
+			hud.show_levels(progress, not game.is_finished())
+		"close_levels":
+			hud.hide_levels()
+		_:
+			if id.begins_with("level:"):
+				_start_level(id.trim_prefix("level:"))
+
+
+func _start_level(id: String) -> void:
+	if not progress.is_unlocked(id):
+		return
+	level_id = id
+	hud.hide_levels()
+	_new_game()
 
 
 func _reset_arrangement() -> void:
@@ -250,7 +329,7 @@ func _reset_arrangement() -> void:
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	var k := event as InputEventKey
-	if k == null or not k.pressed or k.echo:
+	if k == null or not k.pressed or k.echo or hud.levels_shown():
 		return
 	match k.keycode:
 		KEY_R:

@@ -2,9 +2,13 @@ extends SceneTree
 ## Dev tool: loads the main scene, plays some turns automatically and saves
 ## a screenshot. Needs a display (e.g. xvfb-run).
 ## Run: godot --path . -s res://tools/screenshot.gd -- <out.png> <turns> [w h] [distance] [pitch_deg]
+## Add `--level <id>` anywhere after `--` to pick the valley (main reads it).
 
 func _init() -> void:
 	var args := OS.get_cmdline_user_args()
+	var at := args.find("--level")
+	if at >= 0:
+		args = args.slice(0, at) + args.slice(at + 2)
 	var out := args[0] if args.size() > 0 else "user://shot.png"
 	var turns := int(args[1]) if args.size() > 1 else 8
 	var w := int(args[2]) if args.size() > 2 else 1280

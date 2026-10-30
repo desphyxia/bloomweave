@@ -1,6 +1,7 @@
 {
   "id": "willowmere",
   "name": "Willowmere",
+  "intro": "New in Willowmere: a lake that can't be filled, and Deep Wood, which blooms where three forests meet. Otters want blooms by the lake; badgers want Deep Woods.",
   "biomes": [
     "forest",
     "meadow",
@@ -9,42 +10,43 @@
   ],
   "outline": {
     "plots": [
-      [-4, -1],
       [-4, 2],
-      [-3, -3],
+      [-4, 5],
       [-3, 0],
+      [-3, 3],
       [-2, -2],
       [-2, 1],
-      [-1, -4],
+      [-2, 4],
       [-1, -1],
+      [-1, 2],
       [0, -3],
       [1, -5],
       [1, -2],
-      [1, 1],
       [2, -4],
-      [2, -1],
-      [2, 2],
-      [3, -6],
       [3, -3],
       [3, 0],
       [4, -5],
       [4, -2],
+      [4, 1],
       [5, -4],
       [5, -1],
-      [6, -3]
+      [6, -3],
+      [6, 0]
     ]
   },
   "obstacles": [
     {
       "kind": "lake",
       "plots": [
-        [0, 0]
+        [0, 0],
+        [2, -1],
+        [1, 1]
       ]
     }
   ],
   "landmark": {
     "name": "Old Oak",
-    "plot": [2, -4],
+    "plot": [0, -3],
     "biomes": [
       "forest",
       "meadow",
@@ -60,10 +62,10 @@
   ],
   "pile": {
     "distinct": 12,
-    "double": 10,
+    "double": 9,
     "single": 0,
     "weights": {
-      "forest": 1.6
+      "forest": 3.2
     }
   },
   "animals": [

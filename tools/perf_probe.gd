@@ -1,7 +1,7 @@
 extends SceneTree
 ## Dev tool: plays some turns, then reports draw calls with parts of the
 ## scene hidden, to see where the cost is.
-## Run: xvfb-run godot --path . --rendering-driver opengl3 -s res://tools/perf_probe.gd -- [turns]
+## Run: xvfb-run godot --path . --rendering-driver opengl3 -s res://tools/perf_probe.gd -- [turns] [--level id]
 
 func _draws() -> int:
 	for _f in 4:
@@ -12,6 +12,9 @@ func _draws() -> int:
 func _init() -> void:
 	root.size = Vector2i(430, 932)
 	var args := OS.get_cmdline_user_args()
+	var at := args.find("--level")
+	if at >= 0:
+		args = args.slice(0, at) + args.slice(at + 2)
 	var turns := int(args[0]) if args.size() > 0 else 12
 	var main: Node = load("res://src/view/main.tscn").instantiate()
 	root.add_child(main)

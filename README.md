@@ -13,16 +13,23 @@ The web build is published to GitHub Pages on every push to `master`.
 The info panel shows the build (commit) id; each deploy gives the game data
 file a new name so browsers always load the latest version.
 
+The game opens on the list of **valleys** (levels). Each has three stars:
+restore it, settle all its residents, find its hidden visitor (coming
+later). Finishing a valley opens the next one; progress is saved in the
+browser. **Valleys** in the info panel brings the list back.
+
 The info panel also shows the **game number** (e.g. `game #424242`). Add
-`?seed=424242` to the page address to replay exactly that valley (same
-pieces in the same order); handy when reporting a bug.
+`?seed=424242` to the page address to replay exactly that game (same
+pieces in the same order), and `&level=willowmere` for a valley other than
+the first; handy when reporting a bug.
 
 - **Tap a glowing plot** to try the current piece there; tap it again (or
   press **Turn**) to rotate it. **Mirror** flips it.
 - **Place** (or **press and hold** the plot) puts it down. Flowers show where corners will bloom.
 - A corner blooms when its three hexes hold one of the bloom recipes (the
-  Blooms panel). **Buds** on open corners show which biome(s) the last hex
-  needs. Later valleys can require the biomes in **clockwise** order.
+  Blooms panel), e.g. three different biomes, or in Willowmere three
+  forests for a Deep Wood. **Buds** on open corners show which biome(s) the
+  last hex needs. Later valleys can require the biomes in **clockwise** order.
 - Blooms made by the same piece score more each (2, 3, 4… points). Fill a
   gap so all six corners around a piece bloom for a **perfect piece** (+5 seeds).
 - Each bloom gives a seed. Spend seeds to set a piece aside, swap the next

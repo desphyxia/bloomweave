@@ -26,9 +26,9 @@ questions".
 ## Commands
 
 - Tests: `GODOT_BIN=/path/to/godot scripts/run_tests.sh`
-- Balance sim: `godot --headless --path . -s res://tools/simulate.gd`
+- Balance sim: `godot --headless --path . -s res://tools/simulate.gd -- [valley_id] [runs]`
 - Screenshot (needs a display, e.g. `xvfb-run`):
-  `godot --path . --rendering-driver opengl3 --resolution 1280x800 -s res://tools/screenshot.gd -- out.png 10`
+  `godot --path . --rendering-driver opengl3 --resolution 1280x800 -s res://tools/screenshot.gd -- out.png 10 [--level id]`
 - Draw-call breakdown (needs a display):
   `godot --path . --rendering-driver opengl3 -s res://tools/perf_probe.gd -- 13`
 - Web export: `godot --headless --path . --export-release "Web" build/web/index.html`

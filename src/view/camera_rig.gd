@@ -32,6 +32,10 @@ enum Gesture { NONE, ZOOM, ROTATE, TILT }
 @export var min_pitch := deg_to_rad(25.0)
 @export var max_pitch := deg_to_rad(85.0)
 
+## The valley's middle and size (1 = the first valley); fit() frames it.
+var focus := Vector3.ZERO
+var size_scale := 1.0
+
 var camera: Camera3D
 var _button := MOUSE_BUTTON_NONE   # which mouse button is held, if any
 var _press_pos := Vector2.ZERO
@@ -62,21 +66,21 @@ func fit(aspect: float) -> void:
 	if aspect < 1.0:
 		camera.keep_aspect = Camera3D.KEEP_WIDTH
 		camera.fov = 62.0
-		distance = 12.5
-		target = Vector3(0.0, 0.0, 1.6)
+		distance = 12.5 * size_scale
+		target = focus + Vector3(0.0, 0.0, 1.6)
 	else:
 		camera.keep_aspect = Camera3D.KEEP_HEIGHT
 		camera.fov = 45.0
-		distance = 21.0
-		target = Vector3(0.0, 0.0, 2.6)
+		distance = 21.0 * size_scale
+		target = focus + Vector3(0.0, 0.0, 2.6)
 	_apply()
 
 
 func _apply() -> void:
 	pitch = clampf(pitch, min_pitch, max_pitch)
 	distance = clampf(distance, min_distance, max_distance)
-	var flat := Vector2(target.x, target.z).limit_length(PAN_LIMIT)
-	target = Vector3(flat.x, 0.0, flat.y)
+	var flat := Vector2(target.x - focus.x, target.z - focus.z).limit_length(PAN_LIMIT * size_scale)
+	target = Vector3(focus.x + flat.x, 0.0, focus.z + flat.y)
 	var offset := Vector3(
 		sin(yaw) * cos(pitch),
 		sin(pitch),

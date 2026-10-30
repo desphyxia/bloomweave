@@ -10,6 +10,7 @@ var blooms_by_id := {} # id -> bloom
 var animals := {}      # id -> animal
 var influence_pairs: Array = []
 var valleys := {}      # id -> valley
+var levels: Array = [] # Progression level ids, in order
 var data_dir := "res://data"
 
 
@@ -21,6 +22,8 @@ static func load_dir(dir: String = "res://data") -> GameData:
 		_read_json(dir + "/blooms.json").get("blooms", []),
 		_read_json(dir + "/animals.json").get("animals", []),
 		_read_json(dir + "/influence.json").get("pairs", []))
+	if FileAccess.file_exists(dir + "/progression.json"):
+		d.levels = _read_json(dir + "/progression.json").get("levels", [])
 	return d
 
 

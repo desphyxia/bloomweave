@@ -44,6 +44,7 @@ var _baked_blooms := {}  # weave point -> true
 var _animating := 0
 var _decor_cache := {}   # "q,r|biome" -> ArrayMesh
 var _buds: Node3D
+var _obstacles: Node3D
 var _animals: Node3D
 var _ghost: Node3D
 var _seams: Node3D
@@ -56,7 +57,7 @@ func _ready() -> void:
 	_patch = textile.patch_mesh(HEX_SIZE, SEAM_H, PUFF)
 	_plot_shape = _inset_plot_shape()
 	_slot_mesh = _plot_cloth_mesh(_plot_shape)
-	for n in ["_slots", "_tiles", "_blooms", "_buds", "_animals", "_ghost", "_seams"]:
+	for n in ["_slots", "_tiles", "_blooms", "_buds", "_obstacles", "_animals", "_ghost", "_seams"]:
 		var node := Node3D.new()
 		node.name = n.trim_prefix("_")
 		add_child(node)
@@ -84,7 +85,7 @@ func setup(p_game: ValleyGame) -> void:
 	game = p_game
 	data = game.data
 	_animal_spots.clear()
-	for parent in [_slots, _tiles, _blooms, _buds, _animals, _ghost, _seams]:
+	for parent in [_slots, _tiles, _blooms, _buds, _obstacles, _animals, _ghost, _seams]:
 		for c in parent.get_children():
 			c.queue_free()
 	_animating = 0
@@ -93,6 +94,7 @@ func setup(p_game: ValleyGame) -> void:
 	_baked_plots.clear()
 	_baked_blooms.clear()
 	_bake()
+	_build_obstacles()
 	refresh()
 
 
@@ -167,7 +169,7 @@ func _refresh_slots() -> void:
 
 ## The outline of a plot (its three hexes), inset by SLOT_INSET, relative
 ## to the plot's base hex. Every plot has the same shape.
-func _inset_plot_shape() -> PackedVector2Array:
+func _inset_plot_shape(inset_by: float = SLOT_INSET) -> PackedVector2Array:
 	var base := Vector2i.ZERO
 	var origin := Hex.to_world(base, HEX_SIZE)
 	var next := {}  # outline corner -> following corner (walking the border)
@@ -187,7 +189,9 @@ func _inset_plot_shape() -> PackedVector2Array:
 		p = next[p]
 		if p == start:
 			break
-	var inset := Geometry2D.offset_polygon(loop, -SLOT_INSET, Geometry2D.JOIN_MITER)
+	if inset_by <= 0.0:
+		return loop
+	var inset := Geometry2D.offset_polygon(loop, -inset_by, Geometry2D.JOIN_MITER)
 	return inset[0] if not inset.is_empty() else loop
 
 
@@ -200,8 +204,8 @@ static func _signed_area(poly: PackedVector2Array) -> float:
 	return a / 2.0
 
 
-## A flat slab in the shape of `outline`, SLOT_H thick.
-func _plot_cloth_mesh(outline: PackedVector2Array) -> ArrayMesh:
+## A flat slab in the shape of `outline`, `thick` high.
+func _plot_cloth_mesh(outline: PackedVector2Array, thick: float = SLOT_H) -> ArrayMesh:
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var tris := Geometry2D.triangulate_polygon(outline)
@@ -211,16 +215,119 @@ func _plot_cloth_mesh(outline: PackedVector2Array) -> ArrayMesh:
 		for k in order:
 			var v := outline[tris[i + k]]
 			st.set_normal(Vector3.UP)
-			st.add_vertex(Vector3(v.x, SLOT_H, v.y))
+			st.add_vertex(Vector3(v.x, thick, v.y))
 	for i in outline.size():
 		var a := outline[i]
 		var b := outline[(i + 1) % outline.size()]
 		var n := Vector3(b.y - a.y, 0, -(b.x - a.x)).normalized()
-		var quad := [Vector3(a.x, SLOT_H, a.y), Vector3(b.x, SLOT_H, b.y), Vector3(b.x, 0, b.y), Vector3(a.x, 0, a.y)]
+		var quad := [Vector3(a.x, thick, a.y), Vector3(b.x, thick, b.y), Vector3(b.x, 0, b.y), Vector3(a.x, 0, a.y)]
 		for idx in [0, 1, 2, 0, 2, 3]:
 			st.set_normal(n)
 			st.add_vertex(quad[idx])
 	return st.commit()
+
+
+# --- Obstacles ------------------------------------------------------------------
+
+const LAKE_H := 0.06
+const LAKE_WATER := Color(0.33, 0.58, 0.74)
+const LAKE_FABRIC := {"weave_scale": 44.0, "weave_strength": 0.05, "fuzz": 0.02, "sheen": 1.3, "rough": 0.22}
+const SHORE_THREAD := Color(0.88, 0.8, 0.6)
+
+
+## Obstacle plots: a lake is one flat, glossy silk pool over the whole plot
+## (no seams between its hexes), a sandy stitched shore, lily pads, ripples
+## and the odd duck. Other kinds show as plain grey cloth for now.
+func _build_obstacles() -> void:
+	var shape := _inset_plot_shape(0.0)
+	var cloth := _plot_cloth_mesh(shape, LAKE_H)
+	var shore: Array = []
+	var details := MeshBatch.new()
+	details.textile = textile
+	var bases := {}
+	for h: Vector2i in game.obstacles:
+		bases[PlotGrid.plot_of(h)] = game.obstacles[h]
+	for base: Vector2i in bases:
+		var kind: String = bases[base]
+		var mi := MeshInstance3D.new()
+		mi.mesh = cloth
+		mi.position = hex_pos(base)
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		if kind == "lake":
+			mi.material_override = textile.fabric(LAKE_WATER, LAKE_FABRIC)
+		else:
+			mi.material_override = textile.fabric(Color(0.6, 0.58, 0.55), SLOT_FABRIC)
+		_obstacles.add_child(mi)
+		if kind == "lake":
+			_lake_details(details, base, bases.keys()[0] == base)
+	# Shore: the obstacle's outer border only, not the seams between its plots.
+	for h: Vector2i in game.obstacles:
+		for i in 6:
+			if game.obstacles.has(Hex.neighbor(h, i)):
+				continue
+			shore.append([hex_pos(h, LAKE_H + 0.012) + _corner3(i), hex_pos(h, LAKE_H + 0.012) + _corner3(i + 1)])
+	if not shore.is_empty():
+		_obstacles.add_child(textile.stitches(shore, 3, 0.16, 0.03, SHORE_THREAD))
+	var batch := MeshInstance3D.new()
+	batch.mesh = details.commit()
+	_obstacles.add_child(batch)
+
+
+func _lake_details(batch: MeshBatch, base: Vector2i, with_duck: bool) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(base) ^ 0x1a4e
+	var y := LAKE_H + 0.004
+	var disc := CylinderMesh.new()
+	disc.top_radius = 0.5
+	disc.bottom_radius = 0.5
+	disc.height = 1.0
+	disc.radial_segments = 14
+	disc.rings = 1
+	var ball := SphereMesh.new()
+	ball.radius = 0.5
+	ball.height = 1.0
+	ball.radial_segments = 10
+	ball.rings = 5
+	var dash := CapsuleMesh.new()
+	dash.radius = 0.5
+	dash.height = 1.0
+	dash.radial_segments = 4
+	dash.rings = 1
+	var felt := {"fuzz": 0.35, "weave_strength": 0.0, "rough": 1.0}
+	var ripple := textile.thread(Color(0.62, 0.8, 0.9))
+	for h in PlotGrid.plot_hexes(base):
+		var c := hex_pos(h, y)
+		# Lily pads, some with a flower.
+		for k in rng.randi_range(1, 2):
+			var off := Vector2(rng.randf_range(-0.45, 0.45), rng.randf_range(-0.4, 0.4))
+			var r := rng.randf_range(0.11, 0.17)
+			var pad := Color(0.34, 0.56, 0.32) if rng.randf() < 0.6 else Color(0.42, 0.62, 0.36)
+			var at := c + Vector3(off.x, 0.0, off.y)
+			batch.add(disc, Transform3D(Basis().scaled(Vector3(r * 2.0, 0.012, r * 2.0)), at), Color.WHITE, textile.fabric(pad, felt))
+			if rng.randf() < 0.4:
+				var petal := Color(0.97, 0.78, 0.86) if rng.randf() < 0.5 else Color(1.0, 0.98, 0.95)
+				for p in 5:
+					var po := Vector3.RIGHT.rotated(Vector3.UP, TAU * p / 5.0) * 0.025
+					batch.add(ball, Transform3D(Basis().scaled(Vector3(0.045, 0.03, 0.045)), at + po + Vector3(0, 0.02, 0)), Color.WHITE, textile.satin(petal))
+		# Ripples: short arcs of stitches.
+		for k in 2:
+			var centre := Vector2(rng.randf_range(-0.35, 0.35), rng.randf_range(-0.35, 0.35))
+			var rad := rng.randf_range(0.14, 0.28)
+			var a0 := rng.randf() * TAU
+			for d in 5:
+				var a := a0 + d * 0.32
+				var p := centre + Vector2.from_angle(a) * rad
+				var basis := Basis(Vector3.UP, -(a + PI / 2.0 + PI / 2.0)) * Basis(Vector3.FORWARD, PI / 2.0)
+				batch.add(dash, Transform3D(basis.scaled(Vector3(0.014, rad * 0.22, 0.01)), c + Vector3(p.x, 0.002, p.y)), Color.WHITE, ripple)
+	if not with_duck:
+		return
+	# One felt duck per lake.
+	var at := hex_pos(PlotGrid.plot_hexes(base)[rng.randi_range(0, 2)], y)
+	var white := Color(0.97, 0.96, 0.92)
+	var beak := Color(0.95, 0.62, 0.2)
+	batch.add(ball, Transform3D(Basis().scaled(Vector3(0.2, 0.11, 0.13)), at + Vector3(0, 0.05, 0)), Color.WHITE, textile.fabric(white, felt))
+	batch.add(ball, Transform3D(Basis().scaled(Vector3.ONE * 0.08), at + Vector3(0.08, 0.13, 0)), Color.WHITE, textile.fabric(white, felt))
+	batch.add(ball, Transform3D(Basis().scaled(Vector3(0.055, 0.02, 0.035)), at + Vector3(0.13, 0.125, 0)), Color.WHITE, textile.fabric(beak, felt))
 
 
 ## Border edges of a plot, each [from, to] at height y.
@@ -478,37 +585,11 @@ func _refresh_trails() -> void:
 func add_animal(id: String, corridor: Array, animate: bool) -> void:
 	if corridor.is_empty():
 		return
-	var animal: Dictionary = data.animals.get(id, {})
+	var animal: Dictionary = game.animal(id)
 	var spot := vertex_pos(_animal_spot(animal, corridor), SEAM_H)
 	var node := Node3D.new()
 	node.position = spot
-	var body := MeshInstance3D.new()
-	var bm := CapsuleMesh.new()
-	var head := MeshInstance3D.new()
-	var hm := SphereMesh.new()
-	var col := Color(0.62, 0.44, 0.28) if id == "deer" else Color(0.36, 0.27, 0.21)
-	if id == "deer":
-		bm.radius = 0.14
-		bm.height = 0.55
-		hm.radius = 0.11
-		hm.height = 0.22
-		body.position = Vector3(0, 0.45, 0)
-		head.position = Vector3(0.26, 0.68, 0)
-	else:
-		bm.radius = 0.1
-		bm.height = 0.5
-		hm.radius = 0.09
-		hm.height = 0.18
-		body.position = Vector3(0, 0.22, 0)
-		head.position = Vector3(0.26, 0.28, 0)
-	var felt := {"fuzz": 0.4, "weave_strength": 0.0, "rough": 1.0}
-	body.mesh = bm
-	body.rotation.z = PI / 2.0
-	body.material_override = textile.fabric(col, felt)
-	head.mesh = hm
-	head.material_override = textile.fabric(col.lightened(0.12), felt)
-	node.add_child(body)
-	node.add_child(head)
+	node.add_child(FeltAnimal.build(textile, id))
 	var label := Label3D.new()
 	label.text = animal.get("name", id)
 	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
@@ -530,13 +611,22 @@ func add_animal(id: String, corridor: Array, animate: bool) -> void:
 ## A bloom in the corridor touching the animal's biome, not used by another
 ## animal yet; falls back to any bloom in the corridor.
 func _animal_spot(animal: Dictionary, corridor: Array) -> Vector3i:
-	var biome: String = animal.get("needs", {}).get("biome", "")
+	# Stand on a bloom that shows what the animal wanted: its biome, a bloom
+	# by the obstacle it likes, or the bloom it asked for.
+	var needs: Dictionary = animal.get("needs", {})
 	var fallback: Vector3i = corridor[corridor.size() / 2]
 	for v: Vector3i in corridor:
 		if _animal_spots.has(v):
 			continue
 		var trio: Array = data.blooms_by_id[game.blooms[v]].trio
-		if biome == "" or trio.has(biome):
+		var fits := true
+		if needs.has("biome"):
+			fits = trio.has(needs.biome)
+		elif needs.has("near"):
+			fits = game.is_near_obstacle(v, needs.near)
+		elif needs.has("bloom"):
+			fits = game.blooms[v] == needs.bloom
+		if fits:
 			_animal_spots[v] = true
 			return v
 	return fallback

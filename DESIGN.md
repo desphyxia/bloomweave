@@ -391,8 +391,14 @@ placing well); the dropped open mode would have brought it back. Progression thr
 
 ## Prototype scope (built)
 
-- One valley: about 20 plots in a round-ish outline around the landmark,
-  first-valley biomes (forest, meadow, wetland, heath).
+- Two Progression levels, picked from a simple list with stars (saved on
+  the device; finishing a level opens the next):
+  - *1. Heatherfold:* 19 plots in a round outline around the landmark,
+    biomes forest, meadow, wetland, heath; otters and deer.
+  - *2. Willowmere:* a horseshoe of 22 plots round a small lake (3 obstacle
+    plots, 9 hexes) that opens toward the viewer; same biomes plus the
+    first same-biome bloom, **Deep Wood** (three forests); otters want blooms
+    by the lake, **badgers** want Deep Woods.
 - Piece list from JSON: mostly three-different pieces plus some doubles.
 - Place, rotate and mirror with a preview of which corners would bloom.
 - The 4 named blooms (data-driven); seeds with set aside, swap, look ahead.
@@ -402,8 +408,8 @@ placing well); the dropped open mode would have brought it back. Progression thr
 - Godot web export, deployed to GitHub Pages.
 - Rules in their own module with unit tests: hex math, plot lookup, corner
   lookup, bloom checks, corridor finding.
-- Later: journal and unlocks, hidden visitor, sound, textile shaders,
-  influence visuals, Custom mode and more Progression levels.
+- Later: journal, the quilted world map and regions, hidden visitor,
+  sound, influence visuals, Custom mode and more Progression levels.
 
 ### Prototype notes
 
@@ -430,3 +436,20 @@ placing well); the dropped open mode would have brought it back. Progression thr
   some trios 80–84% / 15–16.
 - **Valley size:** 19 plots (plot radius 2): the landmark plus 18 pieces
   (14 with three different biomes, 4 doubles).
+- **Level data:** a valley's `outline` is a `radius` or a list of `plots`
+  (plot bases); `obstacles` lists obstacle plots by kind; `landmark.plot`
+  places the landmark; `blooms` lists its recipes (default: every
+  all-different trio of its biomes); `pile.weights` makes some biomes more
+  common; an `animals` entry can be `{"id", "needs", "description"}` to
+  change what that animal asks for there. Needs can combine `min_blooms`,
+  `biome` + `min_biome_blooms`, `near` (obstacle kind) + `min_near_blooms`,
+  and `bloom` + `min_bloom_count`. Level order is `data/progression.json`.
+- **Stars (for now):** restored; all residents settled; hidden visitor (not
+  in the game yet, so the third star can't be earned). Residents settled in
+  an unfinished game still count when you leave to the level list.
+- **Willowmere tuning** (100 runs, greedy player that ignores animals): about
+  16 blooms, Deep Wood about 2 per game. A one-plot lake had only 4 bloom
+  spots by its shore and no horseshoe read, so the lake is 3 plots. Forest
+  is drawn 3.2× as often as other biomes so Deep Wood can grow. Otters (5+
+  blooms, 2+ by the lake) settle in about 87% of runs, badgers (4+ blooms,
+  2+ Deep Woods) in about 46%; 3 by the lake dropped otters to 52%.

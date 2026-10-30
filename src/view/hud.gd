@@ -1,7 +1,8 @@
 class_name Hud
 extends CanvasLayer
 ## On-screen interface: valley info, animals, pieces, placement and seed
-## actions, messages and the end screen. Emits signals; holds no rules.
+## actions, messages, the end screen and the list of valleys (levels).
+## Emits signals; holds no rules.
 
 signal action(name: String)
 
@@ -31,6 +32,11 @@ var _compact := false             # phone layout: small piece panel on the right
 var _small_icon := Vector2(64, 64)
 var _end: PanelContainer
 var _end_label: Label
+var _end_stars: StarRow
+var _end_note: Label
+var _levels: Control
+var _levels_list: VBoxContainer
+var _levels_total: Label
 
 
 func _ready() -> void:
@@ -43,6 +49,7 @@ func _ready() -> void:
 	_build_bottom()
 	_build_toast()
 	_build_end()
+	_build_levels()
 
 
 func setup(p_game: ValleyGame) -> void:
@@ -56,6 +63,8 @@ func setup(p_game: ValleyGame) -> void:
 	_hint.text += "\nBlooms grow on the stitched stars, where three pieces meet. Buds show which biome a corner still needs."
 	if game.clockwise_blooms():
 		_hint.text += "\nIn this valley the biomes must go clockwise (see Blooms)."
+	if game.valley.has("intro"):
+		_hint.text = "%s\n%s" % [game.valley.intro, _hint.text]
 	_hint.text += "\n(Tap here to close.)"
 	_build_bloom_guide()
 
@@ -111,19 +120,18 @@ func _refresh_animals() -> void:
 	title.text = "Residents (best corridor)"
 	title.add_theme_font_size_override("font_size", 17)
 	_animals_box.add_child(title)
-	for id: String in game.valley.get("animals", []):
-		var a: Dictionary = data.animals[id]
+	for id: String in game.residents():
+		var a: Dictionary = game.animal(id)
 		var l := Label.new()
 		l.add_theme_font_size_override("font_size", 16)
-		var needs: Dictionary = a.needs
 		if game.settled.has(id):
 			l.text = "%s — moved in!" % a.name
 			l.add_theme_color_override("font_color", ACCENT)
 		else:
-			var pr := game.animal_progress(id)
-			l.text = "%s: %d/%d blooms, %d/%d %s" % [
-				a.name, mini(pr.blooms, int(needs.min_blooms)), int(needs.min_blooms),
-				mini(pr.biome_blooms, int(needs.min_biome_blooms)), int(needs.min_biome_blooms), needs.biome]
+			var parts := []
+			for c: Dictionary in game.animal_progress(id):
+				parts.append("%d/%d %s" % [mini(c.have, c.need), c.need, c.label])
+			l.text = "%s: %s" % [a.name, ", ".join(parts)]
 		l.tooltip_text = a.description
 		_animals_box.add_child(l)
 
@@ -137,13 +145,7 @@ func _build_bloom_guide() -> void:
 	title.text = "Blooms (clockwise)" if game.clockwise_blooms() else "Blooms (any order)"
 	title.add_theme_font_size_override("font_size", 17)
 	_blooms_box.add_child(title)
-	var valley_biomes: Array = game.valley.get("biomes", [])
-	for bloom: Dictionary in data.blooms_by_id.values():
-		var fits := true
-		for b: String in bloom.trio:
-			fits = fits and valley_biomes.has(b)
-		if not fits:
-			continue
+	for bloom: Dictionary in game.recipes():
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 6)
 		var icon := CornerIcon.new()
@@ -172,23 +174,102 @@ func toast(text: String) -> void:
 	_toast_tween.tween_property(_toast, "modulate:a", 0.0, 0.8)
 
 
+func _hide_toast() -> void:
+	if _toast_tween:
+		_toast_tween.kill()
+	_toast.visible = false
+
+
 func hide_hint() -> void:
 	_hint_panel.visible = false
 
 
-func show_end() -> void:
+## The end screen. `result`: "stars" (this level's stars, after this game),
+## "fresh" (which of them this game added), "next_name" (the next level, or
+## "" if this was the last) and "next_open".
+func show_end(result: Dictionary = {}) -> void:
 	var s := game.score_breakdown()
-	var lines := ["The valley is restored.", ""]
+	var lines := ["%s is restored." % game.valley.get("name", "The valley"), ""]
 	lines.append("Blooms: %d  (%d points)" % [game.blooms.size(), s.blooms])
 	var names := []
 	for id: String in game.settled:
-		names.append(data.animals[id].name)
+		names.append(game.animal(id).name)
 	lines.append("Animals: %s  (%d points)" % [", ".join(names) if not names.is_empty() else "none yet", s.animals])
 	lines.append("Seeds left: %d  (%d points)" % [game.seeds, s.seeds])
 	lines.append("")
 	lines.append("Score: %d" % s.total)
 	_end_label.text = "\n".join(lines)
+	var stars: Dictionary = result.get("stars", game.stars())
+	var fresh: Dictionary = result.get("fresh", {})
+	_end_stars.earned = [stars.restored, stars.residents, stars.visitor]
+	_end_stars.fresh = [fresh.get("restored", false), fresh.get("residents", false), fresh.get("visitor", false)]
+	var next_name: String = result.get("next_name", "")
+	var open: bool = result.get("next_open", false)
+	_buttons.next.visible = next_name != "" and open
+	_buttons.next.text = "Next: %s" % next_name
+	if next_name == "":
+		_end_note.text = "That's every valley for now. More are coming."
+	elif fresh.get("restored", false):
+		_end_note.text = "%s is now open!" % next_name
+	else:
+		_end_note.text = ""
+	_end_note.visible = _end_note.text != ""
+	_hide_toast()
+	_hint_panel.visible = false
 	_end.visible = true
+
+
+## The list of valleys: each with its stars and best score; locked ones say
+## what opens them. `can_close` adds a way back to the current game.
+func show_levels(progress: Progress, can_close: bool) -> void:
+	for c in _levels_list.get_children():
+		c.queue_free()
+	var n := 0
+	for id: String in progress.levels:
+		n += 1
+		var v := data.valley(id)
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 12)
+		var b := Button.new()
+		b.focus_mode = Control.FOCUS_NONE
+		b.custom_minimum_size = Vector2(210, 52)
+		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		b.add_theme_font_size_override("font_size", 18)
+		var open := progress.is_unlocked(id)
+		b.text = "%d.  %s" % [n, v.get("name", id)]
+		b.disabled = not open
+		b.pressed.connect(func() -> void: action.emit("level:" + id))
+		row.add_child(b)
+		var stars := StarRow.new()
+		var st := progress.stars(id)
+		stars.earned = [st.restored, st.residents, st.visitor]
+		stars.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		row.add_child(stars)
+		var note := Label.new()
+		note.add_theme_font_size_override("font_size", 14)
+		note.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		if not open:
+			var prev := data.valley(progress.levels[n - 2])
+			note.text = "Restore %s to open" % prev.get("name", "")
+		elif progress.best(id) > 0:
+			note.text = "Best %d" % progress.best(id)
+		row.add_child(note)
+		_levels_list.add_child(row)
+	_levels_total.text = "Stars: %d of %d   (restore · all residents · hidden visitor)" % [
+		progress.total_stars(), progress.levels.size() * 3]
+	_buttons.close_levels.visible = can_close
+	_end.visible = false
+	_hint_panel.visible = false
+	_hide_toast()
+	_levels.visible = true
+
+
+func hide_levels() -> void:
+	_levels.visible = false
+
+
+func levels_shown() -> bool:
+	return _levels.visible
 
 
 # --- Layout -------------------------------------------------------------------
@@ -204,9 +285,16 @@ func _build_top() -> void:
 
 	var info_panel := _panel()
 	info_panel.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	var info_row := HBoxContainer.new()
+	info_row.add_theme_constant_override("separation", 10)
+	info_panel.add_child(info_row)
 	_info = Label.new()
 	_info.add_theme_font_size_override("font_size", 19)
-	info_panel.add_child(_info)
+	info_row.add_child(_info)
+	_add_button(info_row, "levels", "Valleys")
+	_buttons.levels.custom_minimum_size = Vector2(84, 40)
+	_buttons.levels.add_theme_font_size_override("font_size", 15)
+	_buttons.levels.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	top.add_child(info_panel)
 
 	top.add_theme_constant_override("h_separation", 10)
@@ -368,15 +456,69 @@ func _build_end() -> void:
 	_end.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	_end.grow_vertical = Control.GROW_DIRECTION_BOTH
 	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 16)
+	box.add_theme_constant_override("separation", 12)
 	_end.add_child(box)
 	_end_label = Label.new()
 	_end_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_end_label.add_theme_font_size_override("font_size", 22)
 	box.add_child(_end_label)
-	_add_button(box, "restart", "Restore a new valley")
+	_end_stars = StarRow.new()
+	_end_stars.custom_minimum_size = Vector2(150, 44)
+	_end_stars.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	box.add_child(_end_stars)
+	var legend := Label.new()
+	legend.text = "Restored  ·  All residents  ·  Hidden visitor"
+	legend.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	legend.add_theme_font_size_override("font_size", 14)
+	box.add_child(legend)
+	_end_note = Label.new()
+	_end_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_end_note.add_theme_font_size_override("font_size", 18)
+	_end_note.add_theme_color_override("font_color", ACCENT)
+	box.add_child(_end_note)
+	var row := HFlowContainer.new()
+	row.alignment = FlowContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("h_separation", 10)
+	row.add_theme_constant_override("v_separation", 10)
+	box.add_child(row)
+	_add_button(row, "next", "Next valley")
+	_buttons.next.add_theme_color_override("font_color", ACCENT)
+	_add_button(row, "restart", "Play again")
+	_add_button(row, "levels_end", "Valleys")
 	_end.visible = false
 	_root.add_child(_end)
+
+
+func _build_levels() -> void:
+	_levels = ColorRect.new()
+	(_levels as ColorRect).color = Color(0.2, 0.18, 0.14, 0.45)
+	_levels.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_levels.mouse_filter = Control.MOUSE_FILTER_STOP
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_levels.add_child(center)
+	var panel := _panel()
+	center.add_child(panel)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 12)
+	panel.add_child(box)
+	var title := Label.new()
+	title.text = "Bloomweave  ·  Valleys"
+	title.add_theme_font_size_override("font_size", 26)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(title)
+	_levels_list = VBoxContainer.new()
+	_levels_list.add_theme_constant_override("separation", 8)
+	box.add_child(_levels_list)
+	_levels_total = Label.new()
+	_levels_total.add_theme_font_size_override("font_size", 14)
+	_levels_total.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(_levels_total)
+	_add_button(box, "close_levels", "Back to the valley")
+	_buttons.close_levels.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	_levels.visible = false
+	_root.add_child(_levels)
 
 
 # --- Helpers ------------------------------------------------------------------

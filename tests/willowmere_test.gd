@@ -15,12 +15,12 @@ func _game() -> ValleyGame:
 
 func test_outline_and_lake() -> void:
 	var g := _game()
-	assert_int(g.plots.size()).is_equal(23)
-	assert_int(g.pile.size()).is_equal(22)
+	assert_int(g.plots.size()).is_equal(22)
+	assert_int(g.pile.size()).is_equal(21)
 	assert_bool(g.is_in_valley(Vector2i.ZERO)).is_false()
-	assert_int(g.obstacles.size()).is_equal(3)
+	assert_int(g.obstacles.size()).is_equal(9)               # three lake plots
 	assert_str(g.obstacles[Vector2i.ZERO]).is_equal("lake")
-	assert_bool(g.placed.has(Vector2i(2, -4))).is_true()   # landmark
+	assert_bool(g.placed.has(Vector2i(0, -3))).is_true()   # landmark
 	assert_bool(g.can_place(Vector2i.ZERO)).is_false()
 
 
@@ -35,23 +35,14 @@ func test_recipes_are_per_valley() -> void:
 
 func test_deep_wood_blooms_from_three_forest_hexes() -> void:
 	var g := _game()
-	# Fill the two plots next to the landmark that share a corner with a third
-	# plot, all forest, then the third: its shared corner is three forests.
-	var a := Vector2i(1, -2)
-	var b := Vector2i(3, -3)
-	assert_bool(g.can_place(a)).is_true()
-	g.set_pile([["forest", "forest", "forest"], ["forest", "forest", "forest"], ["forest", "forest", "forest"]])
-	var r1 := g.place(a, ["forest", "forest", "forest"])
-	var r2 := g.place(b, ["forest", "forest", "forest"])
+	# All-forest pieces next to each other: where three of them meet, three
+	# forest hexes make a Deep Wood.
 	var made := []
-	for r: Dictionary in [r1, r2]:
+	for _i in 6:
+		g.set_pile([["forest", "forest", "forest"]])
+		var r := g.place(g.legal_plots()[0], ["forest", "forest", "forest"])
 		for bl: Dictionary in r.blooms:
 			made.append(bl.bloom)
-	# Landmark has one forest hex; somewhere around it forests meet.
-	var third := Vector2i(2, -1)
-	var r3 := g.place(third, ["forest", "forest", "forest"])
-	for bl: Dictionary in r3.blooms:
-		made.append(bl.bloom)
 	assert_bool(made.has("deep_wood")).is_true()
 
 
