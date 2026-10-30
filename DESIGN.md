@@ -227,6 +227,9 @@ blooms now while keeping corridor routes and future corners open.
     colour in step with how much of the valley is restored; an animal that moves in also appears on the
     hills; a finished valley gets birds circling and chimney smoke.
   - *Camera:* tilted 3D view with free orbit and zoom.
+  - *Placing by touch:* tap a plot to preview the piece there, tap it again
+    to turn it, double-tap to place it as shown. To tell the two apart, a
+    turn waits out the double-tap window (0.25 s; 0.35 s felt slow).
   - *Sound:* soft ambient music; each biome adds nature sounds that layer up
     as the valley fills; fabric rustle on placement.
   - *Feedback:* blooms and settling animals use short, gentle animations that

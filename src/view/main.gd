@@ -16,7 +16,7 @@ var _first_turn := true
 # Double-tap a plot to place there: the second tap must land on the same plot
 # within this many milliseconds. A tap on the selected plot turns the piece
 # only once that window has passed, so a double-tap never turns it first.
-const DOUBLE_TAP_MS := 350
+const DOUBLE_TAP_MS := 250
 var _last_tap_ms := -100000
 var _last_tap_base: Variant = null
 var _pending_turn_ms := -1  # time of the tap whose turn is waiting, or -1
