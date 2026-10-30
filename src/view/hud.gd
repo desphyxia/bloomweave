@@ -52,7 +52,7 @@ func setup(p_game: ValleyGame) -> void:
 	_reserve.data = data
 	_end.visible = false
 	_hint_panel.visible = true
-	_hint.text = "Tap a glowing plot to try the piece there. Tap it again to turn it."
+	_hint.text = "Tap a glowing plot to try the piece there. Tap it again to turn it, or double-tap to place it."
 	_hint.text += "\nBlooms grow on the stitched stars, where three pieces meet. Buds show which biome a corner still needs."
 	if game.clockwise_blooms():
 		_hint.text += "\nIn this valley the biomes must go clockwise (see Blooms)."

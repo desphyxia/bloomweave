@@ -13,6 +13,12 @@ var hud: Hud
 var selected: Variant = null  # plot base (Vector2i) or null
 var arrangement: Array = []   # the current piece as it would be placed
 var _first_turn := true
+# Double-tap a plot to place there: the second tap must land on the same plot
+# within this many milliseconds.
+const DOUBLE_TAP_MS := 350
+var _last_tap_ms := -100000
+var _last_tap_base: Variant = null
+var _arrangement_before_tap: Array = []
 
 
 func _ready() -> void:
@@ -141,6 +147,20 @@ func _on_tapped(screen_pos: Vector2) -> void:
 	if hit == null:
 		return
 	var base: Variant = board.plot_at(hit)
+	var now := Time.get_ticks_msec()
+	var double: bool = base != null and base == _last_tap_base and now - _last_tap_ms <= DOUBLE_TAP_MS
+	if double:
+		# Place it as it looked before this double-tap (the first tap may have
+		# turned it).
+		_last_tap_base = null
+		if game.can_place(base):
+			arrangement = _arrangement_before_tap
+			selected = base
+			_place()
+		return
+	_last_tap_ms = now
+	_last_tap_base = base
+	_arrangement_before_tap = _arranged()
 	if base == null or not game.can_place(base):
 		selected = null
 	elif selected == base:
