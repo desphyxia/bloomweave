@@ -174,6 +174,21 @@ blooms now while keeping corridor routes and future corners open.
   recorded too. Discoveries unlock new valleys, biomes and valley variants
   (e.g. settling otters opens a river valley; finding every bloom in a valley
   reveals a hidden variant). Score stays as a personal best per valley.
+- **Progression map: branching, by region.** A quilted world map split into
+  regions (e.g. Lowlands, Moors, River Country) of about 8–15 levels each.
+  Several levels are open at once, so the player is never stuck.
+- **Star goals open levels; stars come from discoveries, never score.** Each
+  level has 3 stars: restore the valley, settle all residents, find the
+  hidden visitor. Finishing any level always opens its neighbour on the map,
+  so nobody gets stuck; stars are needed only for region gates (about half
+  a region's stars, e.g. 15 of ~30) and bonus levels. Discoveries also fill
+  the journal and open new biomes.
+- **Difficulty rises through** bloom rules (clockwise order, a 5th biome,
+  fewer recipes), awkward shapes and obstacles (narrow passes, islands of
+  plots, cliffs and lakes that break up corners) and harder animal asks
+  (longer corridors, specific blooms, loops, migration routes). The seed
+  economy stays the same.
+- **One reserve slot** (Set aside), always; variety comes from the valleys.
 - **Influence is visual only (for now).** Where two pieces meet at a seam,
   good biome pairs show small signs of life (taller trees by wetland,
   heather creeping into meadow beside heath). No effect on rules or score.
@@ -325,7 +340,6 @@ blooms now while keeping corridor routes and future corners open.
 
 ### Scoring and economy
 - Exact point values for animals and leftover seeds.
-- Whether the reserve slot can grow.
 
 ### Biome interactions
 - Which pairs count as good pairs, and what each looks like.
@@ -335,10 +349,10 @@ blooms now while keeping corridor routes and future corners open.
 - Riddle wording, and how hard each visitor's pattern is.
 
 ### Difficulty and run length
-- Difficulty curve across valleys (piece mix, valley shape, animal needs).
+- How fast each difficulty lever ramps across regions.
 
 ### Progression and unlocks
-- The unlock map: which discoveries open which valleys, biomes and variants.
+- Which discoveries open which bonus levels and biomes.
 
 ### Atmosphere
 - Exact fabric and stitch look in three.js (materials, outlines, puffiness).
