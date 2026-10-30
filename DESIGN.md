@@ -137,7 +137,11 @@ blooms now while keeping corridor routes and future corners open.
   - **Progression:** a series of levels, each a hand-made valley with a
     predefined shape (plus its biome mix, rules, animals and landmark).
     Levels unlock through discoveries.
-  - **Custom:** valleys with generated shapes and sizes.
+  - **Custom:** valleys with generated shapes and sizes. The player picks
+    4–5 biomes from those already discovered in Progression (or lets the
+    game pick at random), so Progression stays the way to find new biomes.
+    New blooms and animals found in Custom go into the journal, but only
+    Progression levels unlock new levels and biomes.
   - These replace the earlier "open mode" idea (map grows until the pile
     runs out), which would have brought Dorfromantik's economy loop back.
 - **Many different valley shapes.** Outlines vary widely between valleys,
@@ -176,9 +180,11 @@ blooms now while keeping corridor routes and future corners open.
   from a fixed **landmark piece** in its centre: three different biomes from
   that valley, with a landmark at its confluence (an old tree, a spring). It
   follows the normal rules but is the valley's heart.
-- **Same-biome trios may bloom.** Trios with repeated biomes (e.g. three
-  forests = "deep wood", or two forests + a wetland) can be named blooms too.
-  The first valley only has all-different recipes so far.
+- **Same-biome trios may bloom, selectively.** Some trios with repeated
+  biomes get a recipe (e.g. three forests = "deep wood", two wetlands + a
+  meadow = "reed bed"); not every trio does. Each valley lists its recipes,
+  keeping it readable at about 4–6. The first valley only has all-different
+  recipes so far.
 - **Scoring: points.** 1 per bloom, a bonus per settled animal, a little per
   leftover seed (exact values tuned in playtests). Best score kept per valley.
 - **Prototype animals: otters and deer.** Otters want a corridor of 4+ blooms
@@ -274,12 +280,9 @@ blooms now while keeping corridor routes and future corners open.
 - Which landmark each valley has.
 
 ### Biomes and valleys
-- Custom mode: is the biome mix generated or chosen too, and only from
-  biomes already discovered in Progression? Do Custom games add to the
-  journal?
-- Which same-biome trios bloom (all-same, two-plus-one, or only some), and
-  how that fits the 4–5 biome readability limit (4 biomes have 20 trios
-  when repeats count, vs 4 all-different).
+- Which same-biome recipes exist, and whether a valley can turn
+  all-different recipes off in favour of same-biome ones.
+- How Custom mode picks recipes for a generated valley.
 - Content load: 8 biomes = 56 possible all-different trios (120 with
   repeats). Do all of them need a bloom, or only the trios that appear in
   the valleys we ship?
