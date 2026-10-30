@@ -191,6 +191,16 @@ blooms now while keeping corridor routes and future corners open.
   goals are optional; missing one only means that animal doesn't move in
   this time. (Rejected: pop-up requests during a run, too close to
   Dorfromantik's quests.)
+  - *What animals can ask for:* corridor length and biomes touched, plus
+    specific blooms (e.g. bees want a corridor through 2 Foxglove Glades),
+    obstacles nearby (otters want the lake shore, eagles a cliff) and the
+    corridor's shape (a loop for hedgehogs, or a route linking two far ends
+    of the valley for migrating animals).
+  - *Seeds scale with difficulty:* easy residents give 2, hard ones 3–4,
+    the hidden visitor 5. Set per animal in data.
+  - *The hidden visitor is hinted by a riddle* on the valley's journal page
+    (e.g. "something stirs where three heaths meet the water"); the full
+    answer is shown once it's found.
 - **Placement and start.** Each piece must touch a piece already placed, so
   the valley grows outward like restoration spreading. Every valley starts
   from a fixed **landmark piece** in its centre: three different biomes from
@@ -309,9 +319,9 @@ blooms now while keeping corridor routes and future corners open.
   the valleys we ship?
 
 ### Wildlife corridors
-- Later twist (recorded): animals prefer trails that run between
-  *different* biomes (edge habitat), so the biomes on either side of a trail
-  would matter too.
+- Later twist (recorded, not chosen for now): animals prefer trails that run
+  between *different* biomes (edge habitat), so the biomes on either side of
+  a trail would matter too.
 
 ### Scoring and economy
 - Exact point values for animals and leftover seeds.
@@ -321,9 +331,8 @@ blooms now while keeping corridor routes and future corners open.
 - Which pairs count as good pairs, and what each looks like.
 
 ### Requests / goals
-- What each animal asks for (corridor length, bloom kinds, biomes touched)
-  and how many seeds settling it gives.
-- How hidden visitors are hinted at, if at all.
+- The animal roster: which animals exist and their exact asks.
+- Riddle wording, and how hard each visitor's pattern is.
 
 ### Difficulty and run length
 - Difficulty curve across valleys (piece mix, valley shape, animal needs).
