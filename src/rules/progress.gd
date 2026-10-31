@@ -10,6 +10,8 @@ const NO_STARS := {"restored": false, "residents": false, "visitor": false}
 var levels: Array = []   # level ids, in order
 var records := {}        # id -> {"stars": {...}, "best": int}
 var path := PATH
+## Development: every level counts as open (stars are still kept as earned).
+var unlock_all := false
 
 
 func _init(p_levels: Array = [], p_path: String = PATH) -> void:
@@ -77,6 +79,8 @@ func best(id: String) -> int:
 ## before it has been restored.
 func is_unlocked(id: String) -> bool:
 	var i := levels.find(id)
+	if unlock_all:
+		return i >= 0
 	if i <= 0:
 		return i == 0
 	return bool(stars(levels[i - 1]).get("restored", false))

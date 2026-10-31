@@ -23,6 +23,10 @@ The info panel also shows the **game number** (e.g. `game #424242`). Add
 pieces in the same order), and `&level=willowmere` for a valley other than
 the first; handy when reporting a bug.
 
+**Development:** add `?dev=1` to the address (or `-- --dev` on the command
+line) to open every valley in the list without finishing the ones before
+it. Stars are still saved as earned.
+
 - **Tap a glowing plot** to try the current piece there; tap it again (or
   press **Turn**) to rotate it. **Mirror** flips it.
 - **Place** (or **press and hold** the plot) puts it down. Flowers show where corners will bloom.

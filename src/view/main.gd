@@ -18,6 +18,9 @@ var _first_turn := true
 func _ready() -> void:
 	data = GameData.load_dir()
 	progress = Progress.load_from(data.levels)
+	# Development: `?dev=1` in the address (or `-- --dev` on the command line)
+	# opens every level in the list without its prerequisites.
+	progress.unlock_all = _start_param("dev") not in ["", "0", "false"] or OS.get_cmdline_user_args().has("--dev")
 	# Start on the first open level not yet restored, behind the level list.
 	# A level or game number in the address starts that game straight away.
 	level_id = data.levels[0]

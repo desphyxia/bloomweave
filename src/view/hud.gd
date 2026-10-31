@@ -273,6 +273,8 @@ func show_levels(progress: Progress, can_close: bool) -> void:
 		_levels_list.add_child(row)
 	_levels_total.text = "Stars: %d of %d   (restore · all residents · hidden visitor)" % [
 		progress.total_stars(), progress.levels.size() * 3]
+	if progress.unlock_all:
+		_levels_total.text += "\nDev mode: every valley is open."
 	_buttons.close_levels.visible = can_close
 	_end.visible = false
 	_hint_panel.visible = false

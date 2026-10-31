@@ -36,6 +36,16 @@ func test_first_level_open_next_opens_when_restored() -> void:
 	assert_str(p.next_level(data.levels[-1])).is_equal("")
 
 
+func test_dev_mode_opens_every_level() -> void:
+	var p := Progress.new(data.levels, TEST_PATH)
+	assert_bool(p.is_unlocked(data.levels[-1])).is_false()
+	p.unlock_all = true
+	for id: String in data.levels:
+		assert_bool(p.is_unlocked(id)).is_true()
+	assert_bool(p.is_unlocked("no_such_level")).is_false()
+	assert_int(p.total_stars()).is_equal(0)
+
+
 func test_stars_only_add_up_and_save() -> void:
 	var p := Progress.new(data.levels, TEST_PATH)
 	var r := p.record("first_valley", _finished_game("first_valley", true))
