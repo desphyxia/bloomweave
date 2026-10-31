@@ -351,3 +351,15 @@ func _assert_blooms_consistent(g: ValleyGame) -> void:
 				assert_bool(g.blooms.has(v)).is_false()
 			else:
 				assert_str(g.blooms.get(v, "")).is_equal(bloom.id)
+
+
+func test_clone_plays_on_without_touching_the_original() -> void:
+	var g := _game(9)
+	g.place(g.legal_plots()[0], g.current_piece())
+	var c := g.clone()
+	assert_int(c.placed.size()).is_equal(g.placed.size())
+	assert_array(c.pile).is_equal(g.pile)
+	c.place(c.legal_plots()[0], c.current_piece())
+	assert_int(c.placed.size()).is_equal(g.placed.size() + 1)
+	assert_int(g.pile.size()).is_equal(c.pile.size() + 1)
+	assert_int(g.board.size()).is_equal(c.board.size() - 3)

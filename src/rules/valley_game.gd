@@ -34,6 +34,8 @@ var _animals := {}       # id -> animal with this valley's needs applied
 func _init(p_data: GameData, p_valley: Dictionary, rng_seed: int = -1) -> void:
 	data = p_data
 	valley = p_valley
+	if p_data == null:
+		return  # an empty shell for clone()
 	if rng_seed < 0:
 		var r := RandomNumberGenerator.new()
 		r.randomize()
@@ -56,6 +58,34 @@ func _init(p_data: GameData, p_valley: Dictionary, rng_seed: int = -1) -> void:
 		_animals[a.id] = a
 	_put(center, valley.landmark.biomes)
 	pile = _build_pile()
+
+
+## A copy of this game that can be played on without changing this one
+## (for players that try moves ahead). Fixed valley data is shared.
+func clone() -> ValleyGame:
+	var g := ValleyGame.new(null, valley)
+	g.data = data
+	g.center = center
+	g.plots = plots
+	g.obstacles = obstacles
+	g._plot_set = _plot_set
+	g._recipes = _recipes
+	g._residents = _residents
+	g._animals = _animals
+	g.game_seed = game_seed
+	g.board = board.duplicate()
+	g.placed = placed.duplicate()
+	g.pile = pile.duplicate(true)
+	g.reserve = reserve.duplicate()
+	g.seeds = seeds
+	g.blooms = blooms.duplicate()
+	g.bloom_points = bloom_points
+	g.settled = settled.duplicate(true)
+	g.visitor_found = visitor_found
+	g.visitor_spot = visitor_spot
+	g.look_ahead_active = look_ahead_active
+	g.turn = turn
+	return g
 
 
 ## The valley's plots: `outline.plots` (a list of plot bases) or every plot

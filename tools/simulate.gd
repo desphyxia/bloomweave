@@ -1,21 +1,26 @@
 extends SceneTree
 ## Balance check: plays valleys with a simple greedy player and prints stats.
-## Run: godot --headless --path . -s res://tools/simulate.gd -- [valley_id] [runs] [seek]
-## With "seek", the player goes for the hidden visitor's pattern first
-## (then blooms), to check the visitor is reachable on purpose.
+## Run: godot --headless --path . -s res://tools/simulate.gd -- [valley_id] [runs] [seek|plan]
+## With "seek", the simple player goes for the hidden visitor's pattern first
+## (then blooms), to check the visitor is reachable on purpose. With "plan",
+## the planning player (tools/planner.gd) plays instead: it aims for the
+## residents and the visitor, looks one piece ahead and spends seeds;
+## "plan_visitor" makes it chase the hidden visitor harder.
 
 func _init() -> void:
 	var args := OS.get_cmdline_user_args()
 	var valley_id := args[0] if args.size() > 0 else "first_valley"
 	var runs := int(args[1]) if args.size() > 1 else 200
 	var seek := args.size() > 2 and args[2] == "seek"
+	var plan := args.size() > 2 and args[2].begins_with("plan")
+	var focus := 4.0 if args.size() > 2 and args[2] == "plan_visitor" else 1.0
 	var data := GameData.load_dir()
 	var valley := data.valley(valley_id)
 	var totals := {"blooms": 0, "score": 0, "seeds": 0, "stars": 0, "visitor": 0, "patch": 0}
 	var settled := {}
 	var by_bloom := {}
 	for i in runs:
-		var g := Autoplay.play(data, valley, i, seek)
+		var g := Planner.play(data, valley, i, focus) if plan else Autoplay.play(data, valley, i, seek)
 		totals.blooms += g.blooms.size()
 		totals.score += g.score_breakdown().total
 		totals.seeds += g.seeds

@@ -16,6 +16,12 @@ const CONFLUENCE := 1
 const SEAM := 2
 const WEAVE := 3
 
+# The grid never changes, so weave-point lookups are cached (the planning
+# test player asks for them many thousands of times). Callers must not
+# change the arrays they get back.
+static var _plot_weave := {}
+static var _hex_weave := {}
+
 
 static func is_base(b: Vector2i) -> bool:
 	return posmod(b.x - b.y, 3) == 0
@@ -96,20 +102,26 @@ static func vertex_kind(v: Vector3i) -> int:
 
 ## The six weave points that touch a plot.
 static func plot_weave_points(base: Vector2i) -> Array[Vector3i]:
+	if _plot_weave.has(base):
+		return _plot_weave[base]
 	var out: Array[Vector3i] = []
 	for h in plot_hexes(base):
 		for v in hex_weave_points(h):
 			if not out.has(v):
 				out.append(v)
+	_plot_weave[base] = out
 	return out
 
 
 ## The two weave points on a hex's border.
 static func hex_weave_points(h: Vector2i) -> Array[Vector3i]:
+	if _hex_weave.has(h):
+		return _hex_weave[h]
 	var out: Array[Vector3i] = []
 	for v in Hex.hex_vertices(h):
 		if vertex_kind(v) == WEAVE:
 			out.append(v)
+	_hex_weave[h] = out
 	return out
 
 
