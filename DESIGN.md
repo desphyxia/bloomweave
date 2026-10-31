@@ -239,10 +239,17 @@ blooms now while keeping corridor routes and future corners open.
     the hedgehogs' full ring then settled in 8–16% of test games even with
     a "ring or 10+ blooms" fallback; without clockwise the pure ring
     settles in ~30%.)
-  - *Hawthorn Lea uses all five biomes*, listing about 5–6 of the 10 possible
-    trios. Hedgerow brings two new blooms: **Bramble Bank** (hedgerow +
-    forest + meadow: blackberries along the wood's edge) and **Rosehip Lane**
-    (hedgerow + meadow + heath: dog-roses along a sunny lane).
+  - *Hawthorn Lea uses all five biomes* with 6 of the 10 possible trios, and
+    **a new biome should be the hub of its level**: hedgerow is in four of
+    them. **Bramble Bank** (hedgerow + forest + meadow), **Rosehip Lane**
+    (hedgerow + meadow + heath), **Willow Hedge** (hedgerow + wetland +
+    forest: pollarded willows by a wet ditch) and **Sloe Thicket** (hedgerow
+    + wetland + heath: blackthorn at the heath's damp edge), plus Fern
+    Hollow and Foxglove Glade (kept for the bees). Misty Carr and
+    Cotton-grass Moor sit this valley out. Hedgerow is also drawn 1.5× as
+    often in the pieces. (First version had only two hedgerow blooms, so
+    the new biome was the rarest: hedgerow 2, wetland 3, forest/heath 4,
+    meadow 5; now forest, meadow, hedgerow 4, wetland and heath 3.)
   - *Warbler Fen* has a lake (for the kingfisher's shore).
   - *Oakhaven* has a lake and a cliff; the ruins stay special to Chapel Garth.
 
@@ -494,7 +501,7 @@ placing well); the dropped open mode would have brought it back. Progression thr
   - *5. Hawthorn Lea:* generated, 30 broad plots (designer's pick of 6 from
     40). Introduces **hedgerow**, the fifth biome (coral cord fabric with
     lines of felt hedge, blossom, dog-roses, berries and the odd stile),
-    with **Bramble Bank** and **Rosehip Lane**; residents **hedgehogs** (a
+    at the heart of four new blooms; residents **hedgehogs** (a
     corridor of 6+ blooms going all the way round a piece) and bees;
     hidden visitor the **hazel dormouse** (8+ joined hedgerow hexes).
     Blooms in any order.
@@ -568,8 +575,10 @@ placing well); the dropped open mode would have brought it back. Progression thr
   player 40–90%), and blooms go up by about half (Heatherfold 16 → 23 of
   24). It is poor at visitors (it won't sacrifice blooms for a one-biome
   patch), so visitors are measured with the simple player's `seek` mode.
-- **Hawthorn Lea tuning:** simple player hedgehogs 43%, bees 58%; planner
-  both ~100%. Dormouse at 8 hedgerow hexes: 1% by luck, 93% sought.
+- **Hawthorn Lea tuning** (with the four hedgerow blooms and 1.5×
+  hedgerow): simple player about 27 blooms, hedgehogs 56%, bees 80%;
+  planner 35 blooms, both 100%. Each of the six recipes grows 4–5 times a
+  game. Dormouse at 8 hedgerow hexes: 0% by luck, 86% sought.
 - **Level tools:** `tools/generate_levels.gd` (template in
   `tools/level_templates`) generates and scores candidates;
   `tools/candidate_sheet.py` draws a contact sheet; `tools/level_from_candidate.py`

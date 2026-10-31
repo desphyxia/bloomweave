@@ -1,7 +1,7 @@
 {
   "id": "hawthorn_lea",
   "name": "Hawthorn Lea",
-  "intro": "New in Hawthorn Lea: hedgerow, a fifth biome, with two new blooms (Bramble Bank and Rosehip Lane). Hedgehogs want a corridor that goes all the way round a piece.",
+  "intro": "New in Hawthorn Lea: hedgerow, a fifth biome, at the heart of four new blooms (Bramble Bank, Rosehip Lane, Willow Hedge and Sloe Thicket). Hedgehogs want a corridor that goes all the way round a piece.",
   "biomes": [
     "forest",
     "meadow",
@@ -55,15 +55,18 @@
   "blooms": [
     "fern_hollow",
     "foxglove_glade",
-    "misty_carr",
-    "cotton_grass_moor",
     "bramble_bank",
-    "rosehip_lane"
+    "rosehip_lane",
+    "willow_hedge",
+    "sloe_thicket"
   ],
   "pile": {
     "distinct": 22,
     "double": 7,
-    "single": 0
+    "single": 0,
+    "weights": {
+      "hedgerow": 1.5
+    }
   },
   "animals": [
     "hedgehogs",

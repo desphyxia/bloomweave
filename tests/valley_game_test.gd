@@ -319,6 +319,8 @@ func test_full_games_keep_rules_consistent() -> void:
 			assert_bool(r.blooms.size() <= completed).is_true()
 			for id: String in r.settled:
 				animal_seeds += int(g.animal(id).seeds)
+			if r.visitor != "":
+				animal_seeds += int(g.visitor().seeds)
 			assert_int(r.points).is_equal(g.combo_points(r.blooms.size()))
 			assert_bool(r.perfect).is_equal(r.completed == 6 and r.blooms.size() == 6)
 			points += r.points

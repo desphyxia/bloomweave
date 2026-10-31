@@ -70,6 +70,9 @@ static func level_from(template: Dictionary, gen: Dictionary) -> Dictionary:
 	var pieces: int = gen.plots.size() - 1
 	var doubles := int(round(pieces * float(template.get("pile_share", {}).get("double", 0.22))))
 	v.pile = {"distinct": pieces - doubles, "double": doubles, "single": 0}
+	if template.has("pile_weights"):
+		v.pile.weights = template.pile_weights
+	v.erase("pile_weights")
 	return v
 
 
