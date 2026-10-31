@@ -13,3 +13,6 @@ GdUnitRunner.cfg
 
 # OS
 .DS_Store
+
+# Scratch valleys for balance comparisons
+data/valleys/_*.json

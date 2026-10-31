@@ -14,6 +14,10 @@ const LOOKS := {
 
 
 static func build(textile: Textile, id: String, size: float = 1.0) -> Node3D:
+	if id == "hedgehogs":
+		return _hedgehog(textile, size)
+	if id == "dormouse":
+		return _dormouse(textile, size)
 	if id == "eagles":
 		return _eagle(textile, size)
 	if id == "wildcat":
@@ -178,4 +182,51 @@ static func _wildcat(textile: Textile, size: float) -> Node3D:
 		_part(textile, node, ball, dark if k % 2 == 1 else tabby, at, Vector3(0.1, 0.09, 0.09) * size)
 	for k in 3:
 		_part(textile, node, ball, dark, Vector3(-0.1 + k * 0.1, 0.32, 0) * size, Vector3(0.03, 0.03, 0.22) * size)
+	return node
+
+
+## A round hedgehog: a spiky brown dome and a pointed pale face.
+static func _hedgehog(textile: Textile, size: float) -> Node3D:
+	var node := Node3D.new()
+	var ball := SphereMesh.new()
+	ball.radius = 0.5
+	ball.height = 1.0
+	var spike := CylinderMesh.new()
+	spike.top_radius = 0.0
+	spike.bottom_radius = 0.5
+	spike.height = 1.0
+	spike.radial_segments = 4
+	var brown := Color(0.36, 0.27, 0.19)
+	_part(textile, node, ball, brown, Vector3(0, 0.14, 0) * size, Vector3(0.4, 0.28, 0.32) * size)
+	for k in 14:
+		var a := TAU * k / 14.0
+		var up := 0.5 + 0.4 * float(k % 3) / 2.0
+		var dir := Vector3(cos(a) * 0.9 - 0.15, up, sin(a) * 0.8).normalized()
+		var mi := MeshInstance3D.new()
+		mi.mesh = spike
+		mi.scale = Vector3(0.05, 0.12, 0.05) * size
+		mi.position = (Vector3(-0.03, 0.14, 0) + Vector3(dir.x * 0.18, dir.y * 0.13, dir.z * 0.15)) * size
+		mi.basis = Basis(Quaternion(Vector3.UP, dir)).scaled(Vector3(0.05, 0.12, 0.05) * size)
+		mi.material_override = textile.fabric(brown.darkened(0.25), FELT)
+		node.add_child(mi)
+	_part(textile, node, ball, Color(0.8, 0.68, 0.52), Vector3(0.2, 0.1, 0) * size, Vector3(0.16, 0.12, 0.14) * size)
+	_part(textile, node, ball, Color(0.12, 0.1, 0.1), Vector3(0.29, 0.1, 0) * size, Vector3.ONE * 0.04 * size)
+	return node
+
+
+## A golden hazel dormouse curled up with its fluffy tail.
+static func _dormouse(textile: Textile, size: float) -> Node3D:
+	var node := Node3D.new()
+	var ball := SphereMesh.new()
+	ball.radius = 0.5
+	ball.height = 1.0
+	var gold := Color(0.85, 0.6, 0.3)
+	_part(textile, node, ball, gold, Vector3(0, 0.13, 0) * size, Vector3(0.24, 0.22, 0.2) * size)
+	_part(textile, node, ball, gold.lightened(0.08), Vector3(0.13, 0.2, 0) * size, Vector3(0.14, 0.13, 0.13) * size)
+	for side in [-1.0, 1.0]:
+		_part(textile, node, ball, gold.darkened(0.1), Vector3(0.1, 0.29, side * 0.05) * size, Vector3(0.05, 0.06, 0.04) * size)
+		_part(textile, node, ball, Color(0.1, 0.08, 0.08), Vector3(0.2, 0.22, side * 0.035) * size, Vector3.ONE * 0.03 * size)
+	for k in 4:
+		var t := float(k) / 3.0
+		_part(textile, node, ball, gold.darkened(0.05), Vector3(-0.14 - t * 0.08, 0.12 + t * 0.12, 0) * size, Vector3(0.08, 0.08, 0.08) * size)
 	return node

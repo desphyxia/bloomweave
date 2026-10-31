@@ -52,6 +52,8 @@ func build(h: Vector2i, biome: String, ghost: bool) -> ArrayMesh:
 			_wetland(b, rng, used, ghost)
 		"heath":
 			_heath(b, rng, used, ghost)
+		"hedgerow":
+			_hedgerow(b, rng, used, ghost)
 	return b.commit()
 
 
@@ -138,6 +140,49 @@ func _meadow(b: _Builder, rng: RandomNumberGenerator, used: Array[Vector3], ghos
 		_rabbit(b, rng, used, ghost)
 	elif roll < 0.2:
 		_stone(b, rng, used, ghost, 0.08)
+
+
+## A hedge running across the patch: a line of round felt bushes with
+## hawthorn blossom, dog-roses and berries, and now and then a stile.
+func _hedgerow(b: _Builder, rng: RandomNumberGenerator, used: Array[Vector3], ghost: bool) -> void:
+	var greens := [Color(0.3, 0.46, 0.26), Color(0.36, 0.52, 0.28), Color(0.26, 0.42, 0.24)]
+	var dir := Vector2.from_angle(rng.randf() * PI)
+	var side := Vector2(-dir.y, dir.x) * rng.randf_range(-0.2, 0.2)
+	var count := rng.randi_range(5, 7)
+	for k in count:
+		var t := lerpf(-0.62, 0.62, float(k) / (count - 1)) + rng.randf_range(-0.05, 0.05)
+		var p := side + dir * t
+		if Textile.hex_t(p, 1.0) > 0.9:
+			continue
+		used.append(Vector3(p.x, p.y, 0.16))
+		var col: Color = greens[rng.randi() % greens.size()]
+		var r := rng.randf_range(0.13, 0.18)
+		var y := _y(p)
+		b.add("felt" + col.to_html(), _felt(col, ghost), _sphere(), _xf(p, y + r * 0.7, Vector3(r * 2.0, r * 1.7, r * 2.0)))
+		# Blossom, roses and berries dotted over the bush.
+		for d in rng.randi_range(2, 4):
+			var a := rng.randf() * TAU
+			var up := rng.randf_range(0.6, 1.3)
+			var at := p + Vector2.from_angle(a) * r * 0.75
+			var roll := rng.randf()
+			var dot := Color(0.98, 0.96, 0.92) if roll < 0.5 else (Color(0.95, 0.62, 0.7) if roll < 0.75 else Color(0.82, 0.16, 0.14))
+			b.add("satin" + dot.to_html(), _satin(dot, ghost), _sphere(), _xf(at, y + r * up, Vector3.ONE * 0.04))
+	if rng.randf() < 0.12:
+		# A little wooden stile over the hedge.
+		var wood := Color(0.5, 0.36, 0.22)
+		var at := side + dir * rng.randf_range(-0.2, 0.2) + Vector2(-dir.y, dir.x) * 0.2
+		for post in [-1.0, 1.0]:
+			var pp: Vector2 = at + dir * 0.08 * post
+			b.add("felt" + wood.to_html(), _felt(wood, ghost), _cylinder(), _xf(pp, _y(pp) + 0.12, Vector3(0.025, 0.24, 0.025)))
+		var step_basis := Basis(Vector3.UP, -dir.angle()).scaled(Vector3(0.22, 0.02, 0.05))
+		b.add("felt" + wood.to_html(), _felt(wood, ghost), _cylinder(), Transform3D(step_basis * Basis(Vector3.FORWARD, PI / 2.0), Vector3(at.x, _y(at) + 0.12, at.y)))
+	# A few meadow flowers along the hedge foot.
+	for i in rng.randi_range(1, 3):
+		var p := _spot(rng, used, 0.05, 0.8)
+		if not p.is_finite():
+			break
+		var col: Color = FLOWER_COLORS[rng.randi() % FLOWER_COLORS.size()]
+		b.add("satin" + col.to_html(), _satin(col, ghost), _sphere(), _xf(p, _y(p) + 0.015, Vector3.ONE * 0.05))
 
 
 func _wetland(b: _Builder, rng: RandomNumberGenerator, used: Array[Vector3], ghost: bool) -> void:

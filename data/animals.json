@@ -126,6 +126,33 @@
       "points": 20,
       "seeds": 5,
       "note": "Britain's rarest cat: shy, thick-tailed and fond of wooded crags."
+    },
+    {
+      "id": "hedgehogs",
+      "name": "Hedgehogs",
+      "description": "A corridor of 6+ blooms that goes all the way round a piece.",
+      "needs": {
+        "min_blooms": 6,
+        "ring": true
+      },
+      "points": 15,
+      "seeds": 3,
+      "note": "Trundles a nightly round of the same hedges and gardens, snuffling for beetles."
+    },
+    {
+      "id": "dormouse",
+      "name": "Hazel dormouse",
+      "hidden": true,
+      "riddle": "A golden sleeper never touches the ground where the hedges run long and joined.",
+      "found_text": "8+ hedgerow hexes joined in one patch.",
+      "pattern": {
+        "kind": "biome_patch",
+        "biome": "hedgerow",
+        "min_hexes": 8
+      },
+      "points": 20,
+      "seeds": 5,
+      "note": "Sleeps away half the year and lives its whole life up in the hedge."
     }
   ]
 }

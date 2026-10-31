@@ -524,6 +524,71 @@ func blooms_of(corridor: Array, bloom_id: String) -> int:
 	return n
 
 
+## Whether a corridor's trails go all the way round at least one placed
+## piece. Trails run along hex borders; flooding outwards from outside the
+## valley, never crossing a trail, any placed piece the flood can't reach
+## is ringed.
+func rings_a_piece(corridor: Array) -> bool:
+	if corridor.size() < 6:
+		return false
+	var in_corridor := {}
+	for v: Vector3i in corridor:
+		in_corridor[v] = true
+	# Hex borders the corridor's trails cover, as "hexA|hexB" (sorted).
+	var walls := {}
+	for l: Dictionary in bloom_links():
+		if not (in_corridor.has(l.a) and in_corridor.has(l.b)):
+			continue
+		var route := link_route(l)
+		for k in 2:
+			var shared: Array[Vector2i] = []
+			var other := Hex.vertex_hexes(route[k + 1])
+			for h in Hex.vertex_hexes(route[k]):
+				if other.has(h):
+					shared.append(h)
+			if shared.size() == 2:
+				walls[_edge_key(shared[0], shared[1])] = true
+	# Flood over the valley's plots (and obstacles) from the ring of plots
+	# just outside it.
+	var area := {}
+	for p in plots:
+		area[p] = true
+	for h: Vector2i in obstacles:
+		area[PlotGrid.plot_of(h)] = true
+	var reached := {}
+	var stack: Array[Vector2i] = []
+	for p: Vector2i in area.keys():
+		for q in PlotGrid.plot_neighbors(p):
+			if not area.has(q) and not reached.has(q):
+				reached[q] = true
+				stack.append(q)
+	while not stack.is_empty():
+		var p: Vector2i = stack.pop_back()
+		for q in PlotGrid.plot_neighbors(p):
+			if reached.has(q) or not area.has(q):
+				continue
+			if _can_cross(p, q, walls):
+				reached[q] = true
+				stack.append(q)
+	for p: Vector2i in placed:
+		if not reached.has(p):
+			return true
+	return false
+
+
+static func _edge_key(a: Vector2i, b: Vector2i) -> String:
+	return "%s|%s" % [a, b] if str(a) < str(b) else "%s|%s" % [b, a]
+
+
+## Whether some border between plots `a` and `b` is free of trail.
+static func _can_cross(a: Vector2i, b: Vector2i, walls: Dictionary) -> bool:
+	for h in PlotGrid.plot_hexes(a):
+		for nb in Hex.neighbors(h):
+			if PlotGrid.plot_of(nb) == b and not walls.has(_edge_key(h, nb)):
+				return true
+	return false
+
+
 ## The resident animals' ids, in the valley's order.
 func residents() -> Array[String]:
 	return _residents
@@ -557,6 +622,12 @@ func animal_checks(id: String, corridor: Array) -> Array:
 	if needs.has("near"):
 		out.append({"label": "by the %s" % needs.near, "have": blooms_near(corridor, needs.near),
 			"need": int(needs.get("min_near_blooms", 1))})
+	if needs.get("ring", false):
+		# `ring_or_blooms`: a long enough corridor also does instead of a ring.
+		var alt := int(needs.get("ring_or_blooms", 0))
+		var ok := rings_a_piece(corridor) or (alt > 0 and corridor.size() >= alt)
+		var label := "ring round a piece" if alt == 0 else "ring round a piece or %d+ blooms" % alt
+		out.append({"label": label, "have": 1 if ok else 0, "need": 1})
 	if needs.has("bloom"):
 		var bl: Dictionary = data.blooms_by_id.get(needs.bloom, {})
 		out.append({"label": str(bl.get("name", needs.bloom)), "have": blooms_of(corridor, needs.bloom),

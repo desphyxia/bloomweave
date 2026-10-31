@@ -7,8 +7,8 @@ func test_shipped_data_is_valid() -> void:
 	assert_int(d.levels.size()).is_greater_equal(3)
 	for id: String in d.levels:
 		assert_array(d.validate_valley(d.valley(id))).is_empty()
-	assert_int(d.biome_ids.size()).is_equal(4)
-	assert_int(d.blooms_by_id.size()).is_equal(5)
+	assert_int(d.biome_ids.size()).is_equal(5)
+	assert_int(d.blooms_by_id.size()).is_equal(7)
 
 
 func test_bloom_lookup_ignores_order() -> void:
