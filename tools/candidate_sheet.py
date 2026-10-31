@@ -1,8 +1,9 @@
 """Draw a contact sheet of generated valley candidates (needs Pillow).
 
 Usage: python3 tools/candidate_sheet.py candidates.json out.png [count]
-Each tile shows the plots (landmark in orange), the hills around them and
-the candidate's number and scores.
+Each tile shows the plots (landmark in orange), obstacles in grey/blue,
+the hills around them, and the candidate's letter and scores (the simple
+test player's, plus the planning player's when "planner" is in metrics).
 """
 import json
 import math
@@ -60,7 +61,9 @@ def main():
     for i, c in enumerate(cands):
         m = c["metrics"]
         settle = ", ".join(f"{k} {v}%" for k, v in m["settle"].items())
-        label = f"{chr(65 + i)}  ({m['plots']} plots, {m['bloom_spots']} bloom spots)\n{settle}; visitor {m['visitor_chance']}% luck / {m['visitor_sought']}% sought"
+        label = f"{chr(65 + i)}  ({m['plots']} plots, {m['bloom_spots']} bloom spots)\nsimple: {settle}; visitor {m['visitor_chance']}% luck / {m['visitor_sought']}% sought"
+        if "planner" in m:
+            label += f"\nplanner: {m['planner']}"
         tile(d, c, (i % cols) * w, (i // cols) * h, w, h, label)
     img.save(sys.argv[2])
 
