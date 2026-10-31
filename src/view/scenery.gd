@@ -37,6 +37,7 @@ var _smoke: Array = []          # [MeshInstance3D, origin Vector3, phase]
 var _cottages: Array[Vector3] = []
 var _centre := Vector2.ZERO     # middle of the valley (world x, z)
 var _edge: PackedFloat32Array   # valley's reach from _centre per EDGE_BINS angle
+var _valley_pts: Array[Vector2] = []  # centres of every valley and lake hex
 const EDGE_BINS := 72
 var _time := 0.0
 
@@ -242,6 +243,7 @@ func _measure_edge() -> void:
 			pts.append(Hex.to_world(h))
 	for h: Vector2i in game.obstacles:
 		pts.append(Hex.to_world(h))
+	_valley_pts = pts
 	_centre = Vector2.ZERO
 	for p in pts:
 		_centre += p
@@ -487,6 +489,37 @@ func _hill_details(rng: RandomNumberGenerator) -> void:
 	add_child(mi)
 
 
+const POOL_R := 0.8          # the pool's longer half-width
+const STREAM_CLEAR := 0.25   # gap kept between stream or pool and the valley's cloth
+
+
+## How far from the middle the stream can end: as close to the valley as the
+## pool and the whole stream can get without touching a valley (or lake)
+## hex, wherever the valley's edge is jagged.
+func _stream_end(start: float) -> float:
+	var d := _edge_r(STREAM_ANGLE) - 1.0
+	while d < start - 2.0:
+		var ok := _clear_of_valley(_at(STREAM_ANGLE, d), POOL_R)
+		var k := 0
+		while ok and k <= 40:
+			var t := k / 40.0
+			var a := STREAM_ANGLE + sin(t * 7.0) * 0.08
+			ok = _clear_of_valley(_at(a, lerpf(start, d, t)), 0.45)
+			k += 1
+		if ok:
+			return d
+		d += 0.25
+	return d
+
+
+## Whether a circle of radius `r` at `p` keeps clear of every valley hex.
+func _clear_of_valley(p: Vector2, r: float) -> bool:
+	for v in _valley_pts:
+		if p.distance_to(v) < r + 1.0 + STREAM_CLEAR:
+			return false
+	return true
+
+
 ## A silk stream that comes down from the hills and ends in a small pool at
 ## the valley's edge.
 func _stream_mesh() -> void:
@@ -494,7 +527,7 @@ func _stream_mesh() -> void:
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var pts: Array[Vector3] = []
 	var start := _inner_r(STREAM_ANGLE) + 9.0
-	var end := _edge_r(STREAM_ANGLE) + 0.4
+	var end := _stream_end(start)
 	var steps := 40
 	for i in steps + 1:
 		var t := float(i) / steps
@@ -524,7 +557,7 @@ func _stream_mesh() -> void:
 	pool.radial_segments = 20
 	var ps := SurfaceTool.new()
 	ps.begin(Mesh.PRIMITIVE_TRIANGLES)
-	ps.append_from(pool, 0, Transform3D(Basis().scaled(Vector3(0.8, 1.0, 0.6)), pts[-1]))
+	ps.append_from(pool, 0, Transform3D(Basis().scaled(Vector3(POOL_R, 1.0, POOL_R * 0.75)), pts[-1]))
 	ps.commit(mesh)
 	_stream = MeshInstance3D.new()
 	_stream.mesh = mesh
