@@ -73,8 +73,20 @@ func setup(p_game: ValleyGame) -> void:
 ## it would be placed; `selected` tells whether a plot is chosen.
 func refresh(arranged: Array, selected: bool, preview_count: int) -> void:
 	var s := game.score_breakdown()
-	_info.text = "%s   ·   game #%d%s\nSeeds %d   ·   Score %d   ·   Pieces left %d" % [
-		game.valley.get("name", "Valley"), game.game_seed, _build_label(), game.seeds, s.total, game.pieces_left()]
+	# Phones get a narrower panel: tighter dots and the build on its own line,
+	# so the top row never runs off the screen with longer valley names.
+	var dot := "  ·  " if _compact else "   ·   "
+	var build := _build_id()
+	var lines := [
+		"%s%sgame #%d" % [game.valley.get("name", "Valley"), dot, game.game_seed],
+		"Seeds %d%sScore %d%sPieces left %d" % [game.seeds, dot, s.total, dot, game.pieces_left()],
+	]
+	if build != "":
+		if _compact:
+			lines.append("build %s" % build)
+		else:
+			lines[0] += "%sbuild %s" % [dot, build]
+	_info.text = "\n".join(lines)
 	_current.biomes = arranged
 	for c in _upcoming_box.get_children():
 		c.queue_free()
@@ -101,7 +113,7 @@ func refresh(arranged: Array, selected: bool, preview_count: int) -> void:
 
 
 ## "  · build abc1234" when CI stamped the build (data/build.json), else "".
-func _build_label() -> String:
+func _build_id() -> String:
 	if not has_meta("build"):
 		var build := ""
 		if FileAccess.file_exists("res://data/build.json"):
@@ -109,8 +121,7 @@ func _build_label() -> String:
 			if typeof(parsed) == TYPE_DICTIONARY:
 				build = str(parsed.get("build", ""))
 		set_meta("build", build)
-	var b: String = get_meta("build")
-	return "   ·   build %s" % b if b != "" else ""
+	return get_meta("build")
 
 
 func _refresh_animals() -> void:
@@ -432,6 +443,7 @@ func set_compact(on: bool) -> void:
 	(_cards.get_node("row") as HBoxContainer).add_theme_constant_override("separation", 8 if on else 14)
 	_cards.add_theme_stylebox_override("panel", _panel_style(6 if on else 12))
 	_flow.alignment = FlowContainer.ALIGNMENT_END if on else FlowContainer.ALIGNMENT_CENTER
+	_info.add_theme_font_size_override("font_size", 17 if on else 19)
 
 
 func _panel_style(margin: int) -> StyleBoxFlat:
