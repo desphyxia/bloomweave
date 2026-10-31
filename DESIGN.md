@@ -218,11 +218,21 @@ blooms now while keeping corridor routes and future corners open.
   | 1 | Heatherfold | the basics | otters, deer | red grouse |
   | 2 | Willowmere | lake obstacle, Deep Wood | otters (lake), badgers | grey heron |
   | 3 | Bramblecombe | clockwise blooms | deer, bees | brown hare |
-  | 4 | – | **cliff** obstacle | **eagles** (blooms by the cliff), otters | **wildcat** (by the cliff) |
-  | 5 | – | 5th biome, **hedgerow** (hawthorn, bramble, dog-rose) | **hedgehogs** (a corridor that closes into a loop), bees | **dormouse** (a long joined line of hedgerow) |
-  | 6 | – | **ruins** obstacle | **owls** (blooms beside the ruins), badgers | **red fox** (meadow and hedgerow round the ruins) |
-  | 7 | – | **Reed Bed** bloom (two wetlands + a meadow) | **reed warblers** (2 Reed Beds in a corridor), otters | **kingfisher** (wetland along a long stretch of lake shore) |
-  | 8 | – | grand finale: a ~40-plot valley bringing the region's ideas together, no new rule | – | – |
+  | 4 | Eagle Scar | **cliff** obstacle | **eagles** (blooms by the cliff), otters | **wildcat** (by the cliff) |
+  | 5 | Hawthorn Lea | 5th biome, **hedgerow** (hawthorn, bramble, dog-rose) | **hedgehogs** (a ring of blooms round a piece), bees | **dormouse** (8+ joined hedgerow hexes) |
+  | 6 | Chapel Garth | **ruins** obstacle | **owls** (blooms beside the ruins), badgers | **red fox** (meadow and hedgerow round the ruins) |
+  | 7 | Warbler Fen | **Reed Bed** bloom (two wetlands + a meadow) | **reed warblers** (2 Reed Beds in a corridor), otters | **kingfisher** (wetland along a long stretch of lake shore) |
+  | 8 | Oakhaven | grand finale: a ~40-plot valley bringing the region's ideas together, no new rule | deer, eagles, reed warblers | **white hart** (every kind of bloom in the valley has grown at least once) |
+
+  - *Cliff (Eagle Scar):* a ridge of 2–3 rock obstacle plots across the
+    valley, carved from one of the generator's ridges, partly splitting it
+    into two basins joined at the ends.
+  - *Ruins (Chapel Garth):* one obstacle plot with a roofless felt chapel and
+    a broken wall.
+  - *"By" an obstacle* means touching it: one of the bloom's hexes borders
+    the obstacle (the same rule as otters by the lake).
+  - *Hedgehogs' loop:* linked blooms that go all the way round at least one
+    placed piece (so about 6+ blooms).
 
   Visitors lean to land animals: there are already many flying residents
   (eagles, owls), so level 6's visitor is a fox rather than bats, and level
@@ -419,9 +429,8 @@ blooms now while keeping corridor routes and future corners open.
 
 ### Progression and unlocks
 - Which discoveries open which bonus levels and biomes.
-- Names of levels 4–8; the finale's residents and visitor.
-- New pattern kinds needed: corridor loops (hedgehogs), a line of one biome
-  (dormouse), hexes of a biome by an obstacle other than the lake.
+- Exact numbers for each new ask (eagles, owls, reed warblers, wildcat,
+  fox, kingfisher), tuned with the balance sim when each level is built.
 
 ### Atmosphere
 - Exact biome sound layers and how they mix.
