@@ -17,8 +17,9 @@ const HILL_CLEARANCE := 1.2   # gap between a hill's foot and the nearest valley
 ## `plot_count` is the target size; the result can differ by a plot or two
 ## after smoothing. `cliff_plots` > 0 raises a rock ridge of that many plots
 ## in a line inside the valley (on its highest ground), partly splitting it
-## into two basins that stay joined round the ridge's ends.
-static func generate(rng_seed: int, plot_count: int, cliff_plots: int = 0) -> Dictionary:
+## into two basins that stay joined round the ridge's ends. `ruins` > 0
+## sets that many single ruin plots well inside the valley.
+static func generate(rng_seed: int, plot_count: int, cliff_plots: int = 0, ruins: int = 0) -> Dictionary:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = rng_seed
 	var hills := _make_hills(rng, plot_count)
@@ -27,8 +28,8 @@ static func generate(rng_seed: int, plot_count: int, cliff_plots: int = 0) -> Di
 	for p in candidates:
 		height[p] = _plot_height(p, hills)
 	var start := _lowest_near_middle(candidates, height)
-	var valley := _fill(start, plot_count + cliff_plots, height)
-	valley = _smooth(valley, start, plot_count + cliff_plots, height)
+	var valley := _fill(start, plot_count + cliff_plots + ruins, height)
+	valley = _smooth(valley, start, plot_count + cliff_plots + ruins, height)
 	var obstacles := []
 	var covered := valley.duplicate()
 	if cliff_plots > 0:
@@ -37,6 +38,16 @@ static func generate(rng_seed: int, plot_count: int, cliff_plots: int = 0) -> Di
 			for p in ridge:
 				valley.erase(p)
 			obstacles.append({"kind": "cliff", "plots": ridge})
+	if ruins > 0:
+		var spots: Array[Vector2i] = []
+		for _i in ruins:
+			var spot := _ruin_spot(valley, start, rng)
+			if spot == start:
+				break
+			valley.erase(spot)
+			spots.append(spot)
+		if not spots.is_empty():
+			obstacles.append({"kind": "ruins", "plots": spots})
 	return {
 		"plots": valley,
 		"landmark": start,
@@ -84,6 +95,29 @@ static func _ridge(valley: Array[Vector2i], start: Vector2i, length: int, height
 				best_score = score
 				best = line
 	return best
+
+
+## A plot for a ruin: all six neighbours in the valley (so it stands in
+## the open, with room for blooms all round), at least two steps from the
+## landmark. Returns `start` when there is none.
+static func _ruin_spot(valley: Array[Vector2i], start: Vector2i, rng: RandomNumberGenerator) -> Vector2i:
+	var inside := {}
+	for p in valley:
+		inside[p] = true
+	var near_start := PlotGrid.plot_neighbors(start)
+	var options: Array[Vector2i] = []
+	for p in valley:
+		if p == start or near_start.has(p):
+			continue
+		var n := 0
+		for q in PlotGrid.plot_neighbors(p):
+			if inside.has(q):
+				n += 1
+		if n == 6:
+			options.append(p)
+	if options.is_empty():
+		return start
+	return options[rng.randi_range(0, options.size() - 1)]
 
 
 static func _joined_without(inside: Dictionary, removed: Array[Vector2i], start: Vector2i) -> bool:

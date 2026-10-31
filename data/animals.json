@@ -153,6 +153,38 @@
       "points": 20,
       "seeds": 5,
       "note": "Sleeps away half the year and lives its whole life up in the hedge."
+    },
+    {
+      "id": "owls",
+      "name": "Tawny owls",
+      "description": "A corridor of 5+ blooms, with 2+ of them beside the ruins.",
+      "needs": {
+        "min_blooms": 5,
+        "near": "ruins",
+        "min_near_blooms": 2
+      },
+      "points": 12,
+      "seeds": 3,
+      "note": "Roosts in the chapel's broken walls and calls across the valley at dusk."
+    },
+    {
+      "id": "fox",
+      "name": "Red fox",
+      "hidden": true,
+      "riddle": "A russet coat slips along the old walls where field and hedge crowd the stones.",
+      "found_text": "8+ meadow or hedgerow hexes touching the ruins.",
+      "pattern": {
+        "kind": "biome_near",
+        "biome": [
+          "meadow",
+          "hedgerow"
+        ],
+        "near": "ruins",
+        "min_hexes": 8
+      },
+      "points": 20,
+      "seeds": 5,
+      "note": "Dens under the chapel floor and hunts the field edges at dawn."
     }
   ]
 }

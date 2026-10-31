@@ -239,9 +239,11 @@ const SHORE_THREAD := Color(0.88, 0.8, 0.6)
 ## (no seams between its hexes), a sandy stitched shore, lily pads, ripples
 ## and the odd duck. Other kinds show as plain grey cloth for now.
 func _build_obstacles() -> void:
+	_perches.clear()
 	var shape := _inset_plot_shape(0.0)
 	var water := _plot_cloth_mesh(shape, LAKE_H)
 	var rock := _plot_cloth_mesh(shape, CLIFF_H)
+	var turf := _plot_cloth_mesh(shape, RUIN_H)
 	var details := MeshBatch.new()
 	details.textile = textile
 	var bases := {}
@@ -263,6 +265,10 @@ func _build_obstacles() -> void:
 				mi.mesh = rock
 				mi.material_override = textile.fabric(CLIFF_STONE, CLIFF_FABRIC)
 				_cliff_details(details, base)
+			"ruins":
+				mi.mesh = turf
+				mi.material_override = textile.fabric(RUIN_TURF, {"fuzz": 0.3, "weave_strength": 0.05, "rough": 1.0})
+				_ruin_details(details, base)
 			_:
 				mi.mesh = water
 				mi.material_override = textile.fabric(Color(0.6, 0.58, 0.55), SLOT_FABRIC)
@@ -273,12 +279,16 @@ func _build_obstacles() -> void:
 	var crag: Array = []
 	for h: Vector2i in game.obstacles:
 		var kind: String = game.obstacles[h]
-		var y := CLIFF_H + 0.012 if kind == "cliff" else LAKE_H + 0.012
+		var y := LAKE_H + 0.012
+		if kind == "cliff":
+			y = CLIFF_H + 0.012
+		elif kind == "ruins":
+			y = RUIN_H + 0.012
 		for i in 6:
 			if game.obstacles.get(Hex.neighbor(h, i), "") == kind:
 				continue
 			var seg := [hex_pos(h, y) + _corner3(i), hex_pos(h, y) + _corner3(i + 1)]
-			(crag if kind == "cliff" else shore).append(seg)
+			(shore if kind == "lake" else crag).append(seg)
 	if not shore.is_empty():
 		_obstacles.add_child(textile.stitches(shore, 3, 0.16, 0.03, SHORE_THREAD))
 	if not crag.is_empty():
@@ -286,6 +296,69 @@ func _build_obstacles() -> void:
 	var batch := MeshInstance3D.new()
 	batch.mesh = details.commit()
 	_obstacles.add_child(batch)
+
+
+const RUIN_H := 0.1
+const RUIN_TURF := Color(0.56, 0.62, 0.42)
+const RUIN_STONE := Color(0.72, 0.69, 0.62)
+var _perches := {}         # ruin plot -> the top of its gable, where owls sit
+
+
+## A roofless felt chapel: stone walls with a gap knocked through one side, a
+## standing gable end, fallen stones, ivy and wildflowers in the turf.
+func _ruin_details(batch: MeshBatch, base: Vector2i) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(base) ^ 0xc4a9e1
+	var box := BoxMesh.new()
+	var ball := SphereMesh.new()
+	ball.radius = 0.5
+	ball.height = 1.0
+	ball.radial_segments = 8
+	ball.rings = 4
+	var prism := CylinderMesh.new()
+	prism.top_radius = 0.5
+	prism.bottom_radius = 0.5
+	prism.height = 1.0
+	prism.radial_segments = 3
+	var felt := {"fuzz": 0.3, "weave_strength": 0.08, "weave_scale": 18.0, "rough": 1.0}
+	var stone := textile.fabric(RUIN_STONE, felt)
+	var hexes := PlotGrid.plot_hexes(base)
+	var c := Vector3.ZERO
+	for h in hexes:
+		c += hex_pos(h, RUIN_H) / 3.0
+	var turn := Basis(Vector3.UP, rng.randf() * PI)
+	var length := 1.5
+	var width := 0.8
+	var wall_h := 0.42
+	var t := 0.08
+	# Long walls; one has a gap.
+	for side in [-1.0, 1.0]:
+		if side < 0.0:
+			for part in [[-0.75, -0.15], [0.2, 0.75]]:
+				var mid: float = (part[0] + part[1]) / 2.0
+				var len: float = part[1] - part[0]
+				var hgt := wall_h * rng.randf_range(0.6, 1.0)
+				batch.add(box, Transform3D(turn.scaled(Vector3(len, hgt, t)), c + turn * Vector3(mid, hgt / 2.0, side * width / 2.0)), Color.WHITE, stone)
+		else:
+			batch.add(box, Transform3D(turn.scaled(Vector3(length, wall_h, t)), c + turn * Vector3(0, wall_h / 2.0, side * width / 2.0)), Color.WHITE, stone)
+	# Gable end, standing tall, with a triangle on top; the other end is low.
+	batch.add(box, Transform3D(turn.scaled(Vector3(t, wall_h, width)), c + turn * Vector3(length / 2.0, wall_h / 2.0, 0)), Color.WHITE, stone)
+	var gable := turn * Basis(Vector3.UP, PI / 2.0) * Basis(Vector3.RIGHT, PI / 2.0) * Basis(Vector3.UP, PI / 6.0)
+	batch.add(prism, Transform3D(gable.scaled(Vector3(width * 1.05, t, width * 1.05)), c + turn * Vector3(length / 2.0, wall_h + 0.2, 0)), Color.WHITE, stone)
+	_perches[base] = c + turn * Vector3(length / 2.0, wall_h + 0.42, 0)
+	batch.add(box, Transform3D(turn.scaled(Vector3(t, wall_h * 0.4, width * 0.7)), c + turn * Vector3(-length / 2.0, wall_h * 0.2, -0.05)), Color.WHITE, stone)
+	# Fallen stones, ivy and flowers.
+	for k in rng.randi_range(5, 8):
+		var off := Vector3(rng.randf_range(-1.0, 1.0), 0, rng.randf_range(-0.8, 0.8))
+		var sz := rng.randf_range(0.07, 0.13)
+		batch.add(ball, Transform3D(Basis().scaled(Vector3(sz, sz * 0.7, sz)), c + off + Vector3(0, sz * 0.3, 0)), Color.WHITE, stone)
+	for k in rng.randi_range(6, 9):
+		var off := turn * Vector3(rng.randf_range(-0.7, 0.7), rng.randf_range(0.1, wall_h), rng.randf_range(-0.42, 0.42))
+		batch.add(ball, Transform3D(Basis().scaled(Vector3.ONE * 0.07), c + off), Color.WHITE, textile.fabric(Color(0.3, 0.46, 0.26), felt))
+	for k in rng.randi_range(4, 7):
+		var off := Vector3(rng.randf_range(-1.0, 1.0), 0.02, rng.randf_range(-0.8, 0.8))
+		var col: Color = BiomeDecor.FLOWER_COLORS[rng.randi() % BiomeDecor.FLOWER_COLORS.size()]
+		batch.add(ball, Transform3D(Basis().scaled(Vector3.ONE * 0.05), c + off), Color.WHITE, textile.satin(col))
 
 
 const CLIFF_H := 0.62
@@ -668,14 +741,19 @@ func add_animal(id: String, corridor: Array, animate: bool) -> void:
 	var animal: Dictionary = game.animal(id)
 	var at := _animal_spot(animal, corridor)
 	var spot := vertex_pos(at, SEAM_H)
-	# Animals that love the cliff perch on top of it, next to their bloom.
-	if animal.get("needs", {}).get("near", "") == "cliff":
+	# Animals that love the cliff or the ruins perch on top, near their bloom.
+	var near: String = animal.get("needs", {}).get("near", "")
+	if near == "cliff" or near == "ruins":
 		var best := INF
+		var ruin_spot := Vector3.ZERO
 		for h: Vector2i in game.obstacles:
 			var d := hex_pos(h).distance_to(spot)
-			if game.obstacles[h] == "cliff" and d < best:
+			if game.obstacles[h] == near and d < best:
 				best = d
-				spot = hex_pos(h, CLIFF_H)
+				ruin_spot = hex_pos(h, CLIFF_H)
+				if near == "ruins":
+					ruin_spot = _perches.get(PlotGrid.plot_of(h), hex_pos(h, RUIN_H))
+		spot = ruin_spot
 	var node := Node3D.new()
 	node.position = spot
 	node.add_child(FeltAnimal.build(textile, id))

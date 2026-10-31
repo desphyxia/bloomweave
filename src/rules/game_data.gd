@@ -85,8 +85,9 @@ func validate() -> Array[String]:
 		var pattern: Dictionary = a.get("pattern", {})
 		if a.get("hidden", false) and not ["biome_patch", "biome_near"].has(pattern.get("kind", "")):
 			errors.append("Visitor %s has an unknown pattern." % a.id)
-		if pattern.has("biome") and not biomes.has(pattern.biome):
-			errors.append("Visitor %s needs unknown biome %s." % [a.id, pattern.biome])
+		for b: Variant in (pattern.biome if pattern.get("biome") is Array else [pattern.get("biome", "")]):
+			if pattern.has("biome") and not biomes.has(b):
+				errors.append("Visitor %s needs unknown biome %s." % [a.id, b])
 		var needs: Dictionary = a.get("needs", {})
 		if needs.has("biome") and not biomes.has(needs.biome):
 			errors.append("Animal %s needs unknown biome %s." % [a.id, needs.biome])

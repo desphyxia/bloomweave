@@ -708,7 +708,8 @@ func animal_progress(id: String) -> Array:
 
 ## The valley's hidden visitor ({} if none). Its `pattern` is the secret:
 ##   biome_patch - `min_hexes` hexes of `biome` joined in one patch
-##   biome_near  - `min_hexes` hexes of `biome` next to an obstacle `near`
+##   biome_near  - `min_hexes` hexes of `biome` (or any of a list of
+##                 biomes) next to an obstacle `near`
 func visitor() -> Dictionary:
 	return data.animals.get(valley.get("visitor", ""), {})
 
@@ -723,8 +724,9 @@ func visitor_progress() -> Dictionary:
 		"biome_patch":
 			hexes = largest_patch(pattern.biome)
 		"biome_near":
+			var kinds: Array = pattern.biome if pattern.biome is Array else [pattern.biome]
 			for h: Vector2i in board:
-				if board[h] != pattern.biome:
+				if not kinds.has(board[h]):
 					continue
 				for nb in Hex.neighbors(h):
 					if obstacles.get(nb, "") == pattern.near:

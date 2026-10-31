@@ -18,6 +18,10 @@ static func build(textile: Textile, id: String, size: float = 1.0) -> Node3D:
 		return _hedgehog(textile, size)
 	if id == "dormouse":
 		return _dormouse(textile, size)
+	if id == "owls":
+		return _owl(textile, size)
+	if id == "fox":
+		return _fox(textile, size)
 	if id == "eagles":
 		return _eagle(textile, size)
 	if id == "wildcat":
@@ -229,4 +233,53 @@ static func _dormouse(textile: Textile, size: float) -> Node3D:
 	for k in 4:
 		var t := float(k) / 3.0
 		_part(textile, node, ball, gold.darkened(0.05), Vector3(-0.14 - t * 0.08, 0.12 + t * 0.12, 0) * size, Vector3(0.08, 0.08, 0.08) * size)
+	return node
+
+
+## A round tawny owl with big pale face discs.
+static func _owl(textile: Textile, size: float) -> Node3D:
+	var node := Node3D.new()
+	var ball := SphereMesh.new()
+	ball.radius = 0.5
+	ball.height = 1.0
+	var tawny := Color(0.55, 0.38, 0.24)
+	_part(textile, node, ball, tawny, Vector3(0, 0.2, 0) * size, Vector3(0.26, 0.36, 0.24) * size)
+	_part(textile, node, ball, tawny.lightened(0.05), Vector3(0.02, 0.44, 0) * size, Vector3(0.24, 0.2, 0.24) * size)
+	for side in [-1.0, 1.0]:
+		_part(textile, node, ball, Color(0.86, 0.76, 0.6), Vector3(0.1, 0.45, side * 0.055) * size, Vector3(0.05, 0.09, 0.08) * size)
+		_part(textile, node, ball, Color(0.08, 0.07, 0.07), Vector3(0.135, 0.46, side * 0.055) * size, Vector3.ONE * 0.035 * size)
+	_part(textile, node, ball, Color(0.9, 0.75, 0.3), Vector3(0.14, 0.41, 0) * size, Vector3(0.03, 0.04, 0.025) * size)
+	return node
+
+
+## A red fox with a white-tipped brush.
+static func _fox(textile: Textile, size: float) -> Node3D:
+	var node := Node3D.new()
+	var ball := SphereMesh.new()
+	ball.radius = 0.5
+	ball.height = 1.0
+	var cone := CylinderMesh.new()
+	cone.top_radius = 0.0
+	cone.bottom_radius = 0.5
+	cone.height = 1.0
+	cone.radial_segments = 6
+	var red := Color(0.82, 0.4, 0.16)
+	_part(textile, node, ball, red, Vector3(0, 0.22, 0) * size, Vector3(0.44, 0.22, 0.2) * size)
+	_part(textile, node, ball, red, Vector3(0.26, 0.32, 0) * size, Vector3(0.17, 0.15, 0.15) * size)
+	var snout := MeshInstance3D.new()
+	snout.mesh = cone
+	snout.scale = Vector3(0.1, 0.16, 0.1) * size
+	snout.position = Vector3(0.38, 0.3, 0) * size
+	snout.rotation.z = -PI / 2.0
+	snout.material_override = textile.fabric(Color(0.95, 0.92, 0.86), FELT)
+	node.add_child(snout)
+	for side in [-1.0, 1.0]:
+		var ear := MeshInstance3D.new()
+		ear.mesh = cone
+		ear.scale = Vector3(0.07, 0.1, 0.05) * size
+		ear.position = Vector3(0.24, 0.43, side * 0.06) * size
+		ear.material_override = textile.fabric(red.darkened(0.2), FELT)
+		node.add_child(ear)
+	_part(textile, node, ball, red, Vector3(-0.3, 0.22, 0) * size, Vector3(0.24, 0.12, 0.12) * size)
+	_part(textile, node, ball, Color(0.96, 0.94, 0.9), Vector3(-0.44, 0.21, 0) * size, Vector3(0.08, 0.08, 0.08) * size)
 	return node

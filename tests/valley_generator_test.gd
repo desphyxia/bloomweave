@@ -71,3 +71,16 @@ func test_cliff_ridge_is_a_line_inside_a_whole_valley() -> void:
 					seen[q] = true
 					stack.append(q)
 		assert_int(seen.size()).is_equal(plots.size())
+
+
+func test_ruin_stands_inside_the_valley() -> void:
+	for s in range(4):
+		var g := ValleyGenerator.generate(500 + s, 28, 0, 1)
+		assert_int(g.obstacles.size()).is_equal(1)
+		assert_str(g.obstacles[0].kind).is_equal("ruins")
+		var ruin: Vector2i = g.obstacles[0].plots[0]
+		var plots: Array[Vector2i] = g.plots
+		assert_bool(plots.has(ruin)).is_false()
+		for q in PlotGrid.plot_neighbors(ruin):
+			assert_bool(plots.has(q)).is_true()
+		assert_bool(PlotGrid.plot_neighbors(g.landmark).has(ruin)).is_false()

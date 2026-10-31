@@ -1,0 +1,70 @@
+{
+  "id": "chapel_garth",
+  "name": "Chapel Garth",
+  "intro": "New in Chapel Garth: the ruins of an old chapel stand in the valley. Owls want blooms beside them. Blooms need clockwise order again.",
+  "target_plots": 30,
+  "ruins": 1,
+  "biomes": [
+    "forest",
+    "meadow",
+    "wetland",
+    "heath",
+    "hedgerow"
+  ],
+  "landmark": {
+    "name": "Old Oak",
+    "biomes": [
+      "forest",
+      "meadow",
+      "hedgerow"
+    ]
+  },
+  "blooms": [
+    "fern_hollow",
+    "foxglove_glade",
+    "misty_carr",
+    "bramble_bank",
+    "rosehip_lane",
+    "deep_wood"
+  ],
+  "pile_share": {
+    "double": 0.3
+  },
+  "pile_weights": {
+    "forest": 1.8
+  },
+  "animals": [
+    {
+      "id": "owls",
+      "description": "A corridor of 4+ blooms, with 2+ of them beside the ruins.",
+      "needs": {
+        "min_blooms": 4,
+        "near": "ruins",
+        "min_near_blooms": 2
+      }
+    },
+    {
+      "id": "badger",
+      "description": "A corridor of 4+ blooms, with a Deep Wood in it.",
+      "needs": {
+        "min_blooms": 4,
+        "bloom": "deep_wood",
+        "min_bloom_count": 1
+      }
+    }
+  ],
+  "visitor": "fox",
+  "bloom_order": "clockwise",
+  "scoring": {
+    "bloom": 2,
+    "combo_step": 1,
+    "perfect_seeds": 5,
+    "seeds_per_point": 3
+  },
+  "seed_costs": {
+    "set_aside": 1,
+    "swap": 1,
+    "look_ahead": 2
+  },
+  "look_ahead_count": 3
+}

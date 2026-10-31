@@ -18,9 +18,10 @@ func _init() -> void:
 	var results := []
 	for i in count:
 		var gen_seed := 1000 + i
-		var gen := ValleyGenerator.generate(gen_seed, int(template.target_plots), int(template.get("cliff_plots", 0)))
-		if int(template.get("cliff_plots", 0)) > 0 and gen.obstacles.is_empty():
-			print("seed %d: no room for the cliff" % gen_seed)
+		var want := int(template.get("cliff_plots", 0) > 0) + int(template.get("ruins", 0) > 0)
+		var gen := ValleyGenerator.generate(gen_seed, int(template.target_plots), int(template.get("cliff_plots", 0)), int(template.get("ruins", 0)))
+		if gen.obstacles.size() < want:
+			print("seed %d: no room for the obstacles" % gen_seed)
 			continue
 		var valley := level_from(template, gen)
 		var errors := data.validate_valley(valley)
@@ -53,6 +54,7 @@ static func level_from(template: Dictionary, gen: Dictionary) -> Dictionary:
 	v.erase("target_plots")
 	v.erase("pile_share")
 	v.erase("cliff_plots")
+	v.erase("ruins")
 	if not gen.obstacles.is_empty():
 		var obstacles := []
 		for o: Dictionary in gen.obstacles:
