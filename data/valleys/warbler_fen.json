@@ -1,0 +1,144 @@
+{
+  "id": "warbler_fen",
+  "name": "Warbler Fen",
+  "intro": "New in Warbler Fen: Reed Bed, a bloom of two wetlands and a meadow. Reed warblers want Reed Beds in their corridor. Blooms still need clockwise order.",
+  "biomes": [
+    "forest",
+    "meadow",
+    "wetland",
+    "heath",
+    "hedgerow"
+  ],
+  "outline": {
+    "plots": [
+      [-7, 2],
+      [-6, 3],
+      [-5, 1],
+      [-5, 4],
+      [-4, -1],
+      [-4, 5],
+      [-3, 6],
+      [-2, -2],
+      [-2, 1],
+      [-2, 4],
+      [-1, -4],
+      [-1, -1],
+      [-1, 2],
+      [-1, 5],
+      [0, -3],
+      [0, 0],
+      [0, 3],
+      [1, -5],
+      [1, -2],
+      [1, 1],
+      [1, 4],
+      [2, -4],
+      [2, -1],
+      [2, 2],
+      [3, -6],
+      [3, -3],
+      [3, 0],
+      [4, -5],
+      [4, -2],
+      [5, -7],
+      [5, -4],
+      [6, -6]
+    ]
+  },
+  "obstacles": [
+    {
+      "kind": "lake",
+      "plots": [
+        [-3, 0],
+        [-4, 2],
+        [-3, 3]
+      ]
+    }
+  ],
+  "landmark": {
+    "biomes": [
+      "forest",
+      "meadow",
+      "wetland"
+    ],
+    "name": "Old Oak",
+    "plot": [0, 0]
+  },
+  "blooms": [
+    "reed_bed",
+    "fern_hollow",
+    "misty_carr",
+    "cotton_grass_moor",
+    "willow_hedge",
+    "sloe_thicket"
+  ],
+  "pile": {
+    "distinct": 22,
+    "double": 9,
+    "single": 0,
+    "weights": {
+      "wetland": 1.6
+    }
+  },
+  "animals": [
+    "reed_warblers",
+    {
+      "description": "A corridor of 5+ blooms, with 2+ of them by the lake.",
+      "id": "otter",
+      "needs": {
+        "min_blooms": 5,
+        "min_near_blooms": 2,
+        "near": "lake"
+      }
+    }
+  ],
+  "visitor": "kingfisher",
+  "bloom_order": "clockwise",
+  "scoring": {
+    "bloom": 2,
+    "combo_step": 1,
+    "perfect_seeds": 5,
+    "seeds_per_point": 3
+  },
+  "seed_costs": {
+    "look_ahead": 2,
+    "set_aside": 1,
+    "swap": 1
+  },
+  "look_ahead_count": 3,
+  "terrain": {
+    "hills": [
+      [16.72, 0.96, 6.72, 3.58],
+      [12.31, 4.73, 4.97, 2.73],
+      [7.45, 14.09, 5.29, 3.78],
+      [1.66, 16.32, 5.6, 2.48],
+      [-7.5, 10.02, 1.84, 1.34],
+      [-12.72, 4.85, 3.66, 1.22],
+      [-16.28, -1.57, 4.63, 2.5],
+      [-8.96, -8.53, 3.26, 2.09],
+      [-4.21, -11.16, 3.12, 1.85],
+      [-2.2, -16.38, 7.41, 1.94],
+      [5.88, -10.59, 1.92, 1.47],
+      [13.18, -9.12, 3.52, 1.64],
+      [5.77, 14.44, 3.59, 2.66],
+      [6.23, 10.63, 2.58, 1.99]
+    ]
+  },
+  "generated_from": {
+    "seed": 1026,
+    "metrics": {
+      "bloom_spots": 35,
+      "blooms": 17.75,
+      "interior": 9,
+      "plots": 32,
+      "score": 0.95375,
+      "seed": 1026,
+      "settle": {
+        "otter": 58,
+        "reed_warblers": 58
+      },
+      "visitor_chance": 0,
+      "visitor_sought": 75
+    }
+  }
+}

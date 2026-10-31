@@ -480,7 +480,7 @@ placing well); the dropped open mode would have brought it back. Progression thr
 
 ## Prototype scope (built)
 
-- Six Progression levels, picked from a simple list with stars (saved on
+- Seven Progression levels, picked from a simple list with stars (saved on
   the device; finishing a level opens the next):
   - *1. Heatherfold:* 19 plots in a round outline around the landmark,
     biomes forest, meadow, wetland, heath; otters and deer.
@@ -512,6 +512,14 @@ placing well); the dropped open mode would have brought it back. Progression thr
     Residents **tawny owls** (4+ blooms, 2+ beside the ruins; they perch on
     the gable) and **badgers** (4+ blooms with a Deep Wood); hidden visitor
     the **red fox** (7+ meadow or hedgerow hexes touching the ruins).
+  - *7. Warbler Fen:* generated, 32 plots with a generated 3-plot **lake**
+    beside the landmark (designer's pick of 6 from 32). Introduces **Reed
+    Bed** (two wetlands + a meadow, the first two-plus-one bloom); recipes
+    Reed Bed, Fern Hollow, Misty Carr, Cotton-grass Moor, Willow Hedge,
+    Sloe Thicket, so wetland is the hub (wetland drawn 1.6×). Clockwise.
+    Residents **reed warblers** (5+ blooms with 2+ Reed Beds) and otters
+    (5+ blooms, 2+ by the lake); hidden visitor the **kingfisher** (8+
+    wetland hexes touching the lake).
 - Piece list from JSON: mostly three-different pieces plus some doubles.
 - Place, rotate and mirror with a preview of which corners would bloom.
 - The 4 named blooms (data-driven); seeds with set aside, swap, look ahead.
@@ -593,6 +601,12 @@ placing well); the dropped open mode would have brought it back. Progression thr
   29 blooms; simple player owls 25%, badgers 54%, about 17 blooms (it never
   steers toward the ruin). Fox at 8 hexes was 50% sought / 29% for the
   planner; at 7 it is 2% by luck, 85% sought.
+- **Warbler Fen tuning:** planner warblers 83–91%, otters 91–100% on every
+  shortlisted shape (about 29 blooms on the chosen one); simple player
+  warblers 52%, otters 47%. Kingfisher at 8 hexes: 0% by luck, 75% sought.
+  The generator now floods lakes too: a joined set of plots on the
+  valley's low inside ground, not next to the landmark; shapes with no
+  room are skipped.
 - **Level tools:** `tools/generate_levels.gd` (template in
   `tools/level_templates`) generates and scores candidates;
   `tools/candidate_sheet.py` draws a contact sheet; `tools/level_from_candidate.py`
