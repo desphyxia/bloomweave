@@ -249,6 +249,12 @@ blooms now while keeping corridor routes and future corners open.
   Visitors lean to land animals: there are already many flying residents
   (eagles, owls), so level 6's visitor is a fox rather than bats, and level
   4's a wildcat rather than a raven; the kingfisher stays for the lake.
+- **Difficulty targets: calm residents, hard visitors.** Residents should
+  settle for anyone who plans (the planning test player: about 85–100%;
+  the simple greedy player: about 40–90%). The challenge for skilled
+  players is the hidden visitor (about 0–10% by luck, reachable when
+  chased: about 60–95% for the simple player going straight for it) and
+  a best score.
 - **Star goals open levels; stars come from discoveries, never score.** Each
   level has 3 stars: restore the valley, settle all residents, find the
   hidden visitor. Finishing any level always opens its neighbour on the map,
@@ -467,7 +473,7 @@ placing well); the dropped open mode would have brought it back. Progression thr
 
 ## Prototype scope (built)
 
-- Four Progression levels, picked from a simple list with stars (saved on
+- Five Progression levels, picked from a simple list with stars (saved on
   the device; finishing a level opens the next):
   - *1. Heatherfold:* 19 plots in a round outline around the landmark,
     biomes forest, meadow, wetland, heath; otters and deer.
@@ -485,6 +491,13 @@ placing well); the dropped open mode would have brought it back. Progression thr
     **cliff**; residents **golden eagles** (5+ blooms, 2+ by the cliff) and
     otters; hidden visitor the **wildcat** (8+ forest hexes touching the
     cliff). Blooms in any order.
+  - *5. Hawthorn Lea:* generated, 30 broad plots (designer's pick of 6 from
+    40). Introduces **hedgerow**, the fifth biome (coral cord fabric with
+    lines of felt hedge, blossom, dog-roses, berries and the odd stile),
+    with **Bramble Bank** and **Rosehip Lane**; residents **hedgehogs** (a
+    corridor of 6+ blooms going all the way round a piece) and bees;
+    hidden visitor the **hazel dormouse** (8+ joined hedgerow hexes).
+    Blooms in any order.
 - Piece list from JSON: mostly three-different pieces plus some doubles.
 - Place, rotate and mirror with a preview of which corners would bloom.
 - The 4 named blooms (data-driven); seeds with set aside, swap, look ahead.
@@ -547,6 +560,16 @@ placing well); the dropped open mode would have brought it back. Progression thr
   reached when sought, 7 in 98%, 9 in 33%; 8 gives 0% by luck, 85% sought.
   The generator places the ridge on the valley's highest inside ground, in
   a straight line, never next to the landmark, keeping the valley whole.
+- **Planning test player** (`tools/planner.gd`, sim mode `plan`): values a
+  board by points, progress toward each resident's ask and the visitor's
+  pattern, live versus dead corners and seeds; looks one piece ahead for
+  its best few moves; spends seeds on swap and set aside. With it,
+  residents settle in 85–100% of games in every level so far (simple
+  player 40–90%), and blooms go up by about half (Heatherfold 16 → 23 of
+  24). It is poor at visitors (it won't sacrifice blooms for a one-biome
+  patch), so visitors are measured with the simple player's `seek` mode.
+- **Hawthorn Lea tuning:** simple player hedgehogs 43%, bees 58%; planner
+  both ~100%. Dormouse at 8 hedgerow hexes: 1% by luck, 93% sought.
 - **Level tools:** `tools/generate_levels.gd` (template in
   `tools/level_templates`) generates and scores candidates;
   `tools/candidate_sheet.py` draws a contact sheet; `tools/level_from_candidate.py`
