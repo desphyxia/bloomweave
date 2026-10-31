@@ -233,6 +233,14 @@ blooms now while keeping corridor routes and future corners open.
     the obstacle (the same rule as otters by the lake).
   - *Hedgehogs' loop:* linked blooms that go all the way round at least one
     placed piece (so about 6+ blooms).
+  - *Clockwise blooms:* off in Eagle Scar (it teaches the cliff on its own),
+    then on from Hawthorn Lea to the finale.
+  - *Hawthorn Lea uses all five biomes*, listing about 5–6 of the 10 possible
+    trios. Hedgerow brings two new blooms: **Bramble Bank** (hedgerow +
+    forest + meadow: blackberries along the wood's edge) and **Rosehip Lane**
+    (hedgerow + meadow + heath: dog-roses along a sunny lane).
+  - *Warbler Fen* has a lake (for the kingfisher's shore).
+  - *Oakhaven* has a lake and a cliff; the ruins stay special to Chapel Garth.
 
   Visitors lean to land animals: there are already many flying residents
   (eagles, owls), so level 6's visitor is a fox rather than bats, and level
