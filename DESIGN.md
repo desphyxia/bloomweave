@@ -161,7 +161,20 @@ blooms now while keeping corridor routes and future corners open.
     number of them. They're made by **generate, curate, fix**: the
     generator makes many candidates offline, the balance sim plays them,
     the good ones are kept and saved as fixed level files; key levels are
-    hand-made.
+    hand-made. **Curation: Claude shortlists ~6 from the sim's scores, the
+    designer picks.**
+  - *How carving works (built):* hills are domes (a broken ring plus 1–3
+    ridges reaching in, and a few knolls); the valley is "filled with
+    water" from the lowest plot near the middle, taking the lowest edge
+    plot each step, with plots that already touch more of the valley
+    counted a little lower so it stays chunky instead of running out in
+    one-plot strings. Then one-plot inlets are filled and dangling high
+    plots trimmed. The generated hills are saved with the level and drawn
+    around it.
+- **Hills follow every valley's edge.** The landscape measures how far the
+  valley reaches in each direction; faded land is a 2-hex border round the
+  actual shape, and the ring of hills, the stream and the hill life sit
+  just beyond it. A generated level also shows its own hills.
 - **Obstacles as fixed features.** Some valleys have obstacle hexes inside
   the outline (lake, cliff, ruins) that pieces can't fill. Blooms can't use
   them, but they shape the board and can count for animals (e.g. otters
@@ -401,7 +414,7 @@ placing well); the dropped open mode would have brought it back. Progression thr
 
 ## Prototype scope (built)
 
-- Two Progression levels, picked from a simple list with stars (saved on
+- Three Progression levels, picked from a simple list with stars (saved on
   the device; finishing a level opens the next):
   - *1. Heatherfold:* 19 plots in a round outline around the landmark,
     biomes forest, meadow, wetland, heath; otters and deer.
@@ -409,6 +422,11 @@ placing well); the dropped open mode would have brought it back. Progression thr
     plots, 9 hexes) that opens toward the viewer; same biomes plus the
     first same-biome bloom, **Deep Wood** (three forests); otters want blooms
     by the lake, **badgers** want Deep Woods.
+  - *3. Bramblecombe:* the first generated level, 27 plots leaning up the
+    page from a wide lower basin (designer's pick from 6 shortlisted of 40).
+    Introduces **clockwise blooms**; residents deer and **bees** (a 5+ bloom
+    corridor with 2+ Foxglove Glades); hidden visitor the **brown hare**
+    (10+ meadow hexes joined).
 - Piece list from JSON: mostly three-different pieces plus some doubles.
 - Place, rotate and mirror with a preview of which corners would bloom.
 - The 4 named blooms (data-driven); seeds with set aside, swap, look ahead.
@@ -459,6 +477,15 @@ placing well); the dropped open mode would have brought it back. Progression thr
 - **Stars:** restored; all residents settled; hidden visitor found.
   Residents settled in an unfinished game still count when you leave to the
   level list.
+- **Bramblecombe tuning** (100 runs, greedy player): about 17.6 blooms,
+  deer settle in 47%, bees in 59% (a step up from Willowmere's 87% / 46%
+  with the clockwise rule). Hare: 6 meadow hexes were reached in 91–100%
+  of sought runs, so it needs 10 (0% by chance, 81% sought; 12 gave 60%).
+  Bigger valleys need bigger patches.
+- **Level tools:** `tools/generate_levels.gd` (template in
+  `tools/level_templates`) generates and scores candidates;
+  `tools/candidate_sheet.py` draws a contact sheet; `tools/level_from_candidate.py`
+  saves the chosen one as a level and adds it to the progression.
 - **Visitor tuning** (100 runs each; "sought" = a greedy player that goes for
   the pattern first, without seed actions): grouse at 6 heath hexes comes by
   chance in 4% of runs and in 48% when sought (7 hexes: 1% / 35%); heron at 6

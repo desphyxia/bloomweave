@@ -16,6 +16,10 @@ const LOOKS := {
 static func build(textile: Textile, id: String, size: float = 1.0) -> Node3D:
 	if id == "grouse" or id == "heron":
 		return _bird(textile, id, size)
+	if id == "bees":
+		return _bees(textile, size)
+	if id == "hare":
+		return _hare(textile, size)
 	var look: Array = LOOKS.get(id, LOOKS.otter)
 	var node := Node3D.new()
 	var body := MeshInstance3D.new()
@@ -91,4 +95,40 @@ static func _bird(textile: Textile, id: String, size: float) -> Node3D:
 		_part(textile, node, ball, Color(0.15, 0.15, 0.17), Vector3(0.15, 0.8, 0) * size, Vector3(0.08, 0.03, 0.06) * size)
 		_part(textile, node, stick, beak, Vector3(0.27, 0.76, 0) * size, Vector3(0.02, 0.16, 0.02) * size)
 		(node.get_child(node.get_child_count() - 1) as Node3D).rotation.z = PI / 2.0
+	return node
+
+
+## A little swarm: three striped felt bees hovering at different heights.
+static func _bees(textile: Textile, size: float) -> Node3D:
+	var node := Node3D.new()
+	var ball := SphereMesh.new()
+	ball.radius = 0.5
+	ball.height = 1.0
+	for i in 3:
+		var at := Vector3(cos(i * 2.1) * 0.18, 0.35 + i * 0.12, sin(i * 2.1) * 0.18) * size
+		_part(textile, node, ball, Color(0.96, 0.78, 0.18), at, Vector3(0.14, 0.1, 0.1) * size)
+		_part(textile, node, ball, Color(0.16, 0.14, 0.12), at + Vector3(-0.03, 0, 0) * size, Vector3(0.04, 0.105, 0.105) * size)
+		for side in [-1.0, 1.0]:
+			_part(textile, node, ball, Color(0.95, 0.97, 1.0), at + Vector3(0, 0.05, side * 0.05) * size, Vector3(0.07, 0.02, 0.06) * size)
+	return node
+
+
+## A brown hare sitting up, with long ears.
+static func _hare(textile: Textile, size: float) -> Node3D:
+	var node := Node3D.new()
+	var ball := SphereMesh.new()
+	ball.radius = 0.5
+	ball.height = 1.0
+	var brown := Color(0.62, 0.46, 0.3)
+	_part(textile, node, ball, brown, Vector3(0, 0.2, 0) * size, Vector3(0.34, 0.3, 0.24) * size)
+	_part(textile, node, ball, brown.lightened(0.08), Vector3(0.14, 0.38, 0) * size, Vector3(0.17, 0.15, 0.14) * size)
+	for side in [-1.0, 1.0]:
+		var ear := MeshInstance3D.new()
+		ear.mesh = ball
+		ear.scale = Vector3(0.06, 0.26, 0.04) * size
+		ear.position = Vector3(0.1, 0.56, side * 0.04) * size
+		ear.rotation.z = 0.25
+		ear.material_override = textile.fabric(brown.darkened(0.1), FELT)
+		node.add_child(ear)
+	_part(textile, node, ball, Color(0.95, 0.94, 0.9), Vector3(-0.17, 0.16, 0) * size, Vector3.ONE * 0.09 * size)
 	return node

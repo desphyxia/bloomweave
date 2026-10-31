@@ -1,0 +1,41 @@
+{
+  "id": "bramblecombe",
+  "name": "Bramblecombe",
+  "intro": "New in Bramblecombe: blooms need their biomes in clockwise order, as shown in the Blooms panel. Use Mirror to flip a piece's order.",
+  "target_plots": 26,
+  "biomes": [
+    "forest",
+    "meadow",
+    "wetland",
+    "heath"
+  ],
+  "landmark": {
+    "name": "Old Oak",
+    "biomes": [
+      "forest",
+      "meadow",
+      "wetland"
+    ]
+  },
+  "pile_share": {
+    "double": 0.22
+  },
+  "animals": [
+    "deer",
+    "bees"
+  ],
+  "visitor": "hare",
+  "bloom_order": "clockwise",
+  "scoring": {
+    "bloom": 2,
+    "combo_step": 1,
+    "perfect_seeds": 5,
+    "seeds_per_point": 3
+  },
+  "seed_costs": {
+    "set_aside": 1,
+    "swap": 1,
+    "look_ahead": 2
+  },
+  "look_ahead_count": 3
+}

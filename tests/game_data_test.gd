@@ -4,7 +4,8 @@ extends GdUnitTestSuite
 func test_shipped_data_is_valid() -> void:
 	var d := GameData.load_dir()
 	assert_array(d.validate()).is_empty()
-	for id: String in ["first_valley", "willowmere"]:
+	assert_int(d.levels.size()).is_greater_equal(3)
+	for id: String in d.levels:
 		assert_array(d.validate_valley(d.valley(id))).is_empty()
 	assert_int(d.biome_ids.size()).is_equal(4)
 	assert_int(d.blooms_by_id.size()).is_equal(5)

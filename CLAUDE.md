@@ -32,5 +32,8 @@ questions".
   `godot --path . --rendering-driver opengl3 --resolution 1280x800 -s res://tools/screenshot.gd -- out.png 10 [--level id]`
 - Draw-call breakdown (needs a display):
   `godot --path . --rendering-driver opengl3 -s res://tools/perf_probe.gd -- 13`
+- New levels: `godot --headless --path . -s res://tools/generate_levels.gd -- <template> 40 12 out.json`,
+  then `python3 tools/candidate_sheet.py out.json sheet.png 6` (shortlist for the
+  designer) and `python3 tools/level_from_candidate.py out.json <seed>`
 - Web export: `godot --headless --path . --export-release "Web" build/web/index.html`
   (templates: `scripts/fetch_web_templates.py 4.7.2`)

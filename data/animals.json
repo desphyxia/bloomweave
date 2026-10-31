@@ -64,6 +64,32 @@
       },
       "points": 20,
       "seeds": 5
+    },
+    {
+      "id": "bees",
+      "name": "Bees",
+      "description": "A corridor of 5+ blooms, with 2+ of them Foxglove Glades.",
+      "needs": {
+        "min_blooms": 5,
+        "bloom": "foxglove_glade",
+        "min_bloom_count": 2
+      },
+      "points": 12,
+      "seeds": 3
+    },
+    {
+      "id": "hare",
+      "name": "Brown hare",
+      "hidden": true,
+      "riddle": "Long ears listen where the meadow lies broad and open, field upon field.",
+      "found_text": "10+ meadow hexes joined in one patch.",
+      "pattern": {
+        "kind": "biome_patch",
+        "biome": "meadow",
+        "min_hexes": 10
+      },
+      "points": 20,
+      "seeds": 5
     }
   ]
 }

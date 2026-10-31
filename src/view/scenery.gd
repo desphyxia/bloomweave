@@ -3,9 +3,10 @@ extends Node3D
 ## The land around the valley, in the same quilt style as the board:
 ##   - faded land: grey, washed-out cloth around the plots that gains colour
 ##     next to restored hexes
-##   - quilted hills ringing the valley, with felt trees, sheep, cottages and
-##     a silk stream running down into the valley; hills and stream regain
-##     colour as the valley is restored
+##   - quilted hills that follow the valley's edge (a level's own generated
+##     hills where it has them), with felt trees, sheep, cottages and a silk
+##     stream running down into the valley; hills and stream regain colour
+##     as the valley is restored
 ##   - distant fabric hills and slow felt clouds under a soft sky
 ##   - animals that move in also appear on the hills; a finished valley gets
 ##     birds and chimney smoke
@@ -34,8 +35,9 @@ var _life: Node3D               # animals on the hills, birds, smoke
 var _birds: Node3D
 var _smoke: Array = []          # [MeshInstance3D, origin Vector3, phase]
 var _cottages: Array[Vector3] = []
-var _inner_r := 10.0            # world radius where the hills begin
-var _valley_r := 8.0            # world radius of the valley's plots
+var _centre := Vector2.ZERO     # middle of the valley (world x, z)
+var _edge: PackedFloat32Array   # valley's reach from _centre per EDGE_BINS angle
+const EDGE_BINS := 72
 var _time := 0.0
 
 
@@ -182,13 +184,27 @@ func _ground() -> void:
 
 
 func _faded_land(rng: RandomNumberGenerator) -> void:
-	var valley := {}
-	var max_d := 0
+	_measure_edge()
+	# Faded land: every hex within FADE_MARGIN steps of the valley (or its
+	# lake), so it follows the valley's shape.
+	var taken := {}
 	for base in game.plots:
 		for h in PlotGrid.plot_hexes(base):
-			valley[h] = true
-			max_d = maxi(max_d, Hex.distance(Vector2i.ZERO, h))
-	var outer := max_d + FADE_MARGIN
+			taken[h] = true
+	for h: Vector2i in game.obstacles:
+		taken[h] = true
+	var ring: Array[Vector2i] = []
+	var seen := taken.duplicate()
+	var frontier: Array = taken.keys()
+	for _step in FADE_MARGIN:
+		var next: Array = []
+		for h: Vector2i in frontier:
+			for nb in Hex.neighbors(h):
+				if not seen.has(nb):
+					seen[nb] = true
+					ring.append(nb)
+					next.append(nb)
+		frontier = next
 	var tufts := BiomeDecor._Builder.new()
 	var blade := CapsuleMesh.new()
 	blade.radius = 0.5
@@ -196,21 +212,17 @@ func _faded_land(rng: RandomNumberGenerator) -> void:
 	blade.radial_segments = 4
 	blade.rings = 1
 	var dry := textile.fabric(Color(0.58, 0.55, 0.46), {"fuzz": 0.3, "weave_strength": 0.0})
-	for q in range(-outer, outer + 1):
-		for r in range(-outer, outer + 1):
-			var h := Vector2i(q, r)
-			if valley.has(h) or game.obstacles.has(h) or Hex.distance(Vector2i.ZERO, h) > outer:
-				continue
-			var p := Hex.to_world(h)
-			_faded.append(h)
-			# A few dry, frayed tufts.
-			for k in rng.randi_range(1, 3):
-				var off := Vector2(rng.randf_range(-0.6, 0.6), rng.randf_range(-0.5, 0.5))
-				var y := Textile.patch_height(off, 1.0, FADED_EDGE, FADED_PUFF)
-				for b in 3:
-					var basis := Basis(Vector3.UP, rng.randf() * TAU) * Basis(Vector3.BACK, rng.randf_range(0.3, 0.7))
-					var top := Vector3(p.x + off.x, y, p.y + off.y) + basis.y * 0.07
-					tufts.add("dry", dry, blade, Transform3D(basis.scaled(Vector3(0.018, 0.14, 0.018)), top))
+	for h in ring:
+		var p := Hex.to_world(h)
+		_faded.append(h)
+		# A few dry, frayed tufts.
+		for k in rng.randi_range(1, 3):
+			var off := Vector2(rng.randf_range(-0.6, 0.6), rng.randf_range(-0.5, 0.5))
+			var y := Textile.patch_height(off, 1.0, FADED_EDGE, FADED_PUFF)
+			for b in 3:
+				var basis := Basis(Vector3.UP, rng.randf() * TAU) * Basis(Vector3.BACK, rng.randf_range(0.3, 0.7))
+				var top := Vector3(p.x + off.x, y, p.y + off.y) + basis.y * 0.07
+				tufts.add("dry", dry, blade, Transform3D(basis.scaled(Vector3(0.018, 0.14, 0.018)), top))
 	_faded_land_mi = MeshInstance3D.new()
 	_faded_land_mi.material_override = textile.fabric(Color.WHITE, {"weave_scale": 18.0, "weave_strength": 0.14, "fuzz": 0.22, "rough": 1.0})
 	_faded_land_mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -219,8 +231,52 @@ func _faded_land(rng: RandomNumberGenerator) -> void:
 	t.mesh = tufts.commit()
 	t.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(t)
-	_inner_r = (outer + 0.5) * 1.5
-	_valley_r = (max_d + 0.6) * 1.5
+
+
+## How far the valley (and its lake) reaches from its middle, in each
+## direction, so hills and the stream can follow its edge.
+func _measure_edge() -> void:
+	var pts: Array[Vector2] = []
+	for base in game.plots:
+		for h in PlotGrid.plot_hexes(base):
+			pts.append(Hex.to_world(h))
+	for h: Vector2i in game.obstacles:
+		pts.append(Hex.to_world(h))
+	_centre = Vector2.ZERO
+	for p in pts:
+		_centre += p
+	_centre /= maxf(pts.size(), 1.0)
+	var raw := PackedFloat32Array()
+	raw.resize(EDGE_BINS)
+	for p in pts:
+		var rel := p - _centre
+		var bin := posmod(int(floor((rel.angle() + PI) / TAU * EDGE_BINS)), EDGE_BINS)
+		raw[bin] = maxf(raw[bin], rel.length() + 1.0)
+	# Each direction takes the furthest reach within ±15°, so hills keep
+	# clear of corners that stick out between bins.
+	_edge = PackedFloat32Array()
+	_edge.resize(EDGE_BINS)
+	for i in EDGE_BINS:
+		var r := 0.0
+		for k in range(-3, 4):
+			r = maxf(r, raw[posmod(i + k, EDGE_BINS)])
+		_edge[i] = maxf(r, 2.0)
+
+
+## The valley's reach from its middle at angle `a`.
+func _edge_r(a: float) -> float:
+	var bin := posmod(int(floor((wrapf(a, -PI, PI) + PI) / TAU * EDGE_BINS)), EDGE_BINS)
+	return _edge[bin]
+
+
+## Where the hills start at angle `a`: past the faded land.
+func _inner_r(a: float) -> float:
+	return _edge_r(a) + (FADE_MARGIN + 0.5) * 1.5
+
+
+## A point at angle `a`, `dist` from the valley's middle.
+func _at(a: float, dist: float) -> Vector2:
+	return _centre + Vector2(cos(a), sin(a)) * dist
 
 
 ## All faded hexes as one mesh (one draw call), coloured per hex through
@@ -287,19 +343,32 @@ func _quilted_hills(rng: RandomNumberGenerator) -> void:
 	dome.height = 1.0
 	dome.radial_segments = 28
 	dome.rings = 14
-	var count := 20
 	var seams: Array = []
+	# The level's own hills (from the generator that carved it) come first;
+	# a ring of hills along the valley's edge fills the gaps between them.
+	var level_hills: Array = game.valley.get("terrain", {}).get("hills", [])
+	for lh: Array in level_hills:
+		var height := float(lh[3]) * 1.15
+		_domes.append([Vector2(lh[0], lh[1]), float(lh[2]), height, -height * 0.35])
+	var count := 20
+	for i in count:
+		var a := TAU * i / count + rng.randf_range(-0.1, 0.1)
+		var dist := _inner_r(a) + rng.randf_range(5.0, 9.0)
+		var radius := rng.randf_range(4.5, 7.0)
+		var height := rng.randf_range(2.0, 4.2) * (1.4 if i % 4 == 0 else 1.0)
+		var c := _at(a, dist)
+		if _near_level_hill(c, radius, level_hills.size()):
+			continue
+		_domes.append([c, radius, height, -height * 0.35])
 	# All hills go into one mesh (one draw call); colour rides on the vertices.
 	var hills := MeshBatch.new()
 	hills.textile = textile
-	for i in count:
-		var a := TAU * i / count + rng.randf_range(-0.1, 0.1)
-		var dist := _inner_r + rng.randf_range(5.0, 9.0)
-		var radius := rng.randf_range(4.5, 7.0)
-		var height := rng.randf_range(2.0, 4.2) * (1.4 if i % 4 == 0 else 1.0)
-		var c := Vector2(cos(a), sin(a)) * dist
-		var y0 := -height * 0.35
-		_domes.append([c, radius, height, y0])
+	for i in _domes.size():
+		var d: Array = _domes[i]
+		var c: Vector2 = d[0]
+		var radius: float = d[1]
+		var height: float = d[2]
+		var y0: float = d[3]
 		hills.add(dome, Transform3D(Basis().scaled(Vector3(radius * 2.0, height * 2.0, radius * 2.0)), Vector3(c.x, y0, c.y)),
 			Color.WHITE, textile.fabric(greens[i % greens.size()], {"weave_scale": 6.0, "weave_strength": 0.12, "fuzz": 0.18}))
 		# Quilting: running stitches round the hill at two heights.
@@ -321,6 +390,16 @@ func _quilted_hills(rng: RandomNumberGenerator) -> void:
 	_hill_details(rng)
 
 
+## Whether a ring hill at `c` would mostly overlap one of the first
+## `level_count` domes (the level's own hills).
+func _near_level_hill(c: Vector2, radius: float, level_count: int) -> bool:
+	for i in level_count:
+		var d: Array = _domes[i]
+		if c.distance_to(d[0]) < (radius + float(d[1])) * 0.6:
+			return true
+	return false
+
+
 ## Height of the hills at a point on the ground (0 where there are none).
 func _surface(p: Vector2) -> float:
 	var y := 0.0
@@ -334,8 +413,7 @@ func _surface(p: Vector2) -> float:
 
 ## A point on the hills at angle `a`, `t` of the way up from the inner edge.
 func _hill_point(a: float, t: float) -> Vector3:
-	var dist := _inner_r + 2.0 + t * 8.0
-	var p := Vector2(cos(a), sin(a)) * dist
+	var p := _at(a, _inner_r(a) + 2.0 + t * 8.0)
 	return Vector3(p.x, _surface(p), p.y)
 
 
@@ -415,14 +493,14 @@ func _stream_mesh() -> void:
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var pts: Array[Vector3] = []
-	var start := _inner_r + 9.0
-	var end := _valley_r + 0.4
+	var start := _inner_r(STREAM_ANGLE) + 9.0
+	var end := _edge_r(STREAM_ANGLE) + 0.4
 	var steps := 40
 	for i in steps + 1:
 		var t := float(i) / steps
 		var dist := lerpf(start, end, t)
 		var a := STREAM_ANGLE + sin(t * 7.0) * 0.08
-		var p := Vector2(cos(a), sin(a)) * dist
+		var p := _at(a, dist)
 		var y := maxf(_surface(p), FADED_EDGE + FADED_PUFF) + 0.05
 		pts.append(Vector3(p.x, y, p.y))
 	for i in steps:

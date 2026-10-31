@@ -24,7 +24,7 @@ func _finished_game(id: String, settle_all: bool) -> ValleyGame:
 
 func test_first_level_open_next_opens_when_restored() -> void:
 	var p := Progress.new(data.levels, TEST_PATH)
-	assert_array(data.levels).is_equal(["first_valley", "willowmere"])
+	assert_array(data.levels.slice(0, 2)).is_equal(["first_valley", "willowmere"])
 	assert_bool(p.is_unlocked("first_valley")).is_true()
 	assert_bool(p.is_unlocked("willowmere")).is_false()
 	var half := ValleyGame.new(data, data.valley("first_valley"), 3)
@@ -33,7 +33,7 @@ func test_first_level_open_next_opens_when_restored() -> void:
 	p.record("first_valley", _finished_game("first_valley", false))
 	assert_bool(p.is_unlocked("willowmere")).is_true()
 	assert_str(p.next_level("first_valley")).is_equal("willowmere")
-	assert_str(p.next_level("willowmere")).is_equal("")
+	assert_str(p.next_level(data.levels[-1])).is_equal("")
 
 
 func test_stars_only_add_up_and_save() -> void:

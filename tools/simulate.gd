@@ -15,21 +15,7 @@ func _init() -> void:
 	var settled := {}
 	var by_bloom := {}
 	for i in runs:
-		var g := ValleyGame.new(data, valley, i)
-		while not g.is_finished():
-			var best_plot := g.legal_plots()[0]
-			var best_arr: Array = g.current_piece()
-			var best_n := -1
-			for p in g.legal_plots():
-				for a in Piece.distinct_arrangements(g.current_piece()):
-					var n := g.preview(p, a).size()
-					if seek and not g.visitor_found:
-						n += 10 * _pattern_after(g, p, a)
-					if n > best_n:
-						best_n = n
-						best_plot = p
-						best_arr = a
-			g.place(best_plot, best_arr)
+		var g := Autoplay.play(data, valley, i, seek)
 		totals.blooms += g.blooms.size()
 		totals.score += g.score_breakdown().total
 		totals.seeds += g.seeds
@@ -51,14 +37,3 @@ func _init() -> void:
 		totals.stars / float(runs), ", ".join(animals), 100 * totals.visitor / runs, totals.patch / float(runs), ", ".join(kinds)])
 	quit()
 
-
-## The visitor pattern's progress if `arranged` went on `base` (tries it on
-## the board and takes it back).
-func _pattern_after(g: ValleyGame, base: Vector2i, arranged: Array) -> int:
-	var hexes := PlotGrid.plot_hexes(base)
-	for i in 3:
-		g.board[hexes[i]] = arranged[i]
-	var have: int = g.visitor_progress().have
-	for h in hexes:
-		g.board.erase(h)
-	return have
