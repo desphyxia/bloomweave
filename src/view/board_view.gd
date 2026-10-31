@@ -300,12 +300,13 @@ func _build_obstacles() -> void:
 
 const RUIN_H := 0.1
 const RUIN_TURF := Color(0.56, 0.62, 0.42)
-const RUIN_STONE := Color(0.72, 0.69, 0.62)
+const RUIN_STONE := Color(0.6, 0.57, 0.52)
 var _perches := {}         # ruin plot -> the top of its gable, where owls sit
 
 
-## A roofless felt chapel: stone walls with a gap knocked through one side, a
-## standing gable end, fallen stones, ivy and wildflowers in the turf.
+## A roofless felt chapel, built from stone blocks: two long walls (one
+## broken through), a whole end wall with a stepped gable, a tumbled low end
+## wall, fallen stones, ivy and wildflowers in the turf.
 func _ruin_details(batch: MeshBatch, base: Vector2i) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(base) ^ 0xc4a9e1
@@ -315,50 +316,53 @@ func _ruin_details(batch: MeshBatch, base: Vector2i) -> void:
 	ball.height = 1.0
 	ball.radial_segments = 8
 	ball.rings = 4
-	var prism := CylinderMesh.new()
-	prism.top_radius = 0.5
-	prism.bottom_radius = 0.5
-	prism.height = 1.0
-	prism.radial_segments = 3
 	var felt := {"fuzz": 0.3, "weave_strength": 0.08, "weave_scale": 18.0, "rough": 1.0}
 	var stone := textile.fabric(RUIN_STONE, felt)
-	var hexes := PlotGrid.plot_hexes(base)
+	var dark := textile.fabric(RUIN_STONE.darkened(0.25), felt)
 	var c := Vector3.ZERO
-	for h in hexes:
+	for h in PlotGrid.plot_hexes(base):
 		c += hex_pos(h, RUIN_H) / 3.0
-	var turn := Basis(Vector3.UP, rng.randf() * PI)
-	var length := 1.5
-	var width := 0.8
-	var wall_h := 0.42
-	var t := 0.08
-	# Long walls; one has a gap.
-	for side in [-1.0, 1.0]:
-		if side < 0.0:
-			for part in [[-0.75, -0.15], [0.2, 0.75]]:
-				var mid: float = (part[0] + part[1]) / 2.0
-				var len: float = part[1] - part[0]
-				var hgt := wall_h * rng.randf_range(0.6, 1.0)
-				batch.add(box, Transform3D(turn.scaled(Vector3(len, hgt, t)), c + turn * Vector3(mid, hgt / 2.0, side * width / 2.0)), Color.WHITE, stone)
-		else:
-			batch.add(box, Transform3D(turn.scaled(Vector3(length, wall_h, t)), c + turn * Vector3(0, wall_h / 2.0, side * width / 2.0)), Color.WHITE, stone)
-	# Gable end, standing tall, with a triangle on top; the other end is low.
-	batch.add(box, Transform3D(turn.scaled(Vector3(t, wall_h, width)), c + turn * Vector3(length / 2.0, wall_h / 2.0, 0)), Color.WHITE, stone)
-	var gable := turn * Basis(Vector3.UP, PI / 2.0) * Basis(Vector3.RIGHT, PI / 2.0) * Basis(Vector3.UP, PI / 6.0)
-	batch.add(prism, Transform3D(gable.scaled(Vector3(width * 1.05, t, width * 1.05)), c + turn * Vector3(length / 2.0, wall_h + 0.2, 0)), Color.WHITE, stone)
-	_perches[base] = c + turn * Vector3(length / 2.0, wall_h + 0.42, 0)
-	batch.add(box, Transform3D(turn.scaled(Vector3(t, wall_h * 0.4, width * 0.7)), c + turn * Vector3(-length / 2.0, wall_h * 0.2, -0.05)), Color.WHITE, stone)
+	# Lie along the plot's long axis, so the walls stay on the plot.
+	var turn := Basis(Vector3.UP, PI / 6.0 + PI / 3.0 * rng.randi_range(0, 2))
+	var length := 1.7
+	var width := 0.95
+	var wall_h := 0.6
+	var t := 0.12
+	var block := func(pos: Vector3, size: Vector3, mat: Material) -> void:
+		# Scale in the wall's own frame, then turn it (Basis.scaled would
+		# stretch along world axes and fatten rotated walls).
+		batch.add(box, Transform3D(turn * Basis.from_scale(size), c + turn * (pos + Vector3(0, size.y / 2.0, 0))), Color.WHITE, mat)
+	# Long wall, whole, with a ragged top.
+	for k in 4:
+		var x: float = -length / 2.0 + length * (k + 0.5) / 4.0
+		block.call(Vector3(x, 0, width / 2.0), Vector3(length / 4.0 + 0.01, wall_h * rng.randf_range(0.85, 1.0), t), stone)
+	# Other long wall, broken through in the middle.
+	for k in [0, 3]:
+		var x: float = -length / 2.0 + length * (k + 0.5) / 4.0
+		block.call(Vector3(x, 0, -width / 2.0), Vector3(length / 4.0 + 0.01, wall_h * rng.randf_range(0.55, 0.85), t), stone)
+	# Whole end wall with a stepped gable and a dark arched window.
+	block.call(Vector3(length / 2.0, 0, 0), Vector3(t, wall_h, width + t), stone)
+	block.call(Vector3(length / 2.0, wall_h, 0), Vector3(t, 0.16, width * 0.66), stone)
+	block.call(Vector3(length / 2.0, wall_h + 0.16, 0), Vector3(t, 0.14, width * 0.34), stone)
+	block.call(Vector3(length / 2.0 + 0.01, wall_h * 0.4, 0), Vector3(t * 0.6, wall_h * 0.4, 0.16), dark)
+	# Low, tumbled far end with a doorway.
+	block.call(Vector3(-length / 2.0, 0, width * 0.3), Vector3(t, wall_h * 0.35, width * 0.4), stone)
+	block.call(Vector3(-length / 2.0, 0, -width * 0.32), Vector3(t, wall_h * 0.22, width * 0.36), stone)
 	# Fallen stones, ivy and flowers.
 	for k in rng.randi_range(5, 8):
-		var off := Vector3(rng.randf_range(-1.0, 1.0), 0, rng.randf_range(-0.8, 0.8))
-		var sz := rng.randf_range(0.07, 0.13)
+		var off := turn * Vector3(rng.randf_range(-1.1, 1.1), 0, rng.randf_range(-0.85, 0.85))
+		var sz := rng.randf_range(0.08, 0.14)
 		batch.add(ball, Transform3D(Basis().scaled(Vector3(sz, sz * 0.7, sz)), c + off + Vector3(0, sz * 0.3, 0)), Color.WHITE, stone)
-	for k in rng.randi_range(6, 9):
-		var off := turn * Vector3(rng.randf_range(-0.7, 0.7), rng.randf_range(0.1, wall_h), rng.randf_range(-0.42, 0.42))
-		batch.add(ball, Transform3D(Basis().scaled(Vector3.ONE * 0.07), c + off), Color.WHITE, textile.fabric(Color(0.3, 0.46, 0.26), felt))
-	for k in rng.randi_range(4, 7):
-		var off := Vector3(rng.randf_range(-1.0, 1.0), 0.02, rng.randf_range(-0.8, 0.8))
+	var ivy := textile.fabric(Color(0.27, 0.43, 0.24), felt)
+	for k in rng.randi_range(8, 12):
+		var side := -1.0 if rng.randf() < 0.5 else 1.0
+		var off := Vector3(rng.randf_range(-length / 2.0, length / 2.0), rng.randf_range(0.05, wall_h * 0.85), side * (width / 2.0 + t * 0.55))
+		batch.add(ball, Transform3D(Basis().scaled(Vector3(0.11, 0.1, 0.05)), c + turn * off), Color.WHITE, ivy)
+	for k in rng.randi_range(5, 8):
+		var off := turn * Vector3(rng.randf_range(-1.1, 1.1), 0.02, rng.randf_range(-0.85, 0.85))
 		var col: Color = BiomeDecor.FLOWER_COLORS[rng.randi() % BiomeDecor.FLOWER_COLORS.size()]
-		batch.add(ball, Transform3D(Basis().scaled(Vector3.ONE * 0.05), c + off), Color.WHITE, textile.satin(col))
+		batch.add(ball, Transform3D(Basis().scaled(Vector3.ONE * 0.06), c + off), Color.WHITE, textile.satin(col))
+	_perches[base] = c + turn * Vector3(length / 2.0, wall_h + 0.3, 0)
 
 
 const CLIFF_H := 0.62

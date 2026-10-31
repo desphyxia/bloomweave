@@ -172,7 +172,7 @@
       "name": "Red fox",
       "hidden": true,
       "riddle": "A russet coat slips along the old walls where field and hedge crowd the stones.",
-      "found_text": "8+ meadow or hedgerow hexes touching the ruins.",
+      "found_text": "7+ meadow or hedgerow hexes touching the ruins.",
       "pattern": {
         "kind": "biome_near",
         "biome": [
@@ -180,7 +180,7 @@
           "hedgerow"
         ],
         "near": "ruins",
-        "min_hexes": 8
+        "min_hexes": 7
       },
       "points": 20,
       "seeds": 5,

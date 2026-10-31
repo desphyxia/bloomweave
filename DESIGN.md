@@ -480,7 +480,7 @@ placing well); the dropped open mode would have brought it back. Progression thr
 
 ## Prototype scope (built)
 
-- Five Progression levels, picked from a simple list with stars (saved on
+- Six Progression levels, picked from a simple list with stars (saved on
   the device; finishing a level opens the next):
   - *1. Heatherfold:* 19 plots in a round outline around the landmark,
     biomes forest, meadow, wetland, heath; otters and deer.
@@ -505,6 +505,13 @@ placing well); the dropped open mode would have brought it back. Progression thr
     corridor of 6+ blooms going all the way round a piece) and bees;
     hidden visitor the **hazel dormouse** (8+ joined hedgerow hexes).
     Blooms in any order.
+  - *6. Chapel Garth:* generated, 31 broad plots with one **ruined chapel**
+    plot east of the landmark (designer's pick of 6 from 40). Clockwise
+    blooms return. All five biomes; recipes Fern Hollow, Foxglove Glade,
+    Misty Carr, Deep Wood, Bramble Bank, Rosehip Lane (forest drawn 1.8×).
+    Residents **tawny owls** (4+ blooms, 2+ beside the ruins; they perch on
+    the gable) and **badgers** (4+ blooms with a Deep Wood); hidden visitor
+    the **red fox** (7+ meadow or hedgerow hexes touching the ruins).
 - Piece list from JSON: mostly three-different pieces plus some doubles.
 - Place, rotate and mirror with a preview of which corners would bloom.
 - The 4 named blooms (data-driven); seeds with set aside, swap, look ahead.
@@ -579,6 +586,13 @@ placing well); the dropped open mode would have brought it back. Progression thr
   hedgerow): simple player about 27 blooms, hedgehogs 56%, bees 80%;
   planner 35 blooms, both 100%. Each of the six recipes grows 4–5 times a
   game. Dormouse at 8 hedgerow hexes: 0% by luck, 86% sought.
+- **Chapel Garth tuning:** first draft (owls 5 blooms / 2 by the ruins,
+  badgers 2 Deep Woods) gave the planner owls 33–91% and badgers 41% across
+  shapes. Easing owls to 4 blooms, badgers to one Deep Wood and drawing
+  forest 1.8× gives the chosen shape: planner owls 91%, badgers 95%, about
+  29 blooms; simple player owls 25%, badgers 54%, about 17 blooms (it never
+  steers toward the ruin). Fox at 8 hexes was 50% sought / 29% for the
+  planner; at 7 it is 2% by luck, 85% sought.
 - **Level tools:** `tools/generate_levels.gd` (template in
   `tools/level_templates`) generates and scores candidates;
   `tools/candidate_sheet.py` draws a contact sheet; `tools/level_from_candidate.py`

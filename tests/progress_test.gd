@@ -87,7 +87,8 @@ func test_journal_lists_what_the_levels_use() -> void:
 	assert_bool(bloom_ids.has("fern_hollow")).is_true()
 	for b: Dictionary in e.blooms:
 		if b.id == "deep_wood":
-			assert_array(b.levels).is_equal(["willowmere"])
+			assert_array(b.levels).contains(["willowmere"])
+			assert_bool(b.levels.has("first_valley")).is_false()
 		if b.id == "fern_hollow":
 			assert_int(b.levels.size()).is_equal(data.levels.size())
 	var visitors: Array = e.visitors.map(func(x: Dictionary) -> String: return x.id)

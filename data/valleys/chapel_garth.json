@@ -1,0 +1,149 @@
+{
+  "id": "chapel_garth",
+  "name": "Chapel Garth",
+  "intro": "New in Chapel Garth: the ruins of an old chapel stand in the valley. Owls want blooms beside them. Blooms need clockwise order again.",
+  "biomes": [
+    "forest",
+    "meadow",
+    "wetland",
+    "heath",
+    "hedgerow"
+  ],
+  "outline": {
+    "plots": [
+      [-6, 0],
+      [-5, -2],
+      [-5, 1],
+      [-4, -1],
+      [-4, 2],
+      [-3, -3],
+      [-3, 0],
+      [-2, -2],
+      [-2, 1],
+      [-1, -4],
+      [-1, -1],
+      [-1, 2],
+      [0, -3],
+      [0, 0],
+      [0, 3],
+      [1, -5],
+      [1, -2],
+      [1, 1],
+      [1, 4],
+      [2, -4],
+      [2, -1],
+      [2, 2],
+      [3, -6],
+      [3, -3],
+      [3, 0],
+      [3, 3],
+      [4, -5],
+      [4, 1],
+      [5, -4],
+      [5, -1],
+      [6, -3]
+    ]
+  },
+  "obstacles": [
+    {
+      "kind": "ruins",
+      "plots": [
+        [4, -2]
+      ]
+    }
+  ],
+  "landmark": {
+    "biomes": [
+      "forest",
+      "meadow",
+      "hedgerow"
+    ],
+    "name": "Old Oak",
+    "plot": [-1, -1]
+  },
+  "blooms": [
+    "fern_hollow",
+    "foxglove_glade",
+    "misty_carr",
+    "bramble_bank",
+    "rosehip_lane",
+    "deep_wood"
+  ],
+  "pile": {
+    "distinct": 21,
+    "double": 9,
+    "single": 0,
+    "weights": {
+      "forest": 1.8
+    }
+  },
+  "animals": [
+    {
+      "description": "A corridor of 4+ blooms, with 2+ of them beside the ruins.",
+      "id": "owls",
+      "needs": {
+        "min_blooms": 4,
+        "min_near_blooms": 2,
+        "near": "ruins"
+      }
+    },
+    {
+      "description": "A corridor of 4+ blooms, with a Deep Wood in it.",
+      "id": "badger",
+      "needs": {
+        "bloom": "deep_wood",
+        "min_bloom_count": 1,
+        "min_blooms": 4
+      }
+    }
+  ],
+  "visitor": "fox",
+  "bloom_order": "clockwise",
+  "scoring": {
+    "bloom": 2,
+    "combo_step": 1,
+    "perfect_seeds": 5,
+    "seeds_per_point": 3
+  },
+  "seed_costs": {
+    "look_ahead": 2,
+    "set_aside": 1,
+    "swap": 1
+  },
+  "look_ahead_count": 3,
+  "terrain": {
+    "hills": [
+      [13.62, -3.26, 3.67, 1.93],
+      [14.21, 8.66, 5.99, 3.03],
+      [9.93, 13.83, 5.3, 1.76],
+      [-2.31, 14.4, 4.98, 1.54],
+      [-8.64, 7.48, 5.13, 2.42],
+      [-13.44, 4.37, 6.69, 3.43],
+      [-16.18, -1.56, 5.52, 3.87],
+      [-10.38, -10.77, 2.94, 1.66],
+      [-1.05, -12.17, 3.2, 1.38],
+      [9.38, -12.57, 5.27, 2.68],
+      [12.6, -7.65, 4.88, 3.03],
+      [-11.68, 7.15, 4.27, 1.81],
+      [-8.54, 6.51, 3.48, 2.57],
+      [-5.67, 5.32, 2.4, 1.57]
+    ]
+  },
+  "generated_from": {
+    "seed": 1031,
+    "metrics": {
+      "bloom_spots": 38,
+      "blooms": 17.1666666666667,
+      "interior": 10,
+      "plots": 31,
+      "score": 0.735806451612903,
+      "seed": 1031,
+      "settle": {
+        "badger": 58,
+        "owls": 33
+      },
+      "visitor_chance": 0,
+      "visitor_sought": 50
+    }
+  }
+}
