@@ -207,6 +207,10 @@ blooms now while keeping corridor routes and future corners open.
 - **Progression map: branching, by region.** A quilted world map split into
   regions (e.g. Lowlands, Moors, River Country) of about 8–15 levels each.
   Several levels are open at once, so the player is never stuck.
+- **The first region has 8 levels** (Heatherfold, Willowmere, Bramblecombe
+  and five more), each adding one new idea, so the first star gate (about
+  half its 24 stars, i.e. 12) comes after a few sessions. Later regions can
+  be longer (up to ~15).
 - **Star goals open levels; stars come from discoveries, never score.** Each
   level has 3 stars: restore the valley, settle all residents, find the
   hidden visitor. Finishing any level always opens its neighbour on the map,
@@ -399,6 +403,8 @@ blooms now while keeping corridor routes and future corners open.
 
 ### Progression and unlocks
 - Which discoveries open which bonus levels and biomes.
+- The first region's name, and the new idea for each of its levels 4–8
+  (candidates: cliff + eagles, ruins + owls, a 5th biome, ancient wood).
 
 ### Atmosphere
 - Exact biome sound layers and how they mix.
