@@ -233,8 +233,12 @@ blooms now while keeping corridor routes and future corners open.
     the obstacle (the same rule as otters by the lake).
   - *Hedgehogs' loop:* linked blooms that go all the way round at least one
     placed piece (so about 6+ blooms).
-  - *Clockwise blooms:* off in Eagle Scar (it teaches the cliff on its own),
-    then on from Hawthorn Lea to the finale.
+  - *Clockwise blooms:* off in Eagle Scar and Hawthorn Lea, then on from
+    Chapel Garth to the finale. (Hawthorn Lea was planned with clockwise,
+    but five biomes plus clockwise leave only ~45% of corners blooming, and
+    the hedgehogs' full ring then settled in 8–16% of test games even with
+    a "ring or 10+ blooms" fallback; without clockwise the pure ring
+    settles in ~30%.)
   - *Hawthorn Lea uses all five biomes*, listing about 5–6 of the 10 possible
     trios. Hedgerow brings two new blooms: **Bramble Bank** (hedgerow +
     forest + meadow: blackberries along the wood's edge) and **Rosehip Lane**

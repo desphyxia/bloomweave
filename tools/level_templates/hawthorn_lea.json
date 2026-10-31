@@ -1,7 +1,7 @@
 {
   "id": "hawthorn_lea",
   "name": "Hawthorn Lea",
-  "intro": "New in Hawthorn Lea: hedgerow, a fifth biome, with two new blooms (Bramble Bank and Rosehip Lane). Blooms need clockwise order again. Hedgehogs want a corridor that rings a piece.",
+  "intro": "New in Hawthorn Lea: hedgerow, a fifth biome, with two new blooms (Bramble Bank and Rosehip Lane). Hedgehogs want a corridor that goes all the way round a piece.",
   "target_plots": 28,
   "biomes": [
     "forest",
@@ -31,18 +31,10 @@
   },
   "animals": [
     "hedgehogs",
-    {
-      "id": "bees",
-      "description": "A corridor of 5+ blooms, with a Foxglove Glade in it.",
-      "needs": {
-        "min_blooms": 5,
-        "bloom": "foxglove_glade",
-        "min_bloom_count": 1
-      }
-    }
+    "bees"
   ],
   "visitor": "dormouse",
-  "bloom_order": "clockwise",
+  "bloom_order": "any",
   "scoring": {
     "bloom": 2,
     "combo_step": 1,
