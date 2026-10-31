@@ -1,9 +1,9 @@
 {
   "blooms": [
-    {"id": "fern_hollow", "name": "Fern Hollow", "trio": ["forest", "meadow", "wetland"], "color": "#f2a541"},
-    {"id": "foxglove_glade", "name": "Foxglove Glade", "trio": ["forest", "meadow", "heath"], "color": "#d9488f"},
-    {"id": "misty_carr", "name": "Misty Carr", "trio": ["forest", "wetland", "heath"], "color": "#6f8ff0"},
-    {"id": "cotton_grass_moor", "name": "Cotton-grass Moor", "trio": ["meadow", "wetland", "heath"], "color": "#ffffff"},
-    {"id": "deep_wood", "name": "Deep Wood", "trio": ["forest", "forest", "forest"], "color": "#3d6b3a"}
+    {"id": "fern_hollow", "name": "Fern Hollow", "trio": ["forest", "meadow", "wetland"], "color": "#f2a541", "note": "Ferns crowd the damp hollows where woods meet meadow and water; frogs keep to the shade."},
+    {"id": "foxglove_glade", "name": "Foxglove Glade", "trio": ["forest", "meadow", "heath"], "color": "#d9488f", "note": "Tall foxgloves ring the sunny gaps between wood, meadow and heather, humming with bees."},
+    {"id": "misty_carr", "name": "Misty Carr", "trio": ["forest", "wetland", "heath"], "color": "#6f8ff0", "note": "Alder and willow stand in wet ground at the wood's edge, wrapped in morning mist."},
+    {"id": "cotton_grass_moor", "name": "Cotton-grass Moor", "trio": ["meadow", "wetland", "heath"], "color": "#ffffff", "note": "White tufts of cotton-grass nod over boggy moor where meadow, water and heather meet."},
+    {"id": "deep_wood", "name": "Deep Wood", "trio": ["forest", "forest", "forest"], "color": "#3d6b3a", "note": "Where three woods grow together the canopy closes over and the old trees keep their secrets."}
   ]
 }

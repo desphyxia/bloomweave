@@ -37,6 +37,7 @@ var _end_note: Label
 var _levels: Control
 var _levels_list: VBoxContainer
 var _levels_total: Label
+var _journal: JournalView
 
 
 func _ready() -> void:
@@ -50,6 +51,9 @@ func _ready() -> void:
 	_build_toast()
 	_build_end()
 	_build_levels()
+	_journal = JournalView.new()
+	_journal.closed.connect(func() -> void: action.emit("close_journal"))
+	_root.add_child(_journal)
 
 
 func setup(p_game: ValleyGame) -> void:
@@ -293,12 +297,24 @@ func show_levels(progress: Progress, can_close: bool) -> void:
 	_levels.visible = true
 
 
+func show_journal(progress: Progress) -> void:
+	_hide_toast()
+	_hint_panel.visible = false
+	_journal.open(data, progress, _compact)
+
+
+## A dot on the Journal button while there's something new in it.
+func set_journal_dot(on: bool) -> void:
+	_buttons.journal.text = "Journal •" if on else "Journal"
+	_buttons.journal.add_theme_color_override("font_color", ACCENT if on else INK)
+
+
 func hide_levels() -> void:
 	_levels.visible = false
 
 
 func levels_shown() -> bool:
-	return _levels.visible
+	return _levels.visible or _journal.visible
 
 
 # --- Layout -------------------------------------------------------------------
@@ -320,10 +336,13 @@ func _build_top() -> void:
 	_info = Label.new()
 	_info.add_theme_font_size_override("font_size", 19)
 	info_row.add_child(_info)
-	_add_button(info_row, "levels", "Valleys")
-	_buttons.levels.custom_minimum_size = Vector2(84, 40)
-	_buttons.levels.add_theme_font_size_override("font_size", 15)
-	_buttons.levels.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var nav := VBoxContainer.new()
+	nav.add_theme_constant_override("separation", 6)
+	info_row.add_child(nav)
+	for id: String in ["levels", "journal"]:
+		_add_button(nav, id, "Valleys" if id == "levels" else "Journal")
+		_buttons[id].custom_minimum_size = Vector2(84, 34)
+		_buttons[id].add_theme_font_size_override("font_size", 15)
 	top.add_child(info_panel)
 
 	top.add_theme_constant_override("h_separation", 10)

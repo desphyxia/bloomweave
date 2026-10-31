@@ -1,7 +1,8 @@
 class_name Progress
 extends RefCounted
-## Progression: the stars and best score earned on each level, and which
-## levels are open. Finishing a level opens the next one. Saved as JSON
+## Progression: the stars and best score earned on each level, which levels
+## are open, and the journal's discoveries (blooms grown, residents settled,
+## visitors found). Finishing a level opens the next one. Saved as JSON
 ## (user://progress.json; the web build keeps it in the browser).
 
 const PATH := "user://progress.json"
@@ -9,6 +10,8 @@ const NO_STARS := {"restored": false, "residents": false, "visitor": false}
 
 var levels: Array = []   # level ids, in order
 var records := {}        # id -> {"stars": {...}, "best": int}
+var found := {"blooms": {}, "residents": {}, "visitors": {}}  # kind -> id -> first level
+var journal_unseen := false  # something new since the journal was last opened
 var path := PATH
 ## Development: every level counts as open (stars are still kept as earned).
 var unlock_all := false
@@ -25,13 +28,17 @@ static func load_from(p_levels: Array, p_path: String = PATH) -> Progress:
 		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(p_path))
 		if typeof(parsed) == TYPE_DICTIONARY:
 			p.records = parsed.get("levels", {})
+			var f: Dictionary = parsed.get("found", {})
+			for kind: String in p.found:
+				p.found[kind] = f.get(kind, {})
+			p.journal_unseen = bool(parsed.get("journal_unseen", false))
 	return p
 
 
 func save() -> void:
 	var f := FileAccess.open(path, FileAccess.WRITE)
 	if f:
-		f.store_string(JSON.stringify({"levels": records}, "  "))
+		f.store_string(JSON.stringify({"levels": records, "found": found, "journal_unseen": journal_unseen}, "  "))
 
 
 ## Keep what a finished (or abandoned) game earned: stars are only ever
@@ -89,3 +96,22 @@ func is_unlocked(id: String) -> bool:
 func next_level(id: String) -> String:
 	var i := levels.find(id)
 	return levels[i + 1] if i >= 0 and i + 1 < levels.size() else ""
+
+
+## Note a discovery. Returns true the first time (and marks the journal as
+## having something new).
+func discover(kind: String, id: String, level: String) -> bool:
+	if found[kind].has(id):
+		return false
+	found[kind][id] = level
+	journal_unseen = true
+	return true
+
+
+func is_found(kind: String, id: String) -> bool:
+	return found[kind].has(id)
+
+
+## The level where something was first found ("" if not yet).
+func found_in(kind: String, id: String) -> String:
+	return str(found[kind].get(id, ""))

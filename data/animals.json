@@ -10,7 +10,8 @@
         "min_biome_blooms": 4
       },
       "points": 10,
-      "seeds": 2
+      "seeds": 2,
+      "note": "Playful and shy; follows chains of wet ground and fishes at dusk."
     },
     {
       "id": "deer",
@@ -22,7 +23,8 @@
         "min_biome_blooms": 6
       },
       "points": 15,
-      "seeds": 2
+      "seeds": 2,
+      "note": "Roe deer browse at the woodland edge and travel far along green corridors."
     },
     {
       "id": "badger",
@@ -34,7 +36,8 @@
         "min_bloom_count": 2
       },
       "points": 12,
-      "seeds": 3
+      "seeds": 3,
+      "note": "Digs its sett in the deepest woods and trundles out at night."
     },
     {
       "id": "grouse",
@@ -48,7 +51,8 @@
         "min_hexes": 6
       },
       "points": 20,
-      "seeds": 5
+      "seeds": 5,
+      "note": "Bursts from the heather with a whirr and a call that sounds like go-back, go-back."
     },
     {
       "id": "heron",
@@ -63,7 +67,8 @@
         "min_hexes": 6
       },
       "points": 20,
-      "seeds": 5
+      "seeds": 5,
+      "note": "Stands so still at the water's edge that fish forget it's there."
     },
     {
       "id": "bees",
@@ -75,7 +80,8 @@
         "min_bloom_count": 2
       },
       "points": 12,
-      "seeds": 3
+      "seeds": 3,
+      "note": "Wild bees work the foxgloves from dawn and need flowers all along their way."
     },
     {
       "id": "hare",
@@ -89,7 +95,8 @@
         "min_hexes": 10
       },
       "points": 20,
-      "seeds": 5
+      "seeds": 5,
+      "note": "Lives out in open fields and boxes in spring; it needs room to run."
     }
   ]
 }

@@ -37,6 +37,7 @@ func _ready() -> void:
 	_new_game()
 	get_window().size_changed.connect(_on_resize)
 	_on_resize()
+	hud.set_journal_dot(progress.journal_unseen)
 	if not direct:
 		hud.show_levels(progress, false)
 
@@ -237,6 +238,20 @@ func _place() -> void:
 	for b: Dictionary in result.blooms:
 		board.add_bloom(b.vertex, b.bloom, true)
 		names.append(data.blooms_by_id[b.bloom].name)
+	# First-time discoveries go into the journal.
+	var new_finds := []
+	for b: Dictionary in result.blooms:
+		if progress.discover("blooms", b.bloom, level_id):
+			new_finds.append(data.blooms_by_id[b.bloom].name)
+	for id: String in result.settled:
+		if progress.discover("residents", id, level_id):
+			new_finds.append(game.animal(id).name)
+	if result.visitor != "" and progress.discover("visitors", result.visitor, level_id):
+		new_finds.append(game.visitor().name)
+	if not new_finds.is_empty():
+		progress.save()
+		hud.set_journal_dot(true)
+	var journal_line := "\nNew in your journal: %s" % ", ".join(new_finds) if not new_finds.is_empty() else ""
 	for id: String in result.settled:
 		board.add_animal(id, game.settled[id], true)
 		scenery.on_settled(id)
@@ -248,15 +263,15 @@ func _place() -> void:
 		board.celebrate(base)
 	var perfect := "Perfect piece! All six bloomed  +%d seeds\n" % int(game.valley.scoring.get("perfect_seeds", 0)) if result.perfect else ""
 	if result.visitor != "":
-		hud.toast("%sA visitor! The %s came.  +%d seeds" % [perfect, game.visitor().name.to_lower(), result.seeds_gained])
+		hud.toast("%sA visitor! The %s came.  +%d seeds%s" % [perfect, game.visitor().name.to_lower(), result.seeds_gained, journal_line])
 	elif not result.settled.is_empty():
 		var who := []
 		for id: String in result.settled:
 			who.append(data.animals[id].name)
-		hud.toast("%s%s moved in!  +%d seeds" % [perfect, " and ".join(who), result.seeds_gained])
+		hud.toast("%s%s moved in!  +%d seeds%s" % [perfect, " and ".join(who), result.seeds_gained, journal_line])
 	elif not names.is_empty():
 		var combo := "  ·  %d at once!" % names.size() if names.size() > 1 else ""
-		hud.toast("%s%s bloomed  +%d points%s" % [perfect, ", ".join(names), result.points, combo])
+		hud.toast("%s%s bloomed  +%d points%s%s" % [perfect, ", ".join(names), result.points, combo, journal_line])
 	_update()
 	if result.finished:
 		scenery.on_finished()
@@ -316,6 +331,15 @@ func _on_action(id: String) -> void:
 			hud.show_levels(progress, not game.is_finished())
 		"close_levels":
 			hud.hide_levels()
+		"journal":
+			selected = null
+			_update()
+			hud.show_journal(progress)
+			progress.journal_unseen = false
+			progress.save()
+			hud.set_journal_dot(false)
+		"close_journal":
+			pass
 		_:
 			if id.begins_with("level:"):
 				_start_level(id.trim_prefix("level:"))

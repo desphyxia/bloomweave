@@ -63,3 +63,35 @@ func test_stars_only_add_up_and_save() -> void:
 	assert_int(loaded.star_count("first_valley")).is_equal(2)
 	assert_int(loaded.total_stars()).is_equal(2)
 	assert_bool(loaded.is_unlocked("willowmere")).is_true()
+
+
+func test_discoveries_are_kept_once_and_saved() -> void:
+	var p := Progress.new(data.levels, TEST_PATH)
+	assert_bool(p.journal_unseen).is_false()
+	assert_bool(p.discover("blooms", "fern_hollow", "first_valley")).is_true()
+	assert_bool(p.discover("blooms", "fern_hollow", "willowmere")).is_false()
+	assert_str(p.found_in("blooms", "fern_hollow")).is_equal("first_valley")
+	assert_bool(p.journal_unseen).is_true()
+	p.discover("visitors", "heron", "willowmere")
+	p.save()
+	var loaded := Progress.load_from(data.levels, TEST_PATH)
+	assert_bool(loaded.is_found("visitors", "heron")).is_true()
+	assert_bool(loaded.is_found("residents", "otter")).is_false()
+	assert_bool(loaded.journal_unseen).is_true()
+
+
+func test_journal_lists_what_the_levels_use() -> void:
+	var e := Journal.entries(data)
+	var bloom_ids: Array = e.blooms.map(func(x: Dictionary) -> String: return x.id)
+	assert_bool(bloom_ids.has("deep_wood")).is_true()
+	assert_bool(bloom_ids.has("fern_hollow")).is_true()
+	for b: Dictionary in e.blooms:
+		if b.id == "deep_wood":
+			assert_array(b.levels).is_equal(["willowmere"])
+		if b.id == "fern_hollow":
+			assert_int(b.levels.size()).is_equal(data.levels.size())
+	var visitors: Array = e.visitors.map(func(x: Dictionary) -> String: return x.id)
+	assert_array(visitors).contains(["grouse", "heron", "hare"])
+	var residents: Array = e.residents.map(func(x: Dictionary) -> String: return x.id)
+	assert_bool(residents.has("hare")).is_false()
+	assert_bool(residents.has("badger")).is_true()

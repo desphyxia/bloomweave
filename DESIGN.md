@@ -195,6 +195,15 @@ blooms now while keeping corridor routes and future corners open.
   recorded too. Discoveries unlock new valleys, biomes and valley variants
   (e.g. settling otters opens a river valley; finding every bloom in a valley
   reveals a hidden variant). Score stays as a personal best per valley.
+- **Journal (built).** Tabs for **Blooms, Residents and Visitors**, listing
+  everything the Progression levels use, each with the valleys it appears
+  in. A found entry shows a picture (the bloom's recipe and colour, or the
+  felt animal), its name, a one-line nature note and where it was first
+  found. Not-yet-found entries give hints, not answers: a bloom's greyed
+  recipe, what a resident asks for, a visitor's riddle; names stay hidden.
+  A first discovery adds "New in your journal: …" to the message and puts a
+  dot on the Journal button until it's opened. Discoveries are saved with
+  progress.
 - **Progression map: branching, by region.** A quilted world map split into
   regions (e.g. Lowlands, Moors, River Country) of about 8–15 levels each.
   Several levels are open at once, so the player is never stuck.
@@ -438,8 +447,9 @@ placing well); the dropped open mode would have brought it back. Progression thr
   lookup, bloom checks, corridor finding.
 - Hidden visitors: the red grouse (Heatherfold) and the grey heron
   (Willowmere), with riddles in the residents panel.
-- Later: journal, the quilted world map and regions, sound, influence
-  visuals, Custom mode and more Progression levels.
+- The journal (Blooms / Residents / Visitors tabs) with nature notes.
+- Later: the quilted world map and regions, sound, influence visuals,
+  Custom mode and more Progression levels.
 
 ### Prototype notes
 
