@@ -566,6 +566,11 @@ func _build_levels() -> void:
 	box.add_child(_levels_total)
 	_add_button(box, "close_levels", "Back to the valley")
 	_buttons.close_levels.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	# Tapping outside the list closes it, like "Back to the valley".
+	_levels.gui_input.connect(func(event: InputEvent) -> void:
+		var mb := event as InputEventMouseButton
+		if mb and mb.button_index == MOUSE_BUTTON_LEFT and not mb.pressed:
+			action.emit("close_levels"))
 	_levels.visible = false
 	_root.add_child(_levels)
 

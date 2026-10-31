@@ -69,6 +69,12 @@ func _ready() -> void:
 		visible = false
 		closed.emit())
 	box.add_child(close)
+	# Tapping outside the journal closes it.
+	gui_input.connect(func(event: InputEvent) -> void:
+		var mb := event as InputEventMouseButton
+		if mb and mb.button_index == MOUSE_BUTTON_LEFT and not mb.pressed:
+			visible = false
+			closed.emit())
 	visible = false
 
 

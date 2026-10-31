@@ -3,6 +3,7 @@ extends Node3D
 
 var level_id := "first_valley"
 var progress: Progress
+var _end_result := {}  # what the end screen showed, to bring it back
 
 var data: GameData
 var game: ValleyGame
@@ -39,7 +40,7 @@ func _ready() -> void:
 	_on_resize()
 	hud.set_journal_dot(progress.journal_unseen)
 	if not direct:
-		hud.show_levels(progress, false)
+		hud.show_levels(progress, true)
 
 
 ## Keep the interface readable on phones: a smaller virtual canvas when the
@@ -283,12 +284,13 @@ func _place() -> void:
 		for k: String in after:
 			fresh[k] = after[k] and not before.get(k, false)
 		var next := progress.next_level(level_id)
-		hud.show_end({
+		_end_result = {
 			"stars": after,
 			"fresh": fresh,
 			"next_name": data.valley(next).get("name", "") if next != "" else "",
 			"next_open": next != "" and progress.is_unlocked(next),
-		})
+		}
+		hud.show_end(_end_result)
 
 
 func _on_action(id: String) -> void:
@@ -328,9 +330,12 @@ func _on_action(id: String) -> void:
 				progress.save()
 			selected = null
 			_update()
-			hud.show_levels(progress, not game.is_finished())
+			hud.show_levels(progress, true)
 		"close_levels":
 			hud.hide_levels()
+			# Back over a finished valley: its end screen comes back.
+			if game.is_finished():
+				hud.show_end(_end_result)
 		"journal":
 			selected = null
 			_update()
