@@ -18,8 +18,9 @@ const HILL_CLEARANCE := 1.2   # gap between a hill's foot and the nearest valley
 ## after smoothing. `cliff_plots` > 0 raises a rock ridge of that many plots
 ## in a line inside the valley (on its highest ground), partly splitting it
 ## into two basins that stay joined round the ridge's ends. `ruins` > 0
-## sets that many single ruin plots well inside the valley.
-static func generate(rng_seed: int, plot_count: int, cliff_plots: int = 0, ruins: int = 0) -> Dictionary:
+## sets that many single ruin plots well inside the valley. `lake_plots` > 0
+## floods that many joined plots on the valley's lowest inside ground.
+static func generate(rng_seed: int, plot_count: int, cliff_plots: int = 0, ruins: int = 0, lake_plots: int = 0) -> Dictionary:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = rng_seed
 	var hills := _make_hills(rng, plot_count)
@@ -28,8 +29,9 @@ static func generate(rng_seed: int, plot_count: int, cliff_plots: int = 0, ruins
 	for p in candidates:
 		height[p] = _plot_height(p, hills)
 	var start := _lowest_near_middle(candidates, height)
-	var valley := _fill(start, plot_count + cliff_plots + ruins, height)
-	valley = _smooth(valley, start, plot_count + cliff_plots + ruins, height)
+	var extra := cliff_plots + ruins + lake_plots
+	var valley := _fill(start, plot_count + extra, height)
+	valley = _smooth(valley, start, plot_count + extra, height)
 	var obstacles := []
 	var covered := valley.duplicate()
 	if cliff_plots > 0:
@@ -38,6 +40,12 @@ static func generate(rng_seed: int, plot_count: int, cliff_plots: int = 0, ruins
 			for p in ridge:
 				valley.erase(p)
 			obstacles.append({"kind": "cliff", "plots": ridge})
+	if lake_plots > 0:
+		var lake := _lake(valley, start, lake_plots, height)
+		if lake.size() == lake_plots:
+			for p in lake:
+				valley.erase(p)
+			obstacles.append({"kind": "lake", "plots": lake})
 	if ruins > 0:
 		var spots: Array[Vector2i] = []
 		for _i in ruins:
@@ -95,6 +103,51 @@ static func _ridge(valley: Array[Vector2i], start: Vector2i, length: int, height
 				best_score = score
 				best = line
 	return best
+
+
+## A lake of `size` joined plots: starts at the lowest plot that is
+## surrounded by the valley (not at or next to the landmark) and grows into
+## the lowest neighbouring plots that are also well inside, keeping the
+## rest of the valley in one piece. Returns fewer plots if it can't fit.
+static func _lake(valley: Array[Vector2i], start: Vector2i, size: int, height: Dictionary) -> Array[Vector2i]:
+	var inside := {}
+	for p in valley:
+		inside[p] = true
+	var near_start := PlotGrid.plot_neighbors(start)
+	var ok := func(p: Vector2i) -> bool:
+		if p == start or near_start.has(p) or not inside.has(p):
+			return false
+		var n := 0
+		for q in PlotGrid.plot_neighbors(p):
+			if inside.has(q):
+				n += 1
+		return n >= 5
+	var seed_plot := start
+	var best := INF
+	for p in valley:
+		if ok.call(p) and float(height[p]) < best:
+			best = height[p]
+			seed_plot = p
+	if seed_plot == start:
+		return []
+	var lake: Array[Vector2i] = [seed_plot]
+	while lake.size() < size:
+		var next := start
+		var low := INF
+		for p in lake:
+			for q in PlotGrid.plot_neighbors(p):
+				if lake.has(q) or not ok.call(q):
+					continue
+				if float(height[q]) < low:
+					var trial := lake.duplicate()
+					trial.append(q)
+					if _joined_without(inside, trial, start):
+						low = height[q]
+						next = q
+		if next == start:
+			break
+		lake.append(next)
+	return lake
 
 
 ## A plot for a ruin: all six neighbours in the valley (so it stands in

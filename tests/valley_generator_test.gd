@@ -84,3 +84,25 @@ func test_ruin_stands_inside_the_valley() -> void:
 		for q in PlotGrid.plot_neighbors(ruin):
 			assert_bool(plots.has(q)).is_true()
 		assert_bool(PlotGrid.plot_neighbors(g.landmark).has(ruin)).is_false()
+
+
+func test_lake_is_joined_plots_inside_a_whole_valley() -> void:
+	var made := 0
+	for s in range(6):
+		var g := ValleyGenerator.generate(700 + s, 30, 0, 0, 3)
+		if g.obstacles.is_empty():
+			continue  # no room this time; the level tool skips such shapes
+		made += 1
+		assert_str(g.obstacles[0].kind).is_equal("lake")
+		var lake: Array = g.obstacles[0].plots
+		assert_int(lake.size()).is_equal(3)
+		var plots: Array[Vector2i] = g.plots
+		for p: Vector2i in lake:
+			assert_bool(plots.has(p)).is_false()
+		# Each lake plot touches another one.
+		for p: Vector2i in lake:
+			var touches := false
+			for q: Vector2i in lake:
+				touches = touches or PlotGrid.plot_neighbors(p).has(q)
+			assert_bool(touches).is_true()
+	assert_int(made).is_greater_equal(4)

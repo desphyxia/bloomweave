@@ -8,6 +8,7 @@
     {"id": "bramble_bank", "name": "Bramble Bank", "trio": ["hedgerow", "forest", "meadow"], "color": "#4a2350", "note": "Brambles tumble from the hedge into the wood's edge; blackberries ripen for every passer-by."},
     {"id": "rosehip_lane", "name": "Rosehip Lane", "trio": ["hedgerow", "meadow", "heath"], "color": "#e24a33", "note": "Dog-roses arch over a sunny lane between meadow and heather, red with hips by autumn."},
     {"id": "willow_hedge", "name": "Willow Hedge", "trio": ["hedgerow", "wetland", "forest"], "color": "#c3d36b", "note": "Pollarded willows line the wet ditch between hedge and wood, gold with catkins in spring."},
-    {"id": "sloe_thicket", "name": "Sloe Thicket", "trio": ["hedgerow", "wetland", "heath"], "color": "#3f4677", "note": "Blackthorn crowds the damp edge of the heath; its sloes bloom dusky blue by autumn."}
+    {"id": "sloe_thicket", "name": "Sloe Thicket", "trio": ["hedgerow", "wetland", "heath"], "color": "#3f4677", "note": "Blackthorn crowds the damp edge of the heath; its sloes bloom dusky blue by autumn."},
+    {"id": "reed_bed", "name": "Reed Bed", "trio": ["wetland", "wetland", "meadow"], "color": "#b98a4e", "note": "Tall reeds crowd the shallows where two pools meet the meadow, whispering in every breeze."}
   ]
 }

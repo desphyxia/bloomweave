@@ -185,6 +185,35 @@
       "points": 20,
       "seeds": 5,
       "note": "Dens under the chapel floor and hunts the field edges at dawn."
+    },
+    {
+      "id": "reed_warblers",
+      "name": "Reed warblers",
+      "description": "A corridor of 5+ blooms, with 2+ of them Reed Beds.",
+      "needs": {
+        "min_blooms": 5,
+        "bloom": "reed_bed",
+        "min_bloom_count": 2
+      },
+      "points": 12,
+      "seeds": 3,
+      "note": "Weaves its nest between reed stems and chatters all summer from deep in the bed."
+    },
+    {
+      "id": "kingfisher",
+      "name": "Kingfisher",
+      "hidden": true,
+      "riddle": "A blue spark darts low over the water where the shore runs long and wet.",
+      "found_text": "8+ wetland hexes touching the lake.",
+      "pattern": {
+        "kind": "biome_near",
+        "biome": "wetland",
+        "near": "lake",
+        "min_hexes": 8
+      },
+      "points": 20,
+      "seeds": 5,
+      "note": "Fishes from a low perch over still water, then flashes away in a streak of blue."
     }
   ]
 }

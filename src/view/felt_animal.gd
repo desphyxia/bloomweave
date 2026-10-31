@@ -18,6 +18,8 @@ static func build(textile: Textile, id: String, size: float = 1.0) -> Node3D:
 		return _hedgehog(textile, size)
 	if id == "dormouse":
 		return _dormouse(textile, size)
+	if id == "reed_warblers" or id == "kingfisher":
+		return _small_bird(textile, id, size)
 	if id == "owls":
 		return _owl(textile, size)
 	if id == "fox":
@@ -282,4 +284,35 @@ static func _fox(textile: Textile, size: float) -> Node3D:
 		node.add_child(ear)
 	_part(textile, node, ball, red, Vector3(-0.3, 0.22, 0) * size, Vector3(0.24, 0.12, 0.12) * size)
 	_part(textile, node, ball, Color(0.96, 0.94, 0.9), Vector3(-0.44, 0.21, 0) * size, Vector3(0.08, 0.08, 0.08) * size)
+	return node
+
+
+## Small birds: a brown reed warbler clinging to a reed, or a blue and
+## orange kingfisher on a stub of branch.
+static func _small_bird(textile: Textile, id: String, size: float) -> Node3D:
+	var node := Node3D.new()
+	var ball := SphereMesh.new()
+	ball.radius = 0.5
+	ball.height = 1.0
+	var stick := CylinderMesh.new()
+	stick.top_radius = 0.5
+	stick.bottom_radius = 0.5
+	stick.height = 1.0
+	stick.radial_segments = 6
+	var kf := id == "kingfisher"
+	var back := Color(0.12, 0.55, 0.78) if kf else Color(0.55, 0.42, 0.28)
+	var belly := Color(0.92, 0.5, 0.16) if kf else Color(0.88, 0.8, 0.64)
+	var perch := Color(0.5, 0.36, 0.22) if kf else Color(0.62, 0.58, 0.32)
+	_part(textile, node, stick, perch, Vector3(0, 0.22, 0) * size, Vector3(0.03, 0.44, 0.03) * size)
+	_part(textile, node, ball, back, Vector3(0, 0.48, 0) * size, Vector3(0.2, 0.13, 0.12) * size)
+	_part(textile, node, ball, belly, Vector3(0.02, 0.44, 0) * size, Vector3(0.15, 0.09, 0.1) * size)
+	_part(textile, node, ball, back, Vector3(0.1, 0.56, 0) * size, Vector3.ONE * 0.1 * size)
+	var beak := MeshInstance3D.new()
+	beak.mesh = stick
+	beak.scale = Vector3(0.018, 0.14 if kf else 0.07, 0.018) * size
+	beak.position = Vector3(0.21 if kf else 0.17, 0.56, 0) * size
+	beak.rotation.z = PI / 2.0
+	beak.material_override = textile.fabric(Color(0.15, 0.13, 0.12), FELT)
+	node.add_child(beak)
+	_part(textile, node, ball, back.darkened(0.2), Vector3(-0.14, 0.46, 0) * size, Vector3(0.12, 0.04, 0.06) * size)
 	return node

@@ -1,0 +1,62 @@
+{
+  "id": "warbler_fen",
+  "name": "Warbler Fen",
+  "intro": "New in Warbler Fen: Reed Bed, a bloom of two wetlands and a meadow. Reed warblers want Reed Beds in their corridor. Blooms still need clockwise order.",
+  "target_plots": 32,
+  "lake_plots": 3,
+  "biomes": [
+    "forest",
+    "meadow",
+    "wetland",
+    "heath",
+    "hedgerow"
+  ],
+  "landmark": {
+    "name": "Old Oak",
+    "biomes": [
+      "forest",
+      "meadow",
+      "wetland"
+    ]
+  },
+  "blooms": [
+    "reed_bed",
+    "fern_hollow",
+    "misty_carr",
+    "cotton_grass_moor",
+    "willow_hedge",
+    "sloe_thicket"
+  ],
+  "pile_share": {
+    "double": 0.3
+  },
+  "pile_weights": {
+    "wetland": 1.6
+  },
+  "animals": [
+    "reed_warblers",
+    {
+      "id": "otter",
+      "description": "A corridor of 5+ blooms, with 2+ of them by the lake.",
+      "needs": {
+        "min_blooms": 5,
+        "near": "lake",
+        "min_near_blooms": 2
+      }
+    }
+  ],
+  "visitor": "kingfisher",
+  "bloom_order": "clockwise",
+  "scoring": {
+    "bloom": 2,
+    "combo_step": 1,
+    "perfect_seeds": 5,
+    "seeds_per_point": 3
+  },
+  "seed_costs": {
+    "set_aside": 1,
+    "swap": 1,
+    "look_ahead": 2
+  },
+  "look_ahead_count": 3
+}
