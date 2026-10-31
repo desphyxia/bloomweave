@@ -272,9 +272,11 @@ func test_mirrored_corner_does_not_bloom_with_clockwise_rule() -> void:
 
 
 func test_full_games_keep_rules_consistent() -> void:
-	for rng_seed in range(19):
+	for rng_seed in range(22):
 		var g: ValleyGame
-		if rng_seed >= 16:
+		if rng_seed >= 19:
+			g = ValleyGame.new(data, data.valley("eagle_scar"), 100 + rng_seed)
+		elif rng_seed >= 16:
 			g = ValleyGame.new(data, data.valley("bramblecombe"), 100 + rng_seed)
 		elif rng_seed >= 12:
 			g = ValleyGame.new(data, data.valley("willowmere"), 100 + rng_seed)

@@ -463,7 +463,7 @@ placing well); the dropped open mode would have brought it back. Progression thr
 
 ## Prototype scope (built)
 
-- Three Progression levels, picked from a simple list with stars (saved on
+- Four Progression levels, picked from a simple list with stars (saved on
   the device; finishing a level opens the next):
   - *1. Heatherfold:* 19 plots in a round outline around the landmark,
     biomes forest, meadow, wetland, heath; otters and deer.
@@ -476,6 +476,11 @@ placing well); the dropped open mode would have brought it back. Progression thr
     Introduces **clockwise blooms**; residents deer and **bees** (a 5+ bloom
     corridor with 2+ Foxglove Glades); hidden visitor the **brown hare**
     (10+ meadow hexes joined).
+  - *4. Eagle Scar:* generated, 26 plots with a 3-plot rock ridge straight
+    across the lower basin (designer's pick from 6 of 37). Introduces the
+    **cliff**; residents **golden eagles** (5+ blooms, 2+ by the cliff) and
+    otters; hidden visitor the **wildcat** (8+ forest hexes touching the
+    cliff). Blooms in any order.
 - Piece list from JSON: mostly three-different pieces plus some doubles.
 - Place, rotate and mirror with a preview of which corners would bloom.
 - The 4 named blooms (data-driven); seeds with set aside, swap, look ahead.
@@ -532,6 +537,12 @@ placing well); the dropped open mode would have brought it back. Progression thr
   with the clockwise rule). Hare: 6 meadow hexes were reached in 91–100%
   of sought runs, so it needs 10 (0% by chance, 81% sought; 12 gave 60%).
   Bigger valleys need bigger patches.
+- **Eagle Scar tuning** (100 runs, greedy player): about 19.6 blooms; eagles
+  settle in 59%, otters in 90%. Eagles needing 3 blooms by the cliff never
+  settled, so they need 2. Wildcat: 5 forest hexes by the cliff were always
+  reached when sought, 7 in 98%, 9 in 33%; 8 gives 0% by luck, 85% sought.
+  The generator places the ridge on the valley's highest inside ground, in
+  a straight line, never next to the landmark, keeping the valley whole.
 - **Level tools:** `tools/generate_levels.gd` (template in
   `tools/level_templates`) generates and scores candidates;
   `tools/candidate_sheet.py` draws a contact sheet; `tools/level_from_candidate.py`

@@ -116,12 +116,12 @@
       "name": "Wildcat",
       "hidden": true,
       "riddle": "A striped shadow with a ringed tail hunts where the woods climb to the rock.",
-      "found_text": "5+ forest hexes touching the cliff.",
+      "found_text": "8+ forest hexes touching the cliff.",
       "pattern": {
         "kind": "biome_near",
         "biome": "forest",
         "near": "cliff",
-        "min_hexes": 5
+        "min_hexes": 8
       },
       "points": 20,
       "seeds": 5,

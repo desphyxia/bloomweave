@@ -290,7 +290,7 @@ func _build_obstacles() -> void:
 
 const CLIFF_H := 0.62
 const CLIFF_STONE := Color(0.56, 0.54, 0.5)
-const CLIFF_FABRIC := {"weave_scale": 10.0, "weave_strength": 0.18, "fuzz": 0.25, "fleck": 0.12, "fleck_color": "#3f3a35", "rough": 1.0}
+const CLIFF_FABRIC := {"weave_scale": 10.0, "weave_strength": 0.14, "fuzz": 0.25, "fleck": 0.04, "fleck_color": "#3f3a35", "rough": 1.0}
 const CLIFF_THREAD := Color(0.24, 0.22, 0.2)
 
 
