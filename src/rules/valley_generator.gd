@@ -7,15 +7,18 @@ extends RefCounted
 ## the level tool and tests can run it headless.
 ##
 ## generate() returns {"plots": [Vector2i], "landmark": Vector2i,
-## "hills": [[x, z, radius, height]]} in world units (hex size 1). The
-## hills never cover a valley hex, so the scenery can draw exactly them.
+## "hills": [[x, z, radius, height]], "obstacles": [{"kind", "plots"}]} in
+## world units (hex size 1). The hills never cover a valley hex, so the
+## scenery can draw exactly them.
 
 const HILL_CLEARANCE := 1.2   # gap between a hill's foot and the nearest valley hex centre
 
 
 ## `plot_count` is the target size; the result can differ by a plot or two
-## after smoothing.
-static func generate(rng_seed: int, plot_count: int) -> Dictionary:
+## after smoothing. `cliff_plots` > 0 raises a rock ridge of that many plots
+## in a line inside the valley (on its highest ground), partly splitting it
+## into two basins that stay joined round the ridge's ends.
+static func generate(rng_seed: int, plot_count: int, cliff_plots: int = 0) -> Dictionary:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = rng_seed
 	var hills := _make_hills(rng, plot_count)
@@ -24,13 +27,75 @@ static func generate(rng_seed: int, plot_count: int) -> Dictionary:
 	for p in candidates:
 		height[p] = _plot_height(p, hills)
 	var start := _lowest_near_middle(candidates, height)
-	var valley := _fill(start, plot_count, height)
-	valley = _smooth(valley, start, plot_count, height)
+	var valley := _fill(start, plot_count + cliff_plots, height)
+	valley = _smooth(valley, start, plot_count + cliff_plots, height)
+	var obstacles := []
+	var covered := valley.duplicate()
+	if cliff_plots > 0:
+		var ridge := _ridge(valley, start, cliff_plots, height, rng)
+		if not ridge.is_empty():
+			for p in ridge:
+				valley.erase(p)
+			obstacles.append({"kind": "cliff", "plots": ridge})
 	return {
 		"plots": valley,
 		"landmark": start,
-		"hills": _clear_hills(hills, valley),
+		"hills": _clear_hills(hills, covered),
+		"obstacles": obstacles,
 	}
+
+
+const LINE_STEPS: Array[Vector2i] = [Vector2i(2, -1), Vector2i(1, 1), Vector2i(-1, 2)]
+
+
+## The best straight line of `length` plots for a ridge: all inside and
+## mostly surrounded by the valley, not the landmark or next to it, keeping
+## the rest of the valley in one piece; highest ground first.
+static func _ridge(valley: Array[Vector2i], start: Vector2i, length: int, height: Dictionary, rng: RandomNumberGenerator) -> Array[Vector2i]:
+	var inside := {}
+	for p in valley:
+		inside[p] = true
+	var near_start := PlotGrid.plot_neighbors(start)
+	var best: Array[Vector2i] = []
+	var best_score := -INF
+	for p in valley:
+		for step in LINE_STEPS:
+			var line: Array[Vector2i] = []
+			for k in length:
+				line.append(p + step * k)
+			var ok := true
+			var score := 0.0
+			for q in line:
+				if not inside.has(q) or q == start or near_start.has(q):
+					ok = false
+					break
+				var n := 0
+				for r in PlotGrid.plot_neighbors(q):
+					if inside.has(r):
+						n += 1
+				if n < 4:
+					ok = false
+					break
+				score += float(height[q])
+			if not ok:
+				continue
+			score += rng.randf() * 0.01
+			if score > best_score and _joined_without(inside, line, start):
+				best_score = score
+				best = line
+	return best
+
+
+static func _joined_without(inside: Dictionary, removed: Array[Vector2i], start: Vector2i) -> bool:
+	var seen := {start: true}
+	var stack: Array[Vector2i] = [start]
+	while not stack.is_empty():
+		var p: Vector2i = stack.pop_back()
+		for q in PlotGrid.plot_neighbors(p):
+			if inside.has(q) and not removed.has(q) and not seen.has(q):
+				seen[q] = true
+				stack.append(q)
+	return seen.size() == inside.size() - removed.size()
 
 
 ## How many plots of the valley have all six neighbours inside it, and how

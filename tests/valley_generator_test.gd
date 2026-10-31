@@ -42,3 +42,32 @@ func test_stats_count_bloom_spots() -> void:
 	assert_int(st.plots).is_equal(19)
 	assert_int(st.bloom_spots).is_equal(24)
 	assert_int(st.interior).is_equal(7)
+
+
+func test_cliff_ridge_is_a_line_inside_a_whole_valley() -> void:
+	for s in range(4):
+		var g := ValleyGenerator.generate(300 + s, 26, 3)
+		var plots: Array[Vector2i] = g.plots
+		assert_int(g.obstacles.size()).is_equal(1)
+		var ridge: Array = g.obstacles[0].plots
+		assert_str(g.obstacles[0].kind).is_equal("cliff")
+		assert_int(ridge.size()).is_equal(3)
+		# A straight line of plots, none in the valley, each touching it a lot.
+		var step: Vector2i = ridge[1] - ridge[0]
+		assert_bool(ridge[2] - ridge[1] == step).is_true()
+		assert_bool(PlotGrid.plot_neighbors(ridge[0]).has(ridge[1])).is_true()
+		for r: Vector2i in ridge:
+			assert_bool(plots.has(r)).is_false()
+		# The valley around it is still one piece.
+		var inside := {}
+		for p in plots:
+			inside[p] = true
+		var seen := {g.landmark: true}
+		var stack: Array[Vector2i] = [g.landmark]
+		while not stack.is_empty():
+			var p: Vector2i = stack.pop_back()
+			for q in PlotGrid.plot_neighbors(p):
+				if inside.has(q) and not seen.has(q):
+					seen[q] = true
+					stack.append(q)
+		assert_int(seen.size()).is_equal(plots.size())

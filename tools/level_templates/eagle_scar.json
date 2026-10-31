@@ -1,0 +1,42 @@
+{
+  "id": "eagle_scar",
+  "name": "Eagle Scar",
+  "intro": "New in Eagle Scar: a rocky cliff runs across the valley. Pieces can't go on it, but eagles want blooms beside it.",
+  "target_plots": 26,
+  "cliff_plots": 3,
+  "biomes": [
+    "forest",
+    "meadow",
+    "wetland",
+    "heath"
+  ],
+  "landmark": {
+    "name": "Old Oak",
+    "biomes": [
+      "forest",
+      "meadow",
+      "wetland"
+    ]
+  },
+  "pile_share": {
+    "double": 0.22
+  },
+  "animals": [
+    "eagles",
+    "otter"
+  ],
+  "visitor": "wildcat",
+  "bloom_order": "any",
+  "scoring": {
+    "bloom": 2,
+    "combo_step": 1,
+    "perfect_seeds": 5,
+    "seeds_per_point": 3
+  },
+  "seed_costs": {
+    "set_aside": 1,
+    "swap": 1,
+    "look_ahead": 2
+  },
+  "look_ahead_count": 3
+}

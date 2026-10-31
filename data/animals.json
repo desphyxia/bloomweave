@@ -97,6 +97,35 @@
       "points": 20,
       "seeds": 5,
       "note": "Lives out in open fields and boxes in spring; it needs room to run."
+    },
+    {
+      "id": "eagles",
+      "name": "Golden eagles",
+      "description": "A corridor of 5+ blooms, with 2+ of them by the cliff.",
+      "needs": {
+        "min_blooms": 5,
+        "near": "cliff",
+        "min_near_blooms": 2
+      },
+      "points": 12,
+      "seeds": 3,
+      "note": "Rides the updraughts along the crag and nests on its highest ledge."
+    },
+    {
+      "id": "wildcat",
+      "name": "Wildcat",
+      "hidden": true,
+      "riddle": "A striped shadow with a ringed tail hunts where the woods climb to the rock.",
+      "found_text": "5+ forest hexes touching the cliff.",
+      "pattern": {
+        "kind": "biome_near",
+        "biome": "forest",
+        "near": "cliff",
+        "min_hexes": 5
+      },
+      "points": 20,
+      "seeds": 5,
+      "note": "Britain's rarest cat: shy, thick-tailed and fond of wooded crags."
     }
   ]
 }

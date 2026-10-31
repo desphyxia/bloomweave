@@ -240,37 +240,93 @@ const SHORE_THREAD := Color(0.88, 0.8, 0.6)
 ## and the odd duck. Other kinds show as plain grey cloth for now.
 func _build_obstacles() -> void:
 	var shape := _inset_plot_shape(0.0)
-	var cloth := _plot_cloth_mesh(shape, LAKE_H)
-	var shore: Array = []
+	var water := _plot_cloth_mesh(shape, LAKE_H)
+	var rock := _plot_cloth_mesh(shape, CLIFF_H)
 	var details := MeshBatch.new()
 	details.textile = textile
 	var bases := {}
 	for h: Vector2i in game.obstacles:
 		bases[PlotGrid.plot_of(h)] = game.obstacles[h]
+	var first_lake := true
 	for base: Vector2i in bases:
 		var kind: String = bases[base]
 		var mi := MeshInstance3D.new()
-		mi.mesh = cloth
 		mi.position = hex_pos(base)
-		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		if kind == "lake":
-			mi.material_override = textile.fabric(LAKE_WATER, LAKE_FABRIC)
-		else:
-			mi.material_override = textile.fabric(Color(0.6, 0.58, 0.55), SLOT_FABRIC)
+		match kind:
+			"lake":
+				mi.mesh = water
+				mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+				mi.material_override = textile.fabric(LAKE_WATER, LAKE_FABRIC)
+				_lake_details(details, base, first_lake)
+				first_lake = false
+			"cliff":
+				mi.mesh = rock
+				mi.material_override = textile.fabric(CLIFF_STONE, CLIFF_FABRIC)
+				_cliff_details(details, base)
+			_:
+				mi.mesh = water
+				mi.material_override = textile.fabric(Color(0.6, 0.58, 0.55), SLOT_FABRIC)
 		_obstacles.add_child(mi)
-		if kind == "lake":
-			_lake_details(details, base, bases.keys()[0] == base)
-	# Shore: the obstacle's outer border only, not the seams between its plots.
+	# Edging: the obstacle's outer border only, not the seams between its
+	# plots. Sandy stitches round a lake, dark ones along the top of a cliff.
+	var shore: Array = []
+	var crag: Array = []
 	for h: Vector2i in game.obstacles:
+		var kind: String = game.obstacles[h]
+		var y := CLIFF_H + 0.012 if kind == "cliff" else LAKE_H + 0.012
 		for i in 6:
-			if game.obstacles.has(Hex.neighbor(h, i)):
+			if game.obstacles.get(Hex.neighbor(h, i), "") == kind:
 				continue
-			shore.append([hex_pos(h, LAKE_H + 0.012) + _corner3(i), hex_pos(h, LAKE_H + 0.012) + _corner3(i + 1)])
+			var seg := [hex_pos(h, y) + _corner3(i), hex_pos(h, y) + _corner3(i + 1)]
+			(crag if kind == "cliff" else shore).append(seg)
 	if not shore.is_empty():
 		_obstacles.add_child(textile.stitches(shore, 3, 0.16, 0.03, SHORE_THREAD))
+	if not crag.is_empty():
+		_obstacles.add_child(textile.stitches(crag, 3, 0.16, 0.03, CLIFF_THREAD))
 	var batch := MeshInstance3D.new()
 	batch.mesh = details.commit()
 	_obstacles.add_child(batch)
+
+
+const CLIFF_H := 0.62
+const CLIFF_STONE := Color(0.56, 0.54, 0.5)
+const CLIFF_FABRIC := {"weave_scale": 10.0, "weave_strength": 0.18, "fuzz": 0.25, "fleck": 0.12, "fleck_color": "#3f3a35", "rough": 1.0}
+const CLIFF_THREAD := Color(0.24, 0.22, 0.2)
+
+
+## Boulders, a few crags poking up, moss and heather on top of the rock.
+func _cliff_details(batch: MeshBatch, base: Vector2i) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(base) ^ 0xc11ff
+	var ball := SphereMesh.new()
+	ball.radius = 0.5
+	ball.height = 1.0
+	ball.radial_segments = 8
+	ball.rings = 4
+	var spike := CylinderMesh.new()
+	spike.top_radius = 0.0
+	spike.bottom_radius = 0.5
+	spike.height = 1.0
+	spike.radial_segments = 5
+	var felt := {"fuzz": 0.35, "weave_strength": 0.0, "rough": 1.0}
+	var greys := [Color(0.5, 0.48, 0.45), Color(0.62, 0.6, 0.56), Color(0.44, 0.43, 0.42)]
+	for h in PlotGrid.plot_hexes(base):
+		var c := hex_pos(h, CLIFF_H)
+		for k in rng.randi_range(2, 3):
+			var off := Vector3(rng.randf_range(-0.5, 0.5), 0.0, rng.randf_range(-0.45, 0.45))
+			var sz := rng.randf_range(0.22, 0.4)
+			batch.add(ball, Transform3D(Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3(sz, sz * 0.7, sz * 0.85)), c + off),
+				Color.WHITE, textile.fabric(greys[rng.randi() % greys.size()], felt))
+		if rng.randf() < 0.7:
+			var off := Vector3(rng.randf_range(-0.3, 0.3), 0.0, rng.randf_range(-0.3, 0.3))
+			var tall := rng.randf_range(0.35, 0.6)
+			batch.add(spike, Transform3D(Basis().scaled(Vector3(0.3, tall, 0.26)), c + off + Vector3(0, tall * 0.5, 0)),
+				Color.WHITE, textile.fabric(greys[0], felt))
+		for k in rng.randi_range(2, 4):
+			var off := Vector3(rng.randf_range(-0.6, 0.6), 0.0, rng.randf_range(-0.5, 0.5))
+			var col := Color(0.42, 0.55, 0.3) if rng.randf() < 0.6 else Color(0.62, 0.36, 0.62)
+			batch.add(ball, Transform3D(Basis().scaled(Vector3(0.14, 0.06, 0.14)), c + off + Vector3(0, 0.02, 0)),
+				Color.WHITE, textile.fabric(col, felt))
 
 
 func _lake_details(batch: MeshBatch, base: Vector2i, with_duck: bool) -> void:
@@ -610,7 +666,16 @@ func add_animal(id: String, corridor: Array, animate: bool) -> void:
 	if corridor.is_empty():
 		return
 	var animal: Dictionary = game.animal(id)
-	var spot := vertex_pos(_animal_spot(animal, corridor), SEAM_H)
+	var at := _animal_spot(animal, corridor)
+	var spot := vertex_pos(at, SEAM_H)
+	# Animals that love the cliff perch on top of it, next to their bloom.
+	if animal.get("needs", {}).get("near", "") == "cliff":
+		var best := INF
+		for h: Vector2i in game.obstacles:
+			var d := hex_pos(h).distance_to(spot)
+			if game.obstacles[h] == "cliff" and d < best:
+				best = d
+				spot = hex_pos(h, CLIFF_H)
 	var node := Node3D.new()
 	node.position = spot
 	node.add_child(FeltAnimal.build(textile, id))

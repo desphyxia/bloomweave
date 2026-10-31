@@ -33,6 +33,13 @@ def tile(draw, cand, ox, oy, w, h, label):
         shade = int(200 - min(hill[3], 5) * 18)
         draw.ellipse([px - r, pz - r, px + r, pz + r], fill=(shade - 40, shade, shade - 60), outline=(90, 110, 80))
     land = tuple(cand["landmark"])
+    for o in cand.get("obstacles", []):
+        for b in o["plots"]:
+            for dq, dr in ((0, 0), (1, 0), (0, 1)):
+                x, z = hex_xy(b[0] + dq, b[1] + dr)
+                pts = [to_px(x + math.cos(math.radians(60 * k)), z + math.sin(math.radians(60 * k))) for k in range(6)]
+                fill = (120, 170, 220) if o["kind"] == "lake" else (130, 125, 118)
+                draw.polygon(pts, fill=fill, outline=(70, 70, 70))
     for b in plots:
         for dq, dr in ((0, 0), (1, 0), (0, 1)):
             x, z = hex_xy(b[0] + dq, b[1] + dr)

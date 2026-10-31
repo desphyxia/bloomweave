@@ -18,7 +18,10 @@ func _init() -> void:
 	var results := []
 	for i in count:
 		var gen_seed := 1000 + i
-		var gen := ValleyGenerator.generate(gen_seed, int(template.target_plots))
+		var gen := ValleyGenerator.generate(gen_seed, int(template.target_plots), int(template.get("cliff_plots", 0)))
+		if int(template.get("cliff_plots", 0)) > 0 and gen.obstacles.is_empty():
+			print("seed %d: no room for the cliff" % gen_seed)
+			continue
 		var valley := level_from(template, gen)
 		var errors := data.validate_valley(valley)
 		if not errors.is_empty():
@@ -33,7 +36,8 @@ func _init() -> void:
 		for p: Vector2i in gen.plots:
 			plots.append([p.x, p.y])
 		results.append({"seed": gen_seed, "metrics": m, "plots": plots,
-			"landmark": [gen.landmark.x, gen.landmark.y], "hills": gen.hills, "valley": valley})
+			"landmark": [gen.landmark.x, gen.landmark.y], "hills": gen.hills,
+			"obstacles": valley.get("obstacles", []), "valley": valley})
 		print("seed %d: plots %d spots %d blooms %.1f settle %s visitor %d%%/%d%% score %.2f" % [
 			gen_seed, stats.plots, stats.bloom_spots, m.blooms, m.settle, m.visitor_chance, m.visitor_sought, m.score])
 	results.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.metrics.score > b.metrics.score)
@@ -48,6 +52,15 @@ static func level_from(template: Dictionary, gen: Dictionary) -> Dictionary:
 	var v := template.duplicate(true)
 	v.erase("target_plots")
 	v.erase("pile_share")
+	v.erase("cliff_plots")
+	if not gen.obstacles.is_empty():
+		var obstacles := []
+		for o: Dictionary in gen.obstacles:
+			var ps := []
+			for p: Vector2i in o.plots:
+				ps.append([p.x, p.y])
+			obstacles.append({"kind": o.kind, "plots": ps})
+		v.obstacles = obstacles
 	var plots := []
 	for p: Vector2i in gen.plots:
 		plots.append([p.x, p.y])

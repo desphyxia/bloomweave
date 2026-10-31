@@ -14,6 +14,10 @@ const LOOKS := {
 
 
 static func build(textile: Textile, id: String, size: float = 1.0) -> Node3D:
+	if id == "eagles":
+		return _eagle(textile, size)
+	if id == "wildcat":
+		return _wildcat(textile, size)
 	if id == "grouse" or id == "heron":
 		return _bird(textile, id, size)
 	if id == "bees":
@@ -131,4 +135,47 @@ static func _hare(textile: Textile, size: float) -> Node3D:
 		ear.material_override = textile.fabric(brown.darkened(0.1), FELT)
 		node.add_child(ear)
 	_part(textile, node, ball, Color(0.95, 0.94, 0.9), Vector3(-0.17, 0.16, 0) * size, Vector3.ONE * 0.09 * size)
+	return node
+
+
+## A golden eagle perched with half-open wings.
+static func _eagle(textile: Textile, size: float) -> Node3D:
+	var node := Node3D.new()
+	var ball := SphereMesh.new()
+	ball.radius = 0.5
+	ball.height = 1.0
+	var brown := Color(0.42, 0.28, 0.17)
+	_part(textile, node, ball, brown, Vector3(0, 0.3, 0) * size, Vector3(0.26, 0.4, 0.24) * size)
+	_part(textile, node, ball, Color(0.78, 0.58, 0.28), Vector3(0.04, 0.58, 0) * size, Vector3.ONE * 0.17 * size)
+	_part(textile, node, ball, Color(0.95, 0.75, 0.25), Vector3(0.14, 0.56, 0) * size, Vector3(0.09, 0.05, 0.05) * size)
+	for side in [-1.0, 1.0]:
+		var wing := MeshInstance3D.new()
+		wing.mesh = ball
+		wing.scale = Vector3(0.36, 0.08, 0.3) * size
+		wing.position = Vector3(-0.04, 0.42, side * 0.2) * size
+		wing.rotation.x = side * 0.5
+		wing.material_override = textile.fabric(brown.darkened(0.15), FELT)
+		node.add_child(wing)
+	_part(textile, node, ball, brown.darkened(0.25), Vector3(-0.2, 0.14, 0) * size, Vector3(0.18, 0.06, 0.12) * size)
+	return node
+
+
+## A grey-brown tabby wildcat with a thick, ringed tail.
+static func _wildcat(textile: Textile, size: float) -> Node3D:
+	var node := Node3D.new()
+	var ball := SphereMesh.new()
+	ball.radius = 0.5
+	ball.height = 1.0
+	var tabby := Color(0.55, 0.5, 0.42)
+	var dark := Color(0.22, 0.2, 0.18)
+	_part(textile, node, ball, tabby, Vector3(0, 0.2, 0) * size, Vector3(0.44, 0.24, 0.22) * size)
+	_part(textile, node, ball, tabby.lightened(0.06), Vector3(0.25, 0.34, 0) * size, Vector3(0.18, 0.16, 0.17) * size)
+	for side in [-1.0, 1.0]:
+		_part(textile, node, ball, tabby, Vector3(0.26, 0.44, side * 0.05) * size, Vector3(0.04, 0.07, 0.05) * size)
+	for k in 4:
+		var t := float(k) / 3.0
+		var at := Vector3(-0.24 - t * 0.16, 0.2 + t * 0.06, 0) * size
+		_part(textile, node, ball, dark if k % 2 == 1 else tabby, at, Vector3(0.1, 0.09, 0.09) * size)
+	for k in 3:
+		_part(textile, node, ball, dark, Vector3(-0.1 + k * 0.1, 0.32, 0) * size, Vector3(0.03, 0.03, 0.22) * size)
 	return node
