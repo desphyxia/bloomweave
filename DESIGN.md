@@ -207,10 +207,26 @@ blooms now while keeping corridor routes and future corners open.
 - **Progression map: branching, by region.** A quilted world map split into
   regions (e.g. Lowlands, Moors, River Country) of about 8–15 levels each.
   Several levels are open at once, so the player is never stuck.
-- **The first region has 8 levels** (Heatherfold, Willowmere, Bramblecombe
-  and five more), each adding one new idea, so the first star gate (about
-  half its 24 stars, i.e. 12) comes after a few sessions. Later regions can
-  be longer (up to ~15).
+- **The first region, The Lowlands, has 8 levels** (landmark: the Old Oak),
+  each adding one new idea, so the first star gate (about half its 24
+  stars, i.e. 12) comes after a few sessions. Later regions can be longer
+  (up to ~15). Sizes grow gently: about 26, 28, 30, 32 plots for levels
+  4–7, then about 40 for the finale.
+
+  | # | Valley | New idea | Residents | Hidden visitor |
+  |---|---|---|---|---|
+  | 1 | Heatherfold | the basics | otters, deer | red grouse |
+  | 2 | Willowmere | lake obstacle, Deep Wood | otters (lake), badgers | grey heron |
+  | 3 | Bramblecombe | clockwise blooms | deer, bees | brown hare |
+  | 4 | – | **cliff** obstacle | **eagles** (blooms by the cliff), otters | **wildcat** (by the cliff) |
+  | 5 | – | 5th biome, **hedgerow** (hawthorn, bramble, dog-rose) | **hedgehogs** (a corridor that closes into a loop), bees | **dormouse** (a long joined line of hedgerow) |
+  | 6 | – | **ruins** obstacle | **owls** (blooms beside the ruins), badgers | **red fox** (meadow and hedgerow round the ruins) |
+  | 7 | – | **Reed Bed** bloom (two wetlands + a meadow) | **reed warblers** (2 Reed Beds in a corridor), otters | **kingfisher** (wetland along a long stretch of lake shore) |
+  | 8 | – | grand finale: a ~40-plot valley bringing the region's ideas together, no new rule | – | – |
+
+  Visitors lean to land animals: there are already many flying residents
+  (eagles, owls), so level 6's visitor is a fox rather than bats, and level
+  4's a wildcat rather than a raven; the kingfisher stays for the lake.
 - **Star goals open levels; stars come from discoveries, never score.** Each
   level has 3 stars: restore the valley, settle all residents, find the
   hidden visitor. Finishing any level always opens its neighbour on the map,
@@ -403,8 +419,9 @@ blooms now while keeping corridor routes and future corners open.
 
 ### Progression and unlocks
 - Which discoveries open which bonus levels and biomes.
-- The first region's name, and the new idea for each of its levels 4–8
-  (candidates: cliff + eagles, ruins + owls, a 5th biome, ancient wood).
+- Names of levels 4–8; the finale's residents and visitor.
+- New pattern kinds needed: corridor loops (hedgehogs), a line of one biome
+  (dormouse), hexes of a biome by an obstacle other than the lake.
 
 ### Atmosphere
 - Exact biome sound layers and how they mix.
