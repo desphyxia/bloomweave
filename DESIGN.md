@@ -222,7 +222,7 @@ blooms now while keeping corridor routes and future corners open.
   | 5 | Hawthorn Lea | 5th biome, **hedgerow** (hawthorn, bramble, dog-rose) | **hedgehogs** (a ring of blooms round a piece), bees | **dormouse** (8+ joined hedgerow hexes) |
   | 6 | Chapel Garth | **ruins** obstacle | **owls** (blooms beside the ruins), badgers | **red fox** (meadow and hedgerow round the ruins) |
   | 7 | Warbler Fen | **Reed Bed** bloom (two wetlands + a meadow) | **reed warblers** (2 Reed Beds in a corridor), otters | **kingfisher** (wetland along a long stretch of lake shore) |
-  | 8 | Oakhaven | grand finale: a ~40-plot valley bringing the region's ideas together, no new rule | deer, eagles, reed warblers | **white hart** (every kind of bloom in the valley has grown at least once) |
+  | 8 | Oakhaven | grand finale: a ~40-plot valley bringing the region's ideas together, no new rule | deer, eagles, reed warblers | **white hart** (every kind of bloom in the valley grown three times) |
 
   - *Cliff (Eagle Scar):* a ridge of 2–3 rock obstacle plots across the
     valley, carved from one of the generator's ridges, partly splitting it
@@ -480,7 +480,7 @@ placing well); the dropped open mode would have brought it back. Progression thr
 
 ## Prototype scope (built)
 
-- Seven Progression levels, picked from a simple list with stars (saved on
+- All eight levels of The Lowlands, picked from a simple list with stars (saved on
   the device; finishing a level opens the next):
   - *1. Heatherfold:* 19 plots in a round outline around the landmark,
     biomes forest, meadow, wetland, heath; otters and deer.
@@ -520,6 +520,13 @@ placing well); the dropped open mode would have brought it back. Progression thr
     Residents **reed warblers** (5+ blooms with 2+ Reed Beds) and otters
     (5+ blooms, 2+ by the lake); hidden visitor the **kingfisher** (8+
     wetland hexes touching the lake).
+  - *8. Oakhaven (finale):* generated, 40 broad plots with a 3-plot **lake**
+    in the north and a 3-plot **cliff** on the east side (designer's pick of
+    6 from 38). Clockwise, all five biomes, seven recipes from across the
+    region (Reed Bed, Deep Wood, Fern Hollow, Foxglove Glade, Misty Carr,
+    Bramble Bank, Willow Hedge). Residents deer, golden eagles (2+ blooms
+    by the cliff) and reed warblers; hidden visitor the **white hart**
+    (every one of the seven blooms grown three times).
 - Piece list from JSON: mostly three-different pieces plus some doubles.
 - Place, rotate and mirror with a preview of which corners would bloom.
 - The 4 named blooms (data-driven); seeds with set aside, swap, look ahead.
@@ -607,6 +614,14 @@ placing well); the dropped open mode would have brought it back. Progression thr
   The generator now floods lakes too: a joined set of plots on the
   valley's low inside ground, not next to the landmark; shapes with no
   room are skipped.
+- **Oakhaven tuning:** planner deer 100%, eagles 87%, reed warblers 100%,
+  about 38 blooms; simple player 79% / 45% / 66%. White hart: every bloom
+  once was far too easy (by luck in 25–75% of games); twice gave 33% by
+  luck; **three times** gives 12% by luck and 25% for the planner, and even
+  the planner chasing it hard reaches only ~19 of 21: the region's
+  crowning feat, earned over several tries. A new visitor pattern,
+  `every_bloom` with `min_each`. The generator floods the lake before
+  raising the cliff so both fit.
 - **Level tools:** `tools/generate_levels.gd` (template in
   `tools/level_templates`) generates and scores candidates;
   `tools/candidate_sheet.py` draws a contact sheet; `tools/level_from_candidate.py`

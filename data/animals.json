@@ -219,11 +219,11 @@
       "id": "white_hart",
       "name": "White hart",
       "hidden": true,
-      "riddle": "Only when every flower of the vale has opened twice over does the pale stag step from the oaks.",
-      "found_text": "every kind of bloom in Oakhaven grown at least twice.",
+      "riddle": "Only when every flower of the vale has opened thrice does the pale stag step from the oaks.",
+      "found_text": "every kind of bloom in Oakhaven grown three times.",
       "pattern": {
         "kind": "every_bloom",
-        "min_each": 2
+        "min_each": 3
       },
       "points": 30,
       "seeds": 5,

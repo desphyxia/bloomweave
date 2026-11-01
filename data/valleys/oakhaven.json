@@ -1,0 +1,169 @@
+{
+  "id": "oakhaven",
+  "name": "Oakhaven",
+  "intro": "Oakhaven, the heart of the Lowlands: lake, cliff, clockwise blooms and seven recipes from across the region. Deer, eagles and reed warblers all hope to move in.",
+  "biomes": [
+    "forest",
+    "meadow",
+    "wetland",
+    "heath",
+    "hedgerow"
+  ],
+  "outline": {
+    "plots": [
+      [-7, 5],
+      [-6, 3],
+      [-6, 6],
+      [-5, 1],
+      [-5, 4],
+      [-4, -1],
+      [-4, 2],
+      [-4, 5],
+      [-3, -3],
+      [-3, 0],
+      [-3, 3],
+      [-2, -5],
+      [-2, -2],
+      [-2, 1],
+      [-2, 4],
+      [-1, -7],
+      [-1, -1],
+      [-1, 2],
+      [-1, 5],
+      [0, -6],
+      [0, 0],
+      [0, 3],
+      [1, -2],
+      [1, 1],
+      [1, 4],
+      [2, -7],
+      [2, -4],
+      [2, -1],
+      [2, 2],
+      [2, 5],
+      [3, 0],
+      [3, 3],
+      [3, 6],
+      [4, 1],
+      [4, 4],
+      [5, 2],
+      [5, 5],
+      [6, 0],
+      [6, 3],
+      [7, 1]
+    ]
+  },
+  "obstacles": [
+    {
+      "kind": "lake",
+      "plots": [
+        [0, -3],
+        [1, -5],
+        [-1, -4]
+      ]
+    },
+    {
+      "kind": "cliff",
+      "plots": [
+        [3, -3],
+        [4, -2],
+        [5, -1]
+      ]
+    }
+  ],
+  "landmark": {
+    "biomes": [
+      "forest",
+      "meadow",
+      "wetland"
+    ],
+    "name": "Old Oak",
+    "plot": [0, 0]
+  },
+  "blooms": [
+    "reed_bed",
+    "deep_wood",
+    "fern_hollow",
+    "foxglove_glade",
+    "misty_carr",
+    "bramble_bank",
+    "willow_hedge"
+  ],
+  "pile": {
+    "distinct": 27,
+    "double": 12,
+    "single": 0,
+    "weights": {
+      "forest": 1.4,
+      "wetland": 1.3
+    }
+  },
+  "animals": [
+    "deer",
+    {
+      "description": "A corridor of 5+ blooms, with 2+ of them by the cliff.",
+      "id": "eagles",
+      "needs": {
+        "min_blooms": 5,
+        "min_near_blooms": 2,
+        "near": "cliff"
+      }
+    },
+    "reed_warblers"
+  ],
+  "visitor": "white_hart",
+  "bloom_order": "clockwise",
+  "scoring": {
+    "bloom": 2,
+    "combo_step": 1,
+    "perfect_seeds": 5,
+    "seeds_per_point": 3
+  },
+  "seed_costs": {
+    "look_ahead": 2,
+    "set_aside": 1,
+    "swap": 1
+  },
+  "look_ahead_count": 3,
+  "terrain": {
+    "hills": [
+      [18.4, -3.86, 8.04, 3.64],
+      [16.52, 8.43, 3.33, 1.49],
+      [1.84, 17.03, 2.32, 1.41],
+      [-3.99, 13.75, 3.71, 2.42],
+      [-16.82, 0.31, 5.52, 3.06],
+      [-13.53, -5.89, 5.67, 2.41],
+      [-10.07, -10.42, 4.95, 1.92],
+      [-2.84, -18.82, 4.78, 1.35],
+      [4.43, -15.59, 4.19, 2.98],
+      [8.96, -10.22, 3.32, 2.23],
+      [15.47, -6.38, 5.75, 2.18],
+      [19.37, 3.04, 3.79, 2.38],
+      [14.75, 2.85, 4.13, 1.84],
+      [16.78, -8.52, 4.95, 2.53],
+      [14.63, -5.21, 3.99, 2.37],
+      [11.96, -2.6, 3.86, 2.08],
+      [13.58, -14.07, 4.3, 1.99],
+      [11.12, -11.18, 3.79, 2.46],
+      [8.59, -8.38, 3.04, 2.08]
+    ]
+  },
+  "generated_from": {
+    "seed": 1009,
+    "metrics": {
+      "bloom_spots": 47,
+      "blooms": 25,
+      "interior": 13,
+      "plots": 40,
+      "score": 0.275,
+      "seed": 1009,
+      "settle": {
+        "deer": 66,
+        "eagles": 41,
+        "reed_warblers": 50
+      },
+      "visitor_chance": 33,
+      "visitor_sought": 33
+    }
+  }
+}
