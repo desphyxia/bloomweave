@@ -83,7 +83,7 @@ func validate() -> Array[String]:
 				errors.append("Bloom %s uses unknown biome %s." % [bl.id, b])
 	for a: Dictionary in animals.values():
 		var pattern: Dictionary = a.get("pattern", {})
-		if a.get("hidden", false) and not ["biome_patch", "biome_near"].has(pattern.get("kind", "")):
+		if a.get("hidden", false) and not ["biome_patch", "biome_near", "every_bloom"].has(pattern.get("kind", "")):
 			errors.append("Visitor %s has an unknown pattern." % a.id)
 		for b: Variant in (pattern.biome if pattern.get("biome") is Array else [pattern.get("biome", "")]):
 			if pattern.has("biome") and not biomes.has(b):

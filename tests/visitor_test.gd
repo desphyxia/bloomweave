@@ -60,3 +60,29 @@ func test_heron_counts_wetland_on_the_lake_shore() -> void:
 	g.board[shore[need - 1]] = "wetland"
 	assert_str(g.check_visitor()).is_equal("heron")
 	assert_int(g.star_count()).is_equal(1)
+
+
+func test_every_bloom_pattern_counts_each_recipe_once() -> void:
+	var v := data.valley("first_valley").duplicate(true)
+	v.visitor = "_hart_test"
+	data.animals["_hart_test"] = {"id": "_hart_test", "hidden": true, "pattern": {"kind": "every_bloom"}, "seeds": 5}
+	var g := ValleyGame.new(data, v, 1)
+	var spots: Array[Vector3i] = []
+	for base in g.plots:
+		for w in PlotGrid.plot_weave_points(base):
+			if not spots.has(w):
+				spots.append(w)
+	var ids: Array = []
+	for bl: Dictionary in g.recipes():
+		ids.append(bl.id)
+	# All but one recipe, two of the first: not yet.
+	for i in ids.size() - 1:
+		g.blooms[spots[i]] = ids[i]
+	g.blooms[spots[ids.size()]] = ids[0]
+	var pr := g.visitor_progress()
+	assert_int(pr.need).is_equal(ids.size())
+	assert_int(pr.have).is_equal(ids.size() - 1)
+	assert_str(g.check_visitor()).is_equal("")
+	g.blooms[spots[ids.size() + 1]] = ids[-1]
+	assert_str(g.check_visitor()).is_equal("_hart_test")
+	data.animals.erase("_hart_test")

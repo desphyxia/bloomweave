@@ -710,6 +710,8 @@ func animal_progress(id: String) -> Array:
 ##   biome_patch - `min_hexes` hexes of `biome` joined in one patch
 ##   biome_near  - `min_hexes` hexes of `biome` (or any of a list of
 ##                 biomes) next to an obstacle `near`
+##   every_bloom - every one of the valley's recipes has bloomed at least
+##                 `min_each` times (default once)
 func visitor() -> Dictionary:
 	return data.animals.get(valley.get("visitor", ""), {})
 
@@ -721,6 +723,19 @@ func visitor_progress() -> Dictionary:
 	var need := int(pattern.get("min_hexes", 1))
 	var hexes: Array[Vector2i] = []
 	match pattern.get("kind", ""):
+		"every_bloom":
+			var each := int(pattern.get("min_each", 1))
+			var count := {}
+			var where := {}
+			for v: Vector3i in blooms:
+				count[blooms[v]] = count.get(blooms[v], 0) + 1
+				where[blooms[v]] = v
+			var have := 0
+			for bl: Dictionary in recipes():
+				have += mini(int(count.get(bl.id, 0)), each)
+				if where.has(bl.id):
+					hexes.append(Hex.vertex_hexes(where[bl.id])[0])
+			return {"have": have, "need": recipes().size() * each, "hexes": hexes}
 		"biome_patch":
 			hexes = largest_patch(pattern.biome)
 		"biome_near":

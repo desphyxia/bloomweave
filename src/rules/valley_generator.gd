@@ -34,18 +34,19 @@ static func generate(rng_seed: int, plot_count: int, cliff_plots: int = 0, ruins
 	valley = _smooth(valley, start, plot_count + extra, height)
 	var obstacles := []
 	var covered := valley.duplicate()
-	if cliff_plots > 0:
-		var ridge := _ridge(valley, start, cliff_plots, height, rng)
-		if not ridge.is_empty():
-			for p in ridge:
-				valley.erase(p)
-			obstacles.append({"kind": "cliff", "plots": ridge})
+	# Lake first (it wants the lowest ground), then the cliff (the highest).
 	if lake_plots > 0:
 		var lake := _lake(valley, start, lake_plots, height)
 		if lake.size() == lake_plots:
 			for p in lake:
 				valley.erase(p)
 			obstacles.append({"kind": "lake", "plots": lake})
+	if cliff_plots > 0:
+		var ridge := _ridge(valley, start, cliff_plots, height, rng)
+		if not ridge.is_empty():
+			for p in ridge:
+				valley.erase(p)
+			obstacles.append({"kind": "cliff", "plots": ridge})
 	if ruins > 0:
 		var spots: Array[Vector2i] = []
 		for _i in ruins:
@@ -114,18 +115,18 @@ static func _lake(valley: Array[Vector2i], start: Vector2i, size: int, height: D
 	for p in valley:
 		inside[p] = true
 	var near_start := PlotGrid.plot_neighbors(start)
-	var ok := func(p: Vector2i) -> bool:
+	var ok := func(p: Vector2i, min_n: int) -> bool:
 		if p == start or near_start.has(p) or not inside.has(p):
 			return false
 		var n := 0
 		for q in PlotGrid.plot_neighbors(p):
 			if inside.has(q):
 				n += 1
-		return n >= 5
+		return n >= min_n
 	var seed_plot := start
 	var best := INF
 	for p in valley:
-		if ok.call(p) and float(height[p]) < best:
+		if ok.call(p, 5) and float(height[p]) < best:
 			best = height[p]
 			seed_plot = p
 	if seed_plot == start:
@@ -136,7 +137,7 @@ static func _lake(valley: Array[Vector2i], start: Vector2i, size: int, height: D
 		var low := INF
 		for p in lake:
 			for q in PlotGrid.plot_neighbors(p):
-				if lake.has(q) or not ok.call(q):
+				if lake.has(q) or not ok.call(q, 4):
 					continue
 				if float(height[q]) < low:
 					var trial := lake.duplicate()

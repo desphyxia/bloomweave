@@ -18,6 +18,8 @@ static func build(textile: Textile, id: String, size: float = 1.0) -> Node3D:
 		return _hedgehog(textile, size)
 	if id == "dormouse":
 		return _dormouse(textile, size)
+	if id == "white_hart":
+		return _hart(textile, size)
 	if id == "reed_warblers" or id == "kingfisher":
 		return _small_bird(textile, id, size)
 	if id == "owls":
@@ -315,4 +317,36 @@ static func _small_bird(textile: Textile, id: String, size: float) -> Node3D:
 	beak.material_override = textile.fabric(Color(0.15, 0.13, 0.12), FELT)
 	node.add_child(beak)
 	_part(textile, node, ball, back.darkened(0.2), Vector3(-0.14, 0.46, 0) * size, Vector3(0.12, 0.04, 0.06) * size)
+	return node
+
+
+## The white hart: a pale stag with branching felt antlers.
+static func _hart(textile: Textile, size: float) -> Node3D:
+	var node := Node3D.new()
+	var ball := SphereMesh.new()
+	ball.radius = 0.5
+	ball.height = 1.0
+	var stick := CylinderMesh.new()
+	stick.top_radius = 0.5
+	stick.bottom_radius = 0.5
+	stick.height = 1.0
+	stick.radial_segments = 6
+	var white := Color(0.97, 0.96, 0.92)
+	var antler := Color(0.86, 0.8, 0.66)
+	_part(textile, node, ball, white, Vector3(0, 0.5, 0) * size, Vector3(0.6, 0.3, 0.28) * size)
+	for x in [-0.2, 0.2]:
+		for z in [-0.08, 0.08]:
+			_part(textile, node, stick, white, Vector3(x, 0.22, z) * size, Vector3(0.05, 0.42, 0.05) * size)
+	_part(textile, node, stick, white, Vector3(0.3, 0.68, 0) * size, Vector3(0.1, 0.26, 0.1) * size)
+	(node.get_child(node.get_child_count() - 1) as Node3D).rotation.z = -0.5
+	_part(textile, node, ball, white, Vector3(0.4, 0.82, 0) * size, Vector3(0.22, 0.14, 0.13) * size)
+	for side in [-1.0, 1.0]:
+		for k in 3:
+			var tine := MeshInstance3D.new()
+			tine.mesh = stick
+			tine.scale = Vector3(0.025, 0.18 - k * 0.03, 0.025) * size
+			tine.position = Vector3(0.36 - k * 0.04, 0.98 + k * 0.08, side * (0.06 + k * 0.05)) * size
+			tine.rotation = Vector3(side * (0.4 + k * 0.15), 0, -0.25)
+			tine.material_override = textile.fabric(antler, FELT)
+			node.add_child(tine)
 	return node
