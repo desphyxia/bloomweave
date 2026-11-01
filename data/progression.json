@@ -8,5 +8,29 @@
     "chapel_garth",
     "warbler_fen",
     "oakhaven"
+  ],
+  "regions": [
+    {
+      "id": "lowlands",
+      "name": "The Lowlands",
+      "landmark": "Old Oak",
+      "levels": [
+        "first_valley",
+        "willowmere",
+        "bramblecombe",
+        "eagle_scar",
+        "hawthorn_lea",
+        "chapel_garth",
+        "warbler_fen",
+        "oakhaven"
+      ],
+      "gate_stars": 12
+    },
+    {
+      "id": "beyond",
+      "name": "?",
+      "levels": [],
+      "hidden": true
+    }
   ]
 }

@@ -34,9 +34,7 @@ var _end: PanelContainer
 var _end_label: Label
 var _end_stars: StarRow
 var _end_note: Label
-var _levels: Control
-var _levels_list: VBoxContainer
-var _levels_total: Label
+var _map: WorldMap
 var _journal: JournalView
 
 
@@ -250,51 +248,13 @@ func show_end(result: Dictionary = {}) -> void:
 	_end.visible = true
 
 
-## The list of valleys: each with its stars and best score; locked ones say
-## what opens them. `can_close` adds a way back to the current game.
+## The world map of the current region. `can_close` adds a way back to the
+## current game.
 func show_levels(progress: Progress, can_close: bool) -> void:
-	for c in _levels_list.get_children():
-		c.queue_free()
-	var n := 0
-	for id: String in progress.levels:
-		n += 1
-		var v := data.valley(id)
-		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", 12)
-		var b := Button.new()
-		b.focus_mode = Control.FOCUS_NONE
-		b.custom_minimum_size = Vector2(210, 52)
-		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		b.add_theme_font_size_override("font_size", 18)
-		var open := progress.is_unlocked(id)
-		b.text = "%d.  %s" % [n, v.get("name", id)]
-		b.disabled = not open
-		b.pressed.connect(func() -> void: action.emit("level:" + id))
-		row.add_child(b)
-		var stars := StarRow.new()
-		var st := progress.stars(id)
-		stars.earned = [st.restored, st.residents, st.visitor]
-		stars.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		row.add_child(stars)
-		var note := Label.new()
-		note.add_theme_font_size_override("font_size", 14)
-		note.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		if not open:
-			var prev := data.valley(progress.levels[n - 2])
-			note.text = "Restore %s to open" % prev.get("name", "")
-		elif progress.best(id) > 0:
-			note.text = "Best %d" % progress.best(id)
-		row.add_child(note)
-		_levels_list.add_child(row)
-	_levels_total.text = "Stars: %d of %d   (restore · all residents · hidden visitor)" % [
-		progress.total_stars(), progress.levels.size() * 3]
-	if progress.unlock_all:
-		_levels_total.text += "\nDev mode: every valley is open."
-	_buttons.close_levels.visible = can_close
 	_end.visible = false
 	_hint_panel.visible = false
 	_hide_toast()
-	_levels.visible = true
+	_map.open(data, progress, can_close)
 
 
 func show_journal(progress: Progress) -> void:
@@ -310,11 +270,11 @@ func set_journal_dot(on: bool) -> void:
 
 
 func hide_levels() -> void:
-	_levels.visible = false
+	_map.visible = false
 
 
 func levels_shown() -> bool:
-	return _levels.visible or _journal.visible
+	return _map.visible or _journal.visible
 
 
 # --- Layout -------------------------------------------------------------------
@@ -340,7 +300,7 @@ func _build_top() -> void:
 	nav.add_theme_constant_override("separation", 6)
 	info_row.add_child(nav)
 	for id: String in ["levels", "journal"]:
-		_add_button(nav, id, "Valleys" if id == "levels" else "Journal")
+		_add_button(nav, id, "Map" if id == "levels" else "Journal")
 		_buttons[id].custom_minimum_size = Vector2(84, 34)
 		_buttons[id].add_theme_font_size_override("font_size", 15)
 	top.add_child(info_panel)
@@ -533,46 +493,16 @@ func _build_end() -> void:
 	_add_button(row, "next", "Next valley")
 	_buttons.next.add_theme_color_override("font_color", ACCENT)
 	_add_button(row, "restart", "Play again")
-	_add_button(row, "levels_end", "Valleys")
+	_add_button(row, "levels_end", "Map")
 	_end.visible = false
 	_root.add_child(_end)
 
 
 func _build_levels() -> void:
-	_levels = ColorRect.new()
-	(_levels as ColorRect).color = Color(0.2, 0.18, 0.14, 0.45)
-	_levels.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_levels.mouse_filter = Control.MOUSE_FILTER_STOP
-	var center := CenterContainer.new()
-	center.set_anchors_preset(Control.PRESET_FULL_RECT)
-	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_levels.add_child(center)
-	var panel := _panel()
-	center.add_child(panel)
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 12)
-	panel.add_child(box)
-	var title := Label.new()
-	title.text = "Bloomweave  ·  Valleys"
-	title.add_theme_font_size_override("font_size", 26)
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	box.add_child(title)
-	_levels_list = VBoxContainer.new()
-	_levels_list.add_theme_constant_override("separation", 8)
-	box.add_child(_levels_list)
-	_levels_total = Label.new()
-	_levels_total.add_theme_font_size_override("font_size", 14)
-	_levels_total.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	box.add_child(_levels_total)
-	_add_button(box, "close_levels", "Back to the valley")
-	_buttons.close_levels.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	# Tapping outside the list closes it, like "Back to the valley".
-	_levels.gui_input.connect(func(event: InputEvent) -> void:
-		var mb := event as InputEventMouseButton
-		if mb and mb.button_index == MOUSE_BUTTON_LEFT and not mb.pressed:
-			action.emit("close_levels"))
-	_levels.visible = false
-	_root.add_child(_levels)
+	_map = WorldMap.new()
+	_map.chosen.connect(func(id: String) -> void: action.emit("level:" + id))
+	_map.closed.connect(func() -> void: action.emit("close_levels"))
+	_root.add_child(_map)
 
 
 # --- Helpers ------------------------------------------------------------------

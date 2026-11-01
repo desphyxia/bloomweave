@@ -96,3 +96,17 @@ func test_journal_lists_what_the_levels_use() -> void:
 	var residents: Array = e.residents.map(func(x: Dictionary) -> String: return x.id)
 	assert_bool(residents.has("hare")).is_false()
 	assert_bool(residents.has("badger")).is_true()
+
+
+func test_regions_and_star_gate() -> void:
+	assert_int(data.regions.size()).is_greater_equal(2)
+	var first: Dictionary = data.regions[0]
+	assert_array(first.levels).is_equal(data.levels)
+	var p := Progress.new(data.levels, TEST_PATH)
+	assert_bool(p.region_open(data.regions, 0)).is_true()
+	assert_bool(p.region_open(data.regions, 1)).is_false()
+	# Give every level of the first region two stars: past the gate.
+	for id: String in first.levels:
+		p.records[id] = {"stars": {"restored": true, "residents": true, "visitor": false}, "best": 1}
+	assert_int(p.region_stars(first)).is_equal(first.levels.size() * 2)
+	assert_bool(p.region_open(data.regions, 1)).is_true()

@@ -93,6 +93,23 @@ func is_unlocked(id: String) -> bool:
 	return bool(stars(levels[i - 1]).get("restored", false))
 
 
+## Stars earned in the levels of one region.
+func region_stars(region: Dictionary) -> int:
+	var n := 0
+	for id: String in region.get("levels", []):
+		n += star_count(id)
+	return n
+
+
+## Whether a region's gate is open: the region before it has enough stars
+## (its `gate_stars`). The first region is always open.
+func region_open(regions: Array, index: int) -> bool:
+	if index <= 0 or unlock_all:
+		return true
+	var before: Dictionary = regions[index - 1]
+	return region_stars(before) >= int(before.get("gate_stars", 0)) and region_open(regions, index - 1)
+
+
 func next_level(id: String) -> String:
 	var i := levels.find(id)
 	return levels[i + 1] if i >= 0 and i + 1 < levels.size() else ""

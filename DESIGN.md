@@ -204,6 +204,17 @@ blooms now while keeping corridor routes and future corners open.
   A first discovery adds "New in your journal: …" to the message and puts a
   dot on the Journal button until it's opened. Discoveries are saved with
   progress.
+- **World map (built for The Lowlands):** a flat 2D quilt of fabric patches
+  with each valley a round embroidered badge (its outline in miniature,
+  with lake, cliff or ruins and the landmark, its name and three stars) on
+  a running-stitch path that snakes from the first valley to the last;
+  locked valleys are greyed with a padlock, the next one to restore has a
+  pink ring. Past the last valley a stitched **star gate** shows "★ n / 12
+  to open"; beyond it the next region is a misty, faded patch named "?".
+  The map replaces the old list: the game opens on it, and the Map button
+  and end screen lead back to it. It fits the screen without scrolling (2
+  columns in portrait, 4 in landscape). Regions live in
+  `data/progression.json` (`regions`: name, landmark, levels, gate_stars).
 - **Progression map: branching, by region.** A quilted world map split into
   regions (e.g. Lowlands, Moors, River Country) of about 8–15 levels each.
   Several levels are open at once, so the player is never stuck.
@@ -480,7 +491,7 @@ placing well); the dropped open mode would have brought it back. Progression thr
 
 ## Prototype scope (built)
 
-- All eight levels of The Lowlands, picked from a simple list with stars (saved on
+- All eight levels of The Lowlands, picked from the quilted world map with stars (saved on
   the device; finishing a level opens the next):
   - *1. Heatherfold:* 19 plots in a round outline around the landmark,
     biomes forest, meadow, wetland, heath; otters and deer.

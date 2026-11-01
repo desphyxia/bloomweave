@@ -13,12 +13,14 @@ The web build is published to GitHub Pages on every push to `master`.
 The info panel shows the build (commit) id; each deploy gives the game data
 file a new name so browsers always load the latest version.
 
-The game opens on the list of **valleys** (levels). Each has three stars:
-restore it, settle all its residents, find its hidden visitor (a riddle
-in the residents panel hints at the secret pattern that brings it). Finishing a valley opens the next one; progress is saved in the
-browser. **Valleys** in the info panel brings the list back. The
-**Journal** keeps every bloom, resident and visitor you've found (with
-hints for the rest); a dot on its button means something new.
+The game opens on the **map** of The Lowlands: eight valleys on a stitched
+path, each with three stars (restore it, settle all its residents, find its
+hidden visitor; a riddle in the residents panel hints at it). Finishing a
+valley opens the next; 12 stars open the star gate to the next region
+(coming later). Progress is saved in the browser. **Map** in the info panel
+brings it back. The **Journal** keeps every bloom, resident and visitor
+you've found (with hints for the rest); a dot on its button means
+something new.
 
 The info panel also shows the **game number** (e.g. `game #424242`). Add
 `?seed=424242` to the page address to replay exactly that game (same
