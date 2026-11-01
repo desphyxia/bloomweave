@@ -266,6 +266,36 @@ func show_journal(progress: Progress) -> void:
 
 
 ## A dot on the Journal button while there's something new in it.
+var _sound_on := {"music": true, "effects": true}
+
+
+## Show whether music and sounds are on (the icons get a line through when off).
+func set_sound(music: bool, effects: bool) -> void:
+	_sound_on = {"music": music, "effects": effects}
+	for id: String in _sound_on:
+		_buttons[id].queue_redraw()
+
+
+## A note for music, a little speaker for sounds; struck through when muted.
+func _draw_sound_icon(b: Button, id: String) -> void:
+	var c := b.size * 0.5
+	var on: bool = _sound_on[id]
+	var ink := INK if on else Color(INK, 0.4)
+	if id == "music":
+		b.draw_circle(c + Vector2(-4, 6), 4.0, ink)
+		b.draw_line(c + Vector2(-0.5, 6), c + Vector2(-0.5, -9), ink, 2.0)
+		b.draw_line(c + Vector2(-0.5, -9), c + Vector2(6, -5), ink, 2.0)
+	else:
+		b.draw_rect(Rect2(c + Vector2(-9, -3), Vector2(5, 6)), ink)
+		b.draw_colored_polygon(PackedVector2Array([c + Vector2(-5, -3), c + Vector2(1, -8),
+			c + Vector2(1, 8), c + Vector2(-5, 3)]), ink)
+		if on:
+			b.draw_arc(c + Vector2(1, 0), 5.0, -0.9, 0.9, 8, ink, 1.5)
+			b.draw_arc(c + Vector2(1, 0), 9.0, -0.9, 0.9, 10, ink, 1.5)
+	if not on:
+		b.draw_line(c + Vector2(-10, 9), c + Vector2(10, -9), ACCENT, 2.0)
+
+
 func set_journal_dot(on: bool) -> void:
 	_buttons.journal.text = "Journal •" if on else "Journal"
 	_buttons.journal.add_theme_color_override("font_color", ACCENT if on else INK)
@@ -316,6 +346,15 @@ func _build_top() -> void:
 		_add_button(nav, id, "Map" if id == "levels" else "Journal")
 		_buttons[id].custom_minimum_size = Vector2(84, 34)
 		_buttons[id].add_theme_font_size_override("font_size", 15)
+	var mutes := HBoxContainer.new()
+	mutes.add_theme_constant_override("separation", 4)
+	nav.add_child(mutes)
+	for id: String in ["music", "effects"]:
+		_add_button(mutes, id, "")
+		var b: Button = _buttons[id]
+		b.custom_minimum_size = Vector2(40, 30)
+		b.tooltip_text = "Music" if id == "music" else "Sounds"
+		b.draw.connect(_draw_sound_icon.bind(b, id))
 	top.add_child(info_panel)
 
 	top.add_theme_constant_override("h_separation", 10)

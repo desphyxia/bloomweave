@@ -12,6 +12,7 @@ var scenery: Scenery
 var rig: CameraRig
 var hud: Hud
 var region: RegionView
+var sound: SoundDirector
 
 var selected: Variant = null  # plot base (Vector2i) or null
 var arrangement: Array = []   # the current piece as it would be placed
@@ -113,6 +114,10 @@ func _setup_scene() -> void:
 	add_child(hud)
 	hud.action.connect(_on_action)
 
+	sound = SoundDirector.new()
+	add_child(sound)
+	hud.set_sound(sound.music_on, sound.effects_on)
+
 
 func _new_game() -> void:
 	game = ValleyGame.new(data, data.valley(level_id), _requested_seed())
@@ -125,6 +130,21 @@ func _new_game() -> void:
 	hud.setup(game)
 	hud.set_costs(game.valley.get("seed_costs", {}))
 	_update()
+	_landscape_sound()
+
+
+## The nature sounds follow the valley: wind grows with heath, water with
+## wetland (and a lake), meadow hum with meadow, birdsong with woods and hedges.
+func _landscape_sound() -> void:
+	var counts := {}
+	for h: Vector2i in game.board:
+		var b: String = game.board[h]
+		counts[b] = int(counts.get(b, 0)) + 1
+	var total := maxf(game.plots.size() * 3.0, 1.0)
+	var fill := {}
+	for b: String in counts:
+		fill[b] = counts[b] / total
+	sound.set_landscape(fill, game.obstacles.values().has("lake"))
 
 
 ## A game number to replay: `?seed=123456` in the web page address, or
@@ -242,6 +262,13 @@ func _place() -> void:
 	arrangement = game.current_piece()
 	board.clear_ghost()
 	board.add_piece(base, arranged, true)
+	sound.piece_placed()
+	sound.blooms(result.blooms.size(), result.perfect)
+	for id: String in result.settled:
+		sound.animal(id, false)
+	if result.visitor != "":
+		sound.animal(result.visitor, true)
+	_landscape_sound()
 	var names := []
 	for b: Dictionary in result.blooms:
 		board.add_bloom(b.vertex, b.bloom, true)
@@ -352,6 +379,12 @@ func _on_action(id: String) -> void:
 			hud.set_journal_dot(false)
 		"close_journal":
 			pass
+		"music":
+			sound.set_music(not sound.music_on)
+			hud.set_sound(sound.music_on, sound.effects_on)
+		"effects":
+			sound.set_effects(not sound.effects_on)
+			hud.set_sound(sound.music_on, sound.effects_on)
 		_:
 			if id.begins_with("level:"):
 				_start_level(id.trim_prefix("level:"))
@@ -363,6 +396,7 @@ func _show_map() -> void:
 	hud.show_levels(progress, true)
 	rig.set_process_unhandled_input(false)
 	region.open(data, progress)
+	sound.set_map_mood()
 
 
 func _hide_map() -> void:
@@ -373,6 +407,7 @@ func _hide_map() -> void:
 	hud.hide_levels()
 	rig.camera.make_current()
 	rig.set_process_unhandled_input(true)
+	_landscape_sound()
 
 
 func _start_level(id: String) -> void:

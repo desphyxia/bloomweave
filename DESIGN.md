@@ -412,10 +412,26 @@ blooms now while keeping corridor routes and future corners open.
     to turn it (instantly), press and hold (0.45 s) to place it as shown.
     Double-tap to place was tried and dropped: telling it apart from a turn
     made turning feel slow.
-  - *Sound:* **folk acoustic** music (soft guitar, harp, fiddle, recorder),
-    one tune per region; each biome adds nature sounds (birdsong, water,
-    wind in heather) that layer up as the valley fills; fabric rustle on
-    placement.
+  - *Sound:* everything is **made in code**: `tools/make_sounds.gd`
+    synthesizes the sounds into `sounds/` (nothing recorded or licensed).
+    - *Music:* a **generative plucked folk** tune: plucked strings
+      (Karplus-Strong) wander a D major pentatonic scale, one note per beat
+      at most (0.62 s), with rests and an occasional low second voice, over a
+      soft breathing drone. It never quite repeats.
+    - *Placing and blooms:* a fabric rustle with a felt thump when a piece
+      lands; a chime per bloom, climbing the scale through a combo; a
+      falling flourish for a perfect piece.
+    - *Animals and visitors:* the animal's call (owls hoot, eagles and herons
+      whistle, otters, hedgehogs and the dormouse chirrup, small birds sing)
+      then a three-note motif; a visitor gets a longer five-note one.
+    - *Layered nature:* wind grows with heath, water with wetland (and a
+      lake), a meadow hum with meadow, birdsong with woods and hedgerow; each
+      layer eases in as its biome fills the valley. The region map has a
+      quieter mix of everything.
+    - *Volume:* sound is on from the start; two buttons in the info panel
+      (a note and a speaker) mute music and sounds separately, remembered on
+      the device. Browsers start sound on the first tap.
+    - UI taps make no sound.
   - *Feedback:* blooms and settling animals use short, gentle animations that
     never interrupt; the player can keep placing straight away.
 - **Tech: Godot 4 + GDScript** (switched from three.js; iPhone and Android
@@ -477,7 +493,8 @@ blooms now while keeping corridor routes and future corners open.
   landmark, new biomes and ideas.
 
 ### Atmosphere
-- Exact biome sound layers and how they mix.
+- One tune for all of The Lowlands now; whether later regions get their own
+  scale, instruments or tempo.
 
 ## Dorfromantik comparison
 
@@ -558,8 +575,10 @@ placing well); the dropped open mode would have brought it back. Progression thr
 - Hidden visitors: the red grouse (Heatherfold) and the grey heron
   (Willowmere), with riddles in the residents panel.
 - The journal (Blooms / Residents / Visitors tabs) with nature notes.
-- Later: the quilted world map and regions, sound, influence visuals,
-  Custom mode and more Progression levels.
+- Sound made in code: generative plucked folk music, placing and bloom
+  chimes, animal calls, nature layers that follow the valley, and mute
+  buttons for music and sounds.
+- Later: influence visuals, Custom mode and more Progression levels.
 
 ### Prototype notes
 

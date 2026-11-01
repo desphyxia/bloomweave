@@ -21,7 +21,8 @@ valley opens the next; 12 stars open the star gate to the next region
 (coming later). Progress is saved in the browser. **Map** in the info panel
 brings it back. The **Journal** keeps every bloom, resident and visitor
 you've found (with hints for the rest); a dot on its button means
-something new.
+something new. The note and speaker buttons under it mute the music and the
+sounds (all made in code).
 
 The info panel also shows the **game number** (e.g. `game #424242`). Add
 `?seed=424242` to the page address to replay exactly that game (same
@@ -61,6 +62,9 @@ GODOT_BIN=/path/to/godot scripts/run_tests.sh
 # Balance check: 200 runs with a simple greedy player
 /path/to/godot --headless --path . -s res://tools/simulate.gd
 
+# Re-make the sounds in sounds/ after changing tools/make_sounds.gd
+/path/to/godot --headless --path . -s res://tools/make_sounds.gd
+
 # Web export (needs the web export templates; see below)
 /path/to/godot --headless --path . --export-release "Web" build/web/index.html
 ```
@@ -76,9 +80,11 @@ scripts/fetch_web_templates.py 4.7.2
 - `src/core` — hex grid and plot grid math (axial coordinates, vertex lookups)
 - `src/rules` — game rules: pieces, data loading, Valley mode (no engine nodes)
 - `src/view` — 3D board, camera, HUD
+- `sounds` — synthesized sounds (made by `tools/make_sounds.gd`)
 - `data` — biomes, blooms, animals, influence pairs, valleys (JSON)
 - `tests` — gdUnit4 tests for core and rules
-- `tools` — balance simulation, screenshot and draw-call (perf) helpers
+- `tools` — balance simulation, screenshot and draw-call (perf) helpers,
+  sound synthesis
 
 ### GitHub Pages
 

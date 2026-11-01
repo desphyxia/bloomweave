@@ -35,5 +35,7 @@ questions".
 - New levels: `godot --headless --path . -s res://tools/generate_levels.gd -- <template> 40 12 out.json`,
   then `python3 tools/candidate_sheet.py out.json sheet.png 6` (shortlist for the
   designer) and `python3 tools/level_from_candidate.py out.json <seed>`
+- Sounds (after changing `tools/make_sounds.gd`):
+  `godot --headless --path . -s res://tools/make_sounds.gd`
 - Web export: `godot --headless --path . --export-release "Web" build/web/index.html`
   (templates: `scripts/fetch_web_templates.py 4.7.2`)
