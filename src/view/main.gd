@@ -11,6 +11,7 @@ var board: BoardView
 var scenery: Scenery
 var rig: CameraRig
 var hud: Hud
+var region: RegionView
 
 var selected: Variant = null  # plot base (Vector2i) or null
 var arrangement: Array = []   # the current piece as it would be placed
@@ -40,7 +41,7 @@ func _ready() -> void:
 	_on_resize()
 	hud.set_journal_dot(progress.journal_unseen)
 	if not direct:
-		hud.show_levels(progress, true)
+		_show_map()
 
 
 ## Keep the interface readable on phones: a smaller virtual canvas when the
@@ -60,6 +61,8 @@ func _on_resize() -> void:
 	win.scaling_3d_scale = clampf(2.0 / dpr, 0.5, 1.0)
 	RenderingServer.directional_shadow_atlas_set_size(2048 if phone else 4096, true)
 	hud.set_compact(phone)
+	if region and region.visible:
+		region.open(data, progress)   # portrait and landscape lay out differently
 	rig.fit(px.x / maxf(px.y, 1.0))
 
 
@@ -101,6 +104,10 @@ func _setup_scene() -> void:
 	add_child(rig)
 	rig.tapped.connect(_on_tapped)
 	rig.long_pressed.connect(_on_long_pressed)
+
+	region = RegionView.new()
+	add_child(region)
+	region.chosen.connect(func(id: String) -> void: _on_action("level:" + id))
 
 	hud = Hud.new()
 	add_child(hud)
@@ -330,9 +337,9 @@ func _on_action(id: String) -> void:
 				progress.save()
 			selected = null
 			_update()
-			hud.show_levels(progress, true)
+			_show_map()
 		"close_levels":
-			hud.hide_levels()
+			_hide_map()
 			# Back over a finished valley: its end screen comes back.
 			if game.is_finished():
 				hud.show_end(_end_result)
@@ -350,11 +357,29 @@ func _on_action(id: String) -> void:
 				_start_level(id.trim_prefix("level:"))
 
 
+## The region overview: the 3D region with its own camera, and the HUD's
+## title bar; the game's camera and taps rest meanwhile.
+func _show_map() -> void:
+	hud.show_levels(progress, true)
+	rig.set_process_unhandled_input(false)
+	region.open(data, progress)
+
+
+func _hide_map() -> void:
+	if not region.visible:
+		hud.hide_levels()
+		return
+	region.close()
+	hud.hide_levels()
+	rig.camera.make_current()
+	rig.set_process_unhandled_input(true)
+
+
 func _start_level(id: String) -> void:
 	if not progress.is_unlocked(id):
 		return
 	level_id = id
-	hud.hide_levels()
+	_hide_map()
 	_new_game()
 
 

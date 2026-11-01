@@ -110,3 +110,16 @@ func test_regions_and_star_gate() -> void:
 		p.records[id] = {"stars": {"restored": true, "residents": true, "visitor": false}, "best": 1}
 	assert_int(p.region_stars(first)).is_equal(first.levels.size() * 2)
 	assert_bool(p.region_open(data.regions, 1)).is_true()
+
+
+func test_restored_board_is_kept() -> void:
+	var p := Progress.new(data.levels, TEST_PATH)
+	assert_dict(p.board("first_valley")).is_empty()
+	var g := _finished_game("first_valley", false)
+	p.record("first_valley", g)
+	var b := p.board("first_valley")
+	assert_int(b.size()).is_equal(g.board.size())
+	for h: Vector2i in g.board:
+		assert_str(b[h]).is_equal(g.board[h])
+	p.save()
+	assert_int(Progress.load_from(data.levels, TEST_PATH).board("first_valley").size()).is_equal(g.board.size())

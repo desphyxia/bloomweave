@@ -35,6 +35,7 @@ var _end_label: Label
 var _end_stars: StarRow
 var _end_note: Label
 var _map: WorldMap
+var _top_flow: HFlowContainer
 var _journal: JournalView
 
 
@@ -254,7 +255,8 @@ func show_levels(progress: Progress, can_close: bool) -> void:
 	_end.visible = false
 	_hint_panel.visible = false
 	_hide_toast()
-	_map.open(data, progress, can_close)
+	_map.open(data, progress, 0, can_close)
+	_set_game_ui(false)
 
 
 func show_journal(progress: Progress) -> void:
@@ -271,6 +273,16 @@ func set_journal_dot(on: bool) -> void:
 
 func hide_levels() -> void:
 	_map.visible = false
+	_set_game_ui(true)
+
+
+## Show or hide the game's own panels (while the region map is up).
+func _set_game_ui(on: bool) -> void:
+	_top_flow.visible = on
+	_flow.visible = on
+	if not on:
+		_hint_panel.visible = false
+		_hide_toast()
 
 
 func levels_shown() -> bool:
@@ -287,6 +299,7 @@ func _build_top() -> void:
 	top.offset_top = 12
 	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_root.add_child(top)
+	_top_flow = top
 
 	var info_panel := _panel()
 	info_panel.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
@@ -500,7 +513,6 @@ func _build_end() -> void:
 
 func _build_levels() -> void:
 	_map = WorldMap.new()
-	_map.chosen.connect(func(id: String) -> void: action.emit("level:" + id))
 	_map.closed.connect(func() -> void: action.emit("close_levels"))
 	_root.add_child(_map)
 

@@ -56,7 +56,24 @@ func record(id: String, game: ValleyGame) -> Dictionary:
 	var score: int = game.score_breakdown().total if game.is_finished() else 0
 	var best := score > int(rec.get("best", 0))
 	records[id] = {"stars": merged, "best": maxi(score, int(rec.get("best", 0)))}
+	# Keep the board of the best restored game, so the region overview can
+	# show the valley as it was restored: [[q, r, biome], ...].
+	if rec.has("board"):
+		records[id].board = rec.board
+	if game.is_finished() and (best or not rec.has("board")):
+		var cells := []
+		for h: Vector2i in game.board:
+			cells.append([h.x, h.y, game.board[h]])
+		records[id].board = cells
 	return {"new_stars": new_stars, "best": best}
+
+
+## The saved board of a restored level: hex -> biome ({} if none).
+func board(id: String) -> Dictionary:
+	var out := {}
+	for c: Array in records.get(id, {}).get("board", []):
+		out[Vector2i(int(c[0]), int(c[1]))] = str(c[2])
+	return out
 
 
 func stars(id: String) -> Dictionary:

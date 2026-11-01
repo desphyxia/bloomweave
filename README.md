@@ -13,8 +13,9 @@ The web build is published to GitHub Pages on every push to `master`.
 The info panel shows the build (commit) id; each deploy gives the game data
 file a new name so browsers always load the latest version.
 
-The game opens on the **map** of The Lowlands: eight valleys on a stitched
-path, each with three stars (restore it, settle all its residents, find its
+The game opens on the **map** of The Lowlands, a 3D overview where its
+eight valleys lie in miniature along a river (drag to pan, tap a valley to
+play), each with three stars (restore it, settle all its residents, find its
 hidden visitor; a riddle in the residents panel hints at it). Finishing a
 valley opens the next; 12 stars open the star gate to the next region
 (coming later). Progress is saved in the browser. **Map** in the info panel

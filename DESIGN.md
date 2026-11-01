@@ -204,16 +204,21 @@ blooms now while keeping corridor routes and future corners open.
   A first discovery adds "New in your journal: …" to the message and puts a
   dot on the Journal button until it's opened. Discoveries are saved with
   progress.
-- **World map (built for The Lowlands):** a flat 2D quilt of fabric patches
-  with each valley a round embroidered badge (its outline in miniature,
-  with lake, cliff or ruins and the landmark, its name and three stars) on
-  a running-stitch path that snakes from the first valley to the last;
-  locked valleys are greyed with a padlock, the next one to restore has a
-  pink ring. Past the last valley a stitched **star gate** shows "★ n / 12
-  to open"; beyond it the next region is a misty, faded patch named "?".
-  The map replaces the old list: the game opens on it, and the Map button
-  and end screen lead back to it. It fits the screen without scrolling (2
-  columns in portrait, 4 in landscape). Regions live in
+- **Region overview in 3D (built for The Lowlands):** one quilted
+  landscape where the region's valleys lie in their **real shapes, in
+  miniature** (30% size), on alternate sides of a winding silk river, in
+  order, joined by a running-stitch path, with hills along both sides.
+  Restored valleys show the board of their best restored game (saved with
+  progress) with felt trees on forest; open ones are pale cloth; locked
+  ones misty grey and labelled "locked". The next valley to restore has a
+  pink stitched ring; each valley has its name and stars above it and the
+  Old Oak at its landmark. Past the last valley a felt **star gate** with a
+  sign ("★ n / 12 to open"), then mist and a "?" for the region beyond.
+  **Camera:** the game's soft tilt, fixed angle and zoom, no rotation; it
+  starts at the next valley to restore; drag to pan along the region (it
+  runs up the screen in portrait, across it in landscape). Tap a valley to
+  play it. Only the title, stars and Back sit on top as 2D. (Replaced a
+  flat 2D quilt map with badges, tried first.) Regions live in
   `data/progression.json` (`regions`: name, landmark, levels, gate_stars).
 - **Progression map: branching, by region.** A quilted world map split into
   regions (e.g. Lowlands, Moors, River Country) of about 8–15 levels each.
@@ -491,7 +496,7 @@ placing well); the dropped open mode would have brought it back. Progression thr
 
 ## Prototype scope (built)
 
-- All eight levels of The Lowlands, picked from the quilted world map with stars (saved on
+- All eight levels of The Lowlands, picked from a 3D overview of the region (saved on
   the device; finishing a level opens the next):
   - *1. Heatherfold:* 19 plots in a round outline around the landmark,
     biomes forest, meadow, wetland, heath; otters and deer.
