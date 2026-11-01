@@ -211,8 +211,9 @@ blooms now while keeping corridor routes and future corners open.
   Restored valleys show the board of their best restored game (saved with
   progress) with felt trees on forest; open ones are pale cloth; locked
   ones misty grey and labelled "locked". The next valley to restore has a
-  pink stitched ring; each valley has its name and stars above it and the
-  Old Oak at its landmark. Past the last valley a felt **star gate** with a
+  pink stitched ring; each valley has its name and three big gold stars
+  (pale when not yet earned) floating above its far edge, and a big felt
+  Old Oak at its landmark, sized to read at map scale. Past the last valley a felt **star gate** with a
   sign ("★ n / 12 to open"), then mist and a "?" for the region beyond.
   **Camera:** the game's soft tilt, fixed angle and zoom, no rotation; it
   starts at the next valley to restore; drag to pan along the region (it

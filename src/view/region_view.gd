@@ -185,11 +185,15 @@ func _add_valley(patches: MeshBatch, details: MeshBatch, patch: Mesh, id: String
 	trunk.bottom_radius = 0.5
 	trunk.height = 1.0
 	trunk.radial_segments = 6
-	var green := Color(0.3, 0.5, 0.26) if open else Color(0.62, 0.64, 0.6)
-	details.add(trunk, Transform3D(Basis.from_scale(Vector3(0.1, 0.5, 0.1)), oak + Vector3(0, 0.25, 0)),
-		Color.WHITE, textile.fabric(Color(0.45, 0.32, 0.2), felt))
-	details.add(ball, Transform3D(Basis.from_scale(Vector3(0.75, 0.6, 0.75)), oak + Vector3(0, 0.7, 0)),
-		Color.WHITE, textile.fabric(green, felt))
+	# A big felt oak, so it reads at map scale: a stout trunk and a
+	# three-lobed canopy rising well above the valley.
+	var green := Color(0.27, 0.46, 0.22) if open else Color(0.6, 0.62, 0.58)
+	var bark := Color(0.42, 0.29, 0.18) if open else Color(0.58, 0.56, 0.52)
+	details.add(trunk, Transform3D(Basis.from_scale(Vector3(0.22, 1.1, 0.22)), oak + Vector3(0, 0.55, 0)),
+		Color.WHITE, textile.fabric(bark, felt))
+	for lobe: Vector3 in [Vector3(0, 1.45, 0), Vector3(0.42, 1.2, 0.2), Vector3(-0.38, 1.22, -0.18), Vector3(0.05, 1.25, -0.4)]:
+		details.add(ball, Transform3D(Basis.from_scale(Vector3(1.0, 0.82, 1.0)), oak + lobe),
+			Color.WHITE, textile.fabric(green if lobe.y < 1.4 else green.lightened(0.08), felt))
 	# The next valley to restore gets a pink stitched ring.
 	if open and not progress.stars(id).get("restored", false):
 		var segs: Array = []
@@ -295,11 +299,8 @@ func _add_path() -> void:
 func _add_labels() -> void:
 	for v: Dictionary in _valleys:
 		var st := progress.stars(v.id)
-		var stars := ""
-		for k: String in ["restored", "residents", "visitor"]:
-			stars += "★" if st.get(k, false) else "☆"
 		var label := Label3D.new()
-		label.text = "%s\n%s" % [data.valley(v.id).get("name", v.id), stars if v.open else "locked"]
+		label.text = data.valley(v.id).get("name", v.id) + ("" if v.open else "\nlocked")
 		label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 		label.font_size = 56
 		label.pixel_size = 0.012
@@ -307,8 +308,28 @@ func _add_labels() -> void:
 		label.modulate = Color(0.2, 0.18, 0.15) if v.open else Color(0.45, 0.43, 0.4)
 		label.outline_modulate = Color(1, 0.98, 0.92)
 		label.no_depth_test = true
-		label.position = v.centre + _along * -(float(v.radius) * 0.2) + Vector3(0, 1.6, 0)
+		# Above the valley's far edge (the camera looks along -z), so the
+		# name and stars never hide the valley or its oak.
+		label.position = v.centre + Vector3(0, 2.2, -float(v.radius) * 0.95)
 		_world.add_child(label)
+		if not v.open:
+			continue
+		# Three big stars under the name: gold when earned, pale when not.
+		var keys := ["restored", "residents", "visitor"]
+		for k in 3:
+			var star := Label3D.new()
+			var on: bool = st.get(keys[k], false)
+			star.text = "★"
+			star.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+			star.font_size = 96
+			star.pixel_size = 0.012
+			star.outline_size = 18
+			star.modulate = Color(0.98, 0.76, 0.18) if on else Color(0.93, 0.91, 0.86)
+			star.outline_modulate = Color(0.42, 0.3, 0.1) if on else Color(0.55, 0.52, 0.46)
+			star.no_depth_test = true
+			star.offset = Vector2((k - 1) * 70.0, -62.0)
+			star.position = label.position
+			_world.add_child(star)
 
 
 func _gate_pos() -> Vector3:
