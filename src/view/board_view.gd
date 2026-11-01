@@ -95,6 +95,7 @@ func setup(p_game: ValleyGame) -> void:
 	_baked_blooms.clear()
 	_bake()
 	_build_obstacles()
+	_build_landmark()
 	refresh()
 
 
@@ -369,6 +370,46 @@ const CLIFF_H := 0.62
 const CLIFF_STONE := Color(0.56, 0.54, 0.5)
 const CLIFF_FABRIC := {"weave_scale": 10.0, "weave_strength": 0.14, "fuzz": 0.25, "fleck": 0.04, "fleck_color": "#3f3a35", "rough": 1.0}
 const CLIFF_THREAD := Color(0.24, 0.22, 0.2)
+
+
+## The valley's landmark: a big felt Old Oak where the landmark piece's three
+## hexes meet (its confluence, where no bloom can grow), standing over the
+## puffy patches on a little root mound.
+func _build_landmark() -> void:
+	var at := vertex_pos(PlotGrid.confluence(game.center), SEAM_H + PUFF * 0.4)
+	var felt := {"fuzz": 0.35, "weave_strength": 0.0, "rough": 1.0}
+	var ball := SphereMesh.new()
+	ball.radius = 0.5
+	ball.height = 1.0
+	ball.radial_segments = 14
+	ball.rings = 7
+	var trunk := CylinderMesh.new()
+	trunk.top_radius = 0.38
+	trunk.bottom_radius = 0.5
+	trunk.height = 1.0
+	trunk.radial_segments = 8
+	var bark := textile.fabric(Color(0.42, 0.29, 0.18), felt)
+	var b := MeshBatch.new()
+	b.add(ball, Transform3D(Basis.from_scale(Vector3(0.7, 0.18, 0.7)), at), Color.WHITE, bark)
+	b.add(trunk, Transform3D(Basis.from_scale(Vector3(0.26, 1.0, 0.26)), at + Vector3(0, 0.5, 0)), Color.WHITE, bark)
+	for branch: Vector3 in [Vector3(0.22, 0.95, 0.1), Vector3(-0.2, 0.9, -0.12)]:
+		var basis := Basis(Vector3.FORWARD, -signf(branch.x) * 0.7).scaled(Vector3(0.09, 0.45, 0.09))
+		b.add(trunk, Transform3D(basis, at + branch), Color.WHITE, bark)
+	var greens := [Color(0.27, 0.46, 0.22), Color(0.32, 0.52, 0.26), Color(0.24, 0.42, 0.2)]
+	var lobes := [Vector3(0, 1.55, 0), Vector3(0.48, 1.3, 0.18), Vector3(-0.45, 1.32, -0.15),
+		Vector3(0.1, 1.3, -0.5), Vector3(-0.12, 1.28, 0.48), Vector3(0.05, 1.85, 0.05)]
+	for i in lobes.size():
+		var sz := 0.95 if i == 0 else 0.75
+		b.add(ball, Transform3D(Basis.from_scale(Vector3(sz, sz * 0.82, sz)), at + lobes[i]), Color.WHITE,
+			textile.fabric(greens[i % greens.size()], felt))
+	# A few acorns in the grass.
+	for k in 3:
+		var a := TAU * k / 3.0 + 0.4
+		b.add(ball, Transform3D(Basis.from_scale(Vector3(0.06, 0.07, 0.06)), at + Vector3(cos(a) * 0.45, 0.05, sin(a) * 0.45)),
+			Color.WHITE, textile.fabric(Color(0.6, 0.45, 0.22), felt))
+	var mi := MeshInstance3D.new()
+	mi.mesh = b.commit()
+	_obstacles.add_child(mi)
 
 
 ## Boulders, a few crags poking up, moss and heather on top of the rock.

@@ -333,7 +333,9 @@ blooms now while keeping corridor routes and future corners open.
   the valley grows outward like restoration spreading. Every valley starts
   from a fixed **landmark piece** in its centre: three different biomes from
   that valley, with a landmark at its confluence (an old tree, a spring). It
-  follows the normal rules but is the valley's heart. **One landmark per
+  follows the normal rules but is the valley's heart. On the board the
+  Old Oak is a big felt oak standing where the landmark piece's three
+  hexes meet (its confluence, where no bloom grows). **One landmark per
   region** (e.g. Old Oak, Spring, Standing Stone, Mill), with small
   variations between its levels, gives each region its identity.
 - **Same-biome trios may bloom, selectively.** Some trios with repeated
