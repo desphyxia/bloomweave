@@ -454,8 +454,8 @@ blooms now while keeping corridor routes and future corners open.
 
 ### Progression and unlocks
 - Which discoveries open which bonus levels and biomes.
-- Exact numbers for each new ask (eagles, owls, reed warblers, wildcat,
-  fox, kingfisher), tuned with the balance sim when each level is built.
+- What lies beyond The Lowlands' star gate: the second region's name,
+  landmark, new biomes and ideas.
 
 ### Atmosphere
 - Exact biome sound layers and how they mix.
