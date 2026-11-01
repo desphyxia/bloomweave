@@ -8,7 +8,8 @@ extends Node
 ##   - effects: a fabric rustle when a piece lands, a chime per bloom (rising
 ##     in a combo), a flourish for a perfect piece, and a call plus a little
 ##     motif when an animal moves in
-## Two buses, Music (music) and Effects (effects and nature), muted
+## Two buses from default_bus_layout.tres (buses added at runtime stay
+## silent in the web build), Music (music) and Effects (effects and nature), muted
 ## separately; the choice is saved on the device. Browsers start sound on the
 ## first tap.
 
@@ -43,11 +44,6 @@ var _rng := RandomNumberGenerator.new()
 
 func _ready() -> void:
 	_rng.randomize()
-	for bus in ["Music", "Effects"]:
-		if AudioServer.get_bus_index(bus) < 0:
-			AudioServer.add_bus()
-			AudioServer.set_bus_name(AudioServer.bus_count - 1, bus)
-			AudioServer.set_bus_send(AudioServer.bus_count - 1, "Master")
 	_load_settings()
 	for name: String in SOUNDS:
 		var path := "res://sounds/%s.wav" % name
@@ -57,25 +53,18 @@ func _ready() -> void:
 		var p := AudioStreamPlayer.new()
 		add_child(p)
 		_pool.append(p)
-	_drone = _looping("drone", "Music")
-	_drone.volume_db = -17.0
+	_drone = _looping("drone", "Music", -17.0)
 	for name in ["wind", "water", "meadow"]:
 		_layers[name] = _looping(name, "Effects")
 		_layer_target[name] = SILENT
 	_apply_mutes()
 
 
-func _looping(name: String, bus: String) -> AudioStreamPlayer:
+func _looping(name: String, bus: String, db: float = SILENT) -> AudioStreamPlayer:
 	var p := AudioStreamPlayer.new()
 	p.bus = bus
-	p.volume_db = SILENT
-	var s: Variant = _streams.get(name)
-	if s is AudioStreamWAV:
-		var w: AudioStreamWAV = (s as AudioStreamWAV).duplicate()
-		w.loop_mode = AudioStreamWAV.LOOP_FORWARD
-		w.loop_begin = 0
-		w.loop_end = int(w.get_length() * w.mix_rate)
-		p.stream = w
+	p.volume_db = db
+	p.stream = _streams.get(name)  # loops: the loop points are in the file
 	add_child(p)
 	if p.stream:
 		p.play()

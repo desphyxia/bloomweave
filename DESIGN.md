@@ -432,6 +432,11 @@ blooms now while keeping corridor routes and future corners open.
       (a note and a speaker) mute music and sounds separately, remembered on
       the device. Browsers start sound on the first tap.
     - UI taps make no sound.
+    - *Web build notes:* the Music and Effects buses live in
+      `default_bus_layout.tres` (buses added at runtime were silent in the
+      browser); loop points are written into the loop WAVs, since loop
+      settings made at runtime don't reach the browser; the page asks iOS
+      to play sound even with the silent switch on (`navigator.audioSession`).
   - *Feedback:* blooms and settling animals use short, gentle animations that
     never interrupt; the player can keep placing straight away.
 - **Tech: Godot 4 + GDScript** (switched from three.js; iPhone and Android

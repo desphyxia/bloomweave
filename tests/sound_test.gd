@@ -10,6 +10,13 @@ func test_every_listed_sound_exists() -> void:
 		assert_bool(SoundDirector.SOUNDS.has(name)).override_failure_message(name).is_true()
 
 
+## The buses must come from default_bus_layout.tres: buses added at runtime
+## stay silent in the web build.
+func test_buses_come_from_the_layout() -> void:
+	assert_int(AudioServer.get_bus_index("Music")).is_greater(0)
+	assert_int(AudioServer.get_bus_index("Effects")).is_greater(0)
+
+
 func test_landscape_and_mutes() -> void:
 	var s: SoundDirector = auto_free(SoundDirector.new())
 	add_child(s)

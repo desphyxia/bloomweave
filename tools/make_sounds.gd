@@ -29,10 +29,10 @@ func _init() -> void:
 		_save(name, _pluck(PLUCK_NOTES[name], 1.6))
 	for name: String in CHIME_NOTES:
 		_save(name, _chime(CHIME_NOTES[name], 1.6))
-	_save("drone", _loop(func(n: int) -> PackedFloat32Array: return _drone(n), 8.0))
-	_save("wind", _loop(func(n: int) -> PackedFloat32Array: return _wind(n), 8.0))
-	_save("water", _loop(func(n: int) -> PackedFloat32Array: return _water(n), 8.0))
-	_save("meadow", _loop(func(n: int) -> PackedFloat32Array: return _meadow(n), 8.0))
+	_save_loop("drone", _loop(func(n: int) -> PackedFloat32Array: return _drone(n), 8.0))
+	_save_loop("wind", _loop(func(n: int) -> PackedFloat32Array: return _wind(n), 8.0))
+	_save_loop("water", _loop(func(n: int) -> PackedFloat32Array: return _water(n), 8.0))
+	_save_loop("meadow", _loop(func(n: int) -> PackedFloat32Array: return _meadow(n), 8.0))
 	for i in 4:
 		_save("bird_%d" % i, _bird(i))
 	_save("place", _place())
@@ -54,6 +54,29 @@ func _save(name: String, samples: PackedFloat32Array) -> void:
 	wav.stereo = false
 	wav.data = data
 	wav.save_to_wav(DIR + name + ".wav")
+
+
+## Saves a sound that repeats: the loop points go into the file (a "smpl"
+## chunk), where Godot's importer picks them up. Loop settings made at runtime
+## don't reach the web build.
+func _save_loop(name: String, samples: PackedFloat32Array) -> void:
+	_save(name, samples)
+	var path := DIR + name + ".wav"
+	var bytes := FileAccess.get_file_as_bytes(path)
+	var chunk := PackedByteArray()
+	chunk.resize(8 + 36 + 24)
+	chunk.encode_u32(0, 0x6c706d73)       # "smpl"
+	chunk.encode_u32(4, 36 + 24)
+	chunk.encode_u32(8 + 8, int(1e9 / RATE))  # sample period in ns
+	chunk.encode_u32(8 + 12, 60)          # unity note
+	chunk.encode_u32(8 + 28, 1)           # one loop
+	chunk.encode_u32(8 + 36 + 4, 0)       # forward
+	chunk.encode_u32(8 + 36 + 8, 0)       # loop start
+	chunk.encode_u32(8 + 36 + 12, samples.size() - 1)  # loop end (last sample)
+	bytes.append_array(chunk)
+	bytes.encode_u32(4, bytes.size() - 8)  # RIFF size
+	var f := FileAccess.open(path, FileAccess.WRITE)
+	f.store_buffer(bytes)
 
 
 ## A plucked string (Karplus-Strong): a burst of noise in a delay line that
