@@ -375,8 +375,11 @@ const CLIFF_THREAD := Color(0.24, 0.22, 0.2)
 ## The valley's landmark: a big felt Old Oak where the landmark piece's three
 ## hexes meet (its confluence, where no bloom can grow), standing over the
 ## puffy patches on a little root mound.
+const OAK_SCALE := 0.5
+
+
 func _build_landmark() -> void:
-	var at := vertex_pos(PlotGrid.confluence(game.center), SEAM_H + PUFF * 0.4)
+	var at := Vector3.ZERO   # built around the origin, then placed and scaled
 	var felt := {"fuzz": 0.35, "weave_strength": 0.0, "rough": 1.0}
 	var ball := SphereMesh.new()
 	ball.radius = 0.5
@@ -409,6 +412,8 @@ func _build_landmark() -> void:
 			Color.WHITE, textile.fabric(Color(0.6, 0.45, 0.22), felt))
 	var mi := MeshInstance3D.new()
 	mi.mesh = b.commit()
+	mi.position = vertex_pos(PlotGrid.confluence(game.center), SEAM_H + PUFF * 0.4)
+	mi.scale = Vector3.ONE * OAK_SCALE
 	_obstacles.add_child(mi)
 
 

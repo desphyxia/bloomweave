@@ -185,15 +185,11 @@ func _add_valley(patches: MeshBatch, details: MeshBatch, patch: Mesh, id: String
 	trunk.bottom_radius = 0.5
 	trunk.height = 1.0
 	trunk.radial_segments = 6
-	# A big felt oak, so it reads at map scale: a stout trunk and a
-	# three-lobed canopy rising well above the valley.
-	var green := Color(0.27, 0.46, 0.22) if open else Color(0.6, 0.62, 0.58)
-	var bark := Color(0.42, 0.29, 0.18) if open else Color(0.58, 0.56, 0.52)
-	details.add(trunk, Transform3D(Basis.from_scale(Vector3(0.22, 1.1, 0.22)), oak + Vector3(0, 0.55, 0)),
-		Color.WHITE, textile.fabric(bark, felt))
-	for lobe: Vector3 in [Vector3(0, 1.45, 0), Vector3(0.42, 1.2, 0.2), Vector3(-0.38, 1.22, -0.18), Vector3(0.05, 1.25, -0.4)]:
-		details.add(ball, Transform3D(Basis.from_scale(Vector3(1.0, 0.82, 1.0)), oak + lobe),
-			Color.WHITE, textile.fabric(green if lobe.y < 1.4 else green.lightened(0.08), felt))
+	var green := Color(0.3, 0.5, 0.26) if open else Color(0.62, 0.64, 0.6)
+	details.add(trunk, Transform3D(Basis.from_scale(Vector3(0.1, 0.5, 0.1)), oak + Vector3(0, 0.25, 0)),
+		Color.WHITE, textile.fabric(Color(0.45, 0.32, 0.2), felt))
+	details.add(ball, Transform3D(Basis.from_scale(Vector3(0.75, 0.6, 0.75)), oak + Vector3(0, 0.7, 0)),
+		Color.WHITE, textile.fabric(green, felt))
 	# The next valley to restore gets a pink stitched ring.
 	if open and not progress.stars(id).get("restored", false):
 		var segs: Array = []

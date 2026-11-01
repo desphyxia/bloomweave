@@ -212,8 +212,8 @@ blooms now while keeping corridor routes and future corners open.
   progress) with felt trees on forest; open ones are pale cloth; locked
   ones misty grey and labelled "locked". The next valley to restore has a
   pink stitched ring; each valley has its name and three big gold stars
-  (pale when not yet earned) floating above its far edge, and a big felt
-  Old Oak at its landmark, sized to read at map scale. Past the last valley a felt **star gate** with a
+  (pale when not yet earned) floating above its far edge, and a small felt
+  Old Oak at its landmark. Past the last valley a felt **star gate** with a
   sign ("★ n / 12 to open"), then mist and a "?" for the region beyond.
   **Camera:** the game's soft tilt, fixed angle and zoom, no rotation; it
   starts at the next valley to restore; drag to pan along the region (it
@@ -334,8 +334,8 @@ blooms now while keeping corridor routes and future corners open.
   from a fixed **landmark piece** in its centre: three different biomes from
   that valley, with a landmark at its confluence (an old tree, a spring). It
   follows the normal rules but is the valley's heart. On the board the
-  Old Oak is a big felt oak standing where the landmark piece's three
-  hexes meet (its confluence, where no bloom grows). **One landmark per
+  Old Oak is a felt oak (a little taller than the forest trees) standing
+  where the landmark piece's three hexes meet (its confluence, where no bloom grows). **One landmark per
   region** (e.g. Old Oak, Spring, Standing Stone, Mill), with small
   variations between its levels, gives each region its identity.
 - **Same-biome trios may bloom, selectively.** Some trios with repeated
